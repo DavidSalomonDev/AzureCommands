@@ -1,0 +1,30 @@
+---
+title: Subir un archivo a Blob Storage
+description: Sube un archivo local a un contenedor de blobs.
+shell: azurecli
+category: Almacenamiento
+tags: [storage, blob, subir]
+template: "az storage blob upload --account-name <storageAccountName> --container-name <containerName> --name <blobName> --file <filePath> --auth-mode login"
+parameters:
+  - name: storageAccountName
+    label: Cuenta de almacenamiento
+    type: string
+    required: true
+    placeholder: miappstorage01
+  - name: containerName
+    label: Contenedor
+    type: string
+    required: true
+    placeholder: datos
+  - name: blobName
+    label: Nombre del blob (destino)
+    type: string
+    required: true
+    placeholder: backup.zip
+  - name: filePath
+    label: Ruta del archivo local
+    type: string
+    required: true
+    placeholder: ./backup.zip
+---
+Añade `--overwrite` para reemplazar un blob existente.

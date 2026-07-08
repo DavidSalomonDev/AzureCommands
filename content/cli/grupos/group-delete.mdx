@@ -1,0 +1,15 @@
+---
+title: Eliminar un grupo de recursos
+description: Elimina el grupo de recursos y todo su contenido, sin esperar a que termine.
+shell: azurecli
+category: Grupos de recursos
+tags: [resource-group, eliminar, destructivo]
+template: "az group delete --name <resourceGroup> --yes --no-wait"
+parameters:
+  - name: resourceGroup
+    label: Nombre del grupo
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+⚠️ **Acción destructiva.** Elimina TODOS los recursos contenidos en el grupo. Revisa dos veces el nombre. Quita `--no-wait` si prefieres esperar a que termine.

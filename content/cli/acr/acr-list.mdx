@@ -1,0 +1,22 @@
+---
+title: Listar Container Registries
+description: Muestra los Azure Container Registry de un grupo de recursos.
+shell: azurecli
+category: Container Registry
+tags: [acr, registry, contenedores, listar, get]
+template: "az acr list --resource-group <resourceGroup> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Para listar las imágenes de un registro: `az acr repository list --name <registro> --output table`.

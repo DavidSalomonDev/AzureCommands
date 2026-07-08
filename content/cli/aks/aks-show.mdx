@@ -1,0 +1,27 @@
+---
+title: Ver detalles de un clúster AKS
+description: Obtiene la configuración de un clúster de Azure Kubernetes Service.
+shell: azurecli
+category: AKS
+tags: [aks, kubernetes, show, detalle, get]
+template: "az aks show --resource-group <resourceGroup> --name <clusterName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: clusterName
+    label: Nombre del clúster
+    type: string
+    required: true
+    placeholder: mi-aks
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Para consultar solo la versión de Kubernetes: `--query kubernetesVersion --output tsv`. Lista todos los clústeres con `az aks list --output table`.

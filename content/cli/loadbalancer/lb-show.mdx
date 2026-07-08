@@ -1,0 +1,27 @@
+---
+title: Ver detalles de un Load Balancer
+description: Obtiene la configuración completa de un balanceador de carga.
+shell: azurecli
+category: Load Balancer
+tags: [load-balancer, lb, show, detalle, get]
+template: "az network lb show --resource-group <resourceGroup> --name <lbName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: lbName
+    label: Nombre del balanceador
+    type: string
+    required: true
+    placeholder: mi-lb
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Filtra las reglas o el backend pool con `--query`, por ejemplo `--query "loadBalancingRules[].name"`.

@@ -1,0 +1,21 @@
+---
+title: Ver Application Gateways
+description: Obtiene uno o todos los Application Gateway de un grupo de recursos.
+shell: powershell
+category: Application Gateway
+tags: [application-gateway, appgw, get, listar, consulta]
+template: "Get-AzApplicationGateway -ResourceGroupName <resourceGroup> -Name <gatewayName>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre del gateway
+    type: string
+    required: false
+    placeholder: mi-appgw
+---
+
+Omite `-Name` para listar todos los gateways del grupo. Para revisar la salud del backend: `Get-AzApplicationGatewayBackendHealth -ResourceGroupName <rg> -Name <appgw>`.

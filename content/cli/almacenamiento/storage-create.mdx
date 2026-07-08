@@ -1,0 +1,32 @@
+---
+title: Crear una cuenta de almacenamiento
+description: Crea una storage account con el SKU de redundancia indicado.
+shell: azurecli
+category: Almacenamiento
+tags: [storage, crear]
+template: "az storage account create --name <storageAccountName> --resource-group <resourceGroup> --location <location> --sku <sku> --kind StorageV2"
+parameters:
+  - name: storageAccountName
+    label: Nombre de la cuenta
+    type: string
+    required: true
+    placeholder: miappstorage01
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: eastus
+    options: [eastus, eastus2, westus2, westeurope, northeurope, brazilsouth]
+  - name: sku
+    label: SKU de redundancia
+    type: enum
+    required: true
+    default: Standard_LRS
+    options: [Standard_LRS, Standard_GRS, Standard_ZRS, Standard_GZRS, Premium_LRS]
+---
+El nombre debe ser **globalmente único**, de 3 a 24 caracteres, solo minúsculas y números.

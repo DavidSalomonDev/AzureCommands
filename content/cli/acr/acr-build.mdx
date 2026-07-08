@@ -1,0 +1,30 @@
+---
+title: Construir una imagen en ACR
+description: Compila y sube una imagen Docker usando ACR Tasks (sin Docker local).
+shell: azurecli
+category: Container Registry
+tags: [acr, docker, build, imagen]
+template: "az acr build --registry <registryName> --image <imageName>:<tag> <contextPath>"
+parameters:
+  - name: registryName
+    label: Nombre del registro
+    type: string
+    required: true
+    placeholder: miregistro01
+  - name: imageName
+    label: Nombre de la imagen
+    type: string
+    required: true
+    placeholder: mi-app
+  - name: tag
+    label: Etiqueta
+    type: string
+    required: false
+    default: latest
+  - name: contextPath
+    label: Contexto de build
+    type: string
+    required: false
+    default: .
+---
+Construye en la nube usando el Dockerfile del contexto; no necesitas Docker instalado localmente.

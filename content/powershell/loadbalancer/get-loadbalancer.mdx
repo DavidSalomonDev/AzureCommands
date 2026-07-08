@@ -1,0 +1,21 @@
+---
+title: Ver Load Balancers
+description: Obtiene uno o todos los balanceadores de carga de un grupo de recursos.
+shell: powershell
+category: Load Balancer
+tags: [load-balancer, lb, get, listar, consulta]
+template: "Get-AzLoadBalancer -ResourceGroupName <resourceGroup> -Name <lbName> | Format-Table Name, Location, Sku"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: lbName
+    label: Nombre del balanceador
+    type: string
+    required: false
+    placeholder: mi-lb
+---
+
+Omite `-Name` para listar todos los balanceadores del grupo. Accede a las reglas con `(Get-AzLoadBalancer -Name <lb> -ResourceGroupName <rg>).LoadBalancingRules`.

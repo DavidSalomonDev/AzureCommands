@@ -1,0 +1,26 @@
+---
+title: Asignar un rol RBAC
+description: Concede a un usuario o entidad un rol sobre un ámbito determinado.
+shell: azurecli
+category: Roles y RBAC
+tags: [rbac, roles, permisos, seguridad]
+template: "az role assignment create --assignee <assignee> --role <role> --scope <scope>"
+parameters:
+  - name: assignee
+    label: Asignatario (email, appId u objectId)
+    type: string
+    required: true
+    placeholder: usuario@dominio.com
+  - name: role
+    label: Rol
+    type: enum
+    required: true
+    default: Reader
+    options: [Reader, Contributor, Owner, "Storage Blob Data Contributor", "Key Vault Secrets User"]
+  - name: scope
+    label: Ámbito (scope)
+    type: string
+    required: true
+    placeholder: /subscriptions/xxxx/resourceGroups/mi-grupo
+---
+El **ámbito** define hasta dónde aplica el rol: suscripción, grupo de recursos o un recurso concreto.

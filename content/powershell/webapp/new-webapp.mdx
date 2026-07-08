@@ -1,0 +1,31 @@
+---
+title: Crear una Web App
+description: Crea una aplicación web en un plan de App Service existente.
+shell: powershell
+category: App Service
+tags: [webapp, appservice, crear]
+template: "New-AzWebApp -ResourceGroupName <resourceGroup> -Name <appName> -Location <location> -AppServicePlan <appServicePlan>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: appName
+    label: Nombre de la app
+    type: string
+    required: true
+    placeholder: mi-webapp-01
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: East US
+    options: [East US, West US 2, West Europe, North Europe, Brazil South]
+  - name: appServicePlan
+    label: Plan de App Service
+    type: string
+    required: true
+    placeholder: mi-plan
+---
+El nombre forma parte de la URL pública (`<appName>.azurewebsites.net`), debe ser único.

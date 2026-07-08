@@ -1,0 +1,60 @@
+---
+title: Crear un Application Gateway
+description: Crea un balanceador de capa 7 (HTTP/HTTPS) con WAF opcional.
+shell: azurecli
+category: Application Gateway
+tags: [application-gateway, appgw, red, balanceo, crear]
+template: "az network application-gateway create --resource-group <resourceGroup> --name <gatewayName> --location <location> --sku <sku> --capacity <capacity> --vnet-name <vnetName> --subnet <subnetName> --public-ip-address <publicIpName> --priority <priority>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre del gateway
+    type: string
+    required: true
+    placeholder: mi-appgw
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: eastus
+    options: [eastus, westus2, westeurope, northeurope, brazilsouth]
+  - name: sku
+    label: SKU
+    type: enum
+    required: false
+    default: Standard_v2
+    options: [Standard_v2, WAF_v2, Standard_Small, Standard_Medium]
+  - name: capacity
+    label: Número de instancias
+    type: number
+    required: false
+    default: "2"
+    placeholder: "2"
+  - name: vnetName
+    label: Red virtual
+    type: string
+    required: true
+    placeholder: mi-vnet
+  - name: subnetName
+    label: Subred dedicada
+    type: string
+    required: true
+    placeholder: appgw-subnet
+  - name: publicIpName
+    label: IP pública
+    type: string
+    required: true
+    placeholder: mi-appgw-ip
+  - name: priority
+    label: Prioridad de la regla
+    type: number
+    required: false
+    default: "100"
+    placeholder: "100"
+---
+
+El Application Gateway necesita su **propia subred** (no compartida con otros recursos). Usa el SKU `WAF_v2` para habilitar el firewall de aplicaciones web. El aprovisionamiento tarda varios minutos.

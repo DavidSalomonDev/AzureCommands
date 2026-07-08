@@ -1,0 +1,26 @@
+---
+title: Ver detalles de una VM
+description: Consulta la información detallada de una máquina virtual.
+shell: azurecli
+category: Máquinas virtuales
+tags: [vm, consulta]
+template: "az vm show --resource-group <resourceGroup> --name <vmName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, yaml]
+---
+Añade `--show-details` para incluir IP pública, FQDN y estado de energía en una sola llamada.

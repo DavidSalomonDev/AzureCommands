@@ -1,0 +1,31 @@
+---
+title: Crear una Web App
+description: Crea una aplicación web en un plan de App Service existente.
+shell: azurecli
+category: App Service
+tags: [webapp, appservice, crear]
+template: "az webapp create --resource-group <resourceGroup> --plan <appServicePlan> --name <appName> --runtime <runtime>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: appServicePlan
+    label: Plan de App Service
+    type: string
+    required: true
+    placeholder: mi-plan
+  - name: appName
+    label: Nombre de la app
+    type: string
+    required: true
+    placeholder: mi-webapp-01
+  - name: runtime
+    label: Runtime
+    type: enum
+    required: false
+    default: "NODE:20-lts"
+    options: ["NODE:20-lts", "PYTHON:3.12", "DOTNETCORE:8.0", "PHP:8.3", "JAVA:21-java21"]
+---
+El nombre de la app forma parte de la URL pública (`<appName>.azurewebsites.net`), así que debe ser único. Lista runtimes con `az webapp list-runtimes`.

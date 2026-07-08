@@ -1,0 +1,22 @@
+---
+title: Listar redes virtuales
+description: Muestra las VNets de un grupo de recursos.
+shell: azurecli
+category: Redes
+tags: [red, vnet, listar, consulta, get]
+template: "az network vnet list --resource-group <resourceGroup> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Omite `--resource-group` para listar todas las VNets de la suscripción.

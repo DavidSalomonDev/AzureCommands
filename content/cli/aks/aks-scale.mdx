@@ -1,0 +1,24 @@
+---
+title: Escalar un clúster AKS
+description: Cambia el número de nodos del grupo de nodos por defecto.
+shell: azurecli
+category: AKS
+tags: [aks, kubernetes, escalar]
+template: "az aks scale --resource-group <resourceGroup> --name <clusterName> --node-count <nodeCount>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: clusterName
+    label: Nombre del clúster
+    type: string
+    required: true
+    placeholder: mi-cluster-aks
+  - name: nodeCount
+    label: Número de nodos
+    type: string
+    required: true
+    placeholder: "3"
+---

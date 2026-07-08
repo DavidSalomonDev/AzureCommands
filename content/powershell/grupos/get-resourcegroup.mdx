@@ -1,0 +1,10 @@
+---
+title: Listar grupos de recursos
+description: Muestra los grupos de recursos de la suscripción activa.
+shell: powershell
+category: Grupos de recursos
+tags: [resource-group, listar]
+template: "Get-AzResourceGroup | Format-Table ResourceGroupName, Location, ProvisioningState"
+parameters: []
+---
+Filtra por nombre con `Get-AzResourceGroup -Name <nombre>`.

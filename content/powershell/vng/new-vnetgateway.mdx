@@ -1,0 +1,39 @@
+---
+title: Crear una puerta de enlace de red virtual
+description: Crea un Virtual Network Gateway VPN a partir de la configuración de IP de la GatewaySubnet.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, red, crear]
+template: "New-AzVirtualNetworkGateway -ResourceGroupName <resourceGroup> -Name <gatewayName> -Location <location> -IpConfigurations $gwipconfig -GatewayType Vpn -VpnType <vpnType> -GatewaySku <sku>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: East US
+    options: [East US, West US 2, West Europe, North Europe, Brazil South]
+  - name: vpnType
+    label: Tipo de VPN
+    type: enum
+    required: false
+    default: RouteBased
+    options: [RouteBased, PolicyBased]
+  - name: sku
+    label: SKU
+    type: enum
+    required: false
+    default: VpnGw1
+    options: [VpnGw1, VpnGw2, VpnGw3, Basic]
+---
+
+Antes debes construir `$gwipconfig` con `New-AzVirtualNetworkGatewayIpConfig` apuntando a la subred `GatewaySubnet` y a una IP pública. El aprovisionamiento tarda 20-45 minutos.

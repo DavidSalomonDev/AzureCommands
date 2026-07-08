@@ -1,0 +1,32 @@
+---
+title: Habilitar respaldo de una VM
+description: Protege una máquina virtual con una directiva de copia de seguridad del almacén.
+shell: azurecli
+category: Recovery Services Vault
+tags: [backup, recovery, vm, proteger]
+template: "az backup protection enable-for-vm --resource-group <resourceGroup> --vault-name <vaultName> --vm <vmName> --policy-name <policyName>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vaultName
+    label: Nombre del almacén
+    type: string
+    required: true
+    placeholder: mi-vault-backup
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+  - name: policyName
+    label: Directiva de respaldo
+    type: string
+    required: false
+    default: DefaultPolicy
+    placeholder: DefaultPolicy
+---
+
+`DefaultPolicy` es la directiva integrada (respaldo diario, retención de 30 días). La VM debe estar en el mismo grupo de recursos o especifícala por su ID de recurso completo.

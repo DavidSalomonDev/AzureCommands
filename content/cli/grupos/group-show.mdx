@@ -1,0 +1,22 @@
+---
+title: Ver detalles de un grupo de recursos
+description: Obtiene la información de un grupo de recursos concreto.
+shell: azurecli
+category: Grupos de recursos
+tags: [grupo, resource-group, show, detalle, get]
+template: "az group show --name <resourceGroup> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Para comprobar solo si existe: `az group exists --name <grupo>` devuelve `true` o `false`.

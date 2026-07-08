@@ -1,0 +1,31 @@
+---
+title: Crear un clúster AKS
+description: Crea un clúster de Kubernetes administrado con identidad gestionada.
+shell: azurecli
+category: AKS
+tags: [aks, kubernetes, crear]
+template: "az aks create --resource-group <resourceGroup> --name <clusterName> --node-count <nodeCount> --node-vm-size <nodeSize> --enable-managed-identity --generate-ssh-keys"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: clusterName
+    label: Nombre del clúster
+    type: string
+    required: true
+    placeholder: mi-cluster-aks
+  - name: nodeCount
+    label: Número de nodos
+    type: string
+    required: false
+    default: "2"
+  - name: nodeSize
+    label: Tamaño de nodo
+    type: enum
+    required: false
+    default: Standard_DS2_v2
+    options: [Standard_B2s, Standard_DS2_v2, Standard_D4s_v5]
+---
+Tras crear, obtén las credenciales con `az aks get-credentials`. Añade `--enable-cluster-autoscaler --min-count 1 --max-count 5` para autoescalado.

@@ -1,0 +1,20 @@
+---
+title: Obtener detalles de una VM
+description: Consulta la información detallada de una máquina virtual.
+shell: powershell
+category: Máquinas virtuales
+tags: [vm, consulta]
+template: "Get-AzVM -ResourceGroupName <resourceGroup> -Name <vmName>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+---
+Añade `-Status` para ver el estado de energía. Omite `-Name` para listar todas las VMs del grupo.

@@ -1,0 +1,32 @@
+---
+title: Crear una cuenta de almacenamiento
+description: Crea una storage account con el SKU de redundancia indicado.
+shell: powershell
+category: Almacenamiento
+tags: [storage, crear]
+template: "New-AzStorageAccount -ResourceGroupName <resourceGroup> -Name <storageAccountName> -Location <location> -SkuName <sku> -Kind StorageV2"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: storageAccountName
+    label: Nombre de la cuenta
+    type: string
+    required: true
+    placeholder: miappstorage01
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: East US
+    options: [East US, West US 2, West Europe, North Europe, Brazil South]
+  - name: sku
+    label: SKU de redundancia
+    type: enum
+    required: true
+    default: Standard_LRS
+    options: [Standard_LRS, Standard_GRS, Standard_ZRS, Premium_LRS]
+---
+El nombre debe ser **globalmente único**, 3–24 caracteres, solo minúsculas y números.

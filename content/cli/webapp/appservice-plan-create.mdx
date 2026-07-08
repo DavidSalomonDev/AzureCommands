@@ -1,0 +1,26 @@
+---
+title: Crear un plan de App Service
+description: Crea el plan de hosting (SKU) donde correrán tus Web Apps.
+shell: azurecli
+category: App Service
+tags: [appservice, plan, crear]
+template: "az appservice plan create --resource-group <resourceGroup> --name <planName> --sku <sku> --is-linux"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: planName
+    label: Nombre del plan
+    type: string
+    required: true
+    placeholder: mi-plan
+  - name: sku
+    label: SKU
+    type: enum
+    required: false
+    default: B1
+    options: [F1, B1, B2, S1, P1v3, P2v3]
+---
+Quita `--is-linux` para planes Windows. `F1` es gratuito pero con límites; `B1` es el más barato para producción básica.

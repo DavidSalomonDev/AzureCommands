@@ -1,0 +1,20 @@
+---
+title: Crear un contenedor de blobs
+description: Crea un contenedor dentro de una cuenta de almacenamiento.
+shell: azurecli
+category: Almacenamiento
+tags: [storage, blob, contenedor, crear]
+template: "az storage container create --name <containerName> --account-name <storageAccountName> --auth-mode login"
+parameters:
+  - name: containerName
+    label: Nombre del contenedor
+    type: string
+    required: true
+    placeholder: datos
+  - name: storageAccountName
+    label: Cuenta de almacenamiento
+    type: string
+    required: true
+    placeholder: miappstorage01
+---
+`--auth-mode login` usa tu identidad de Azure AD (recomendado) en vez de la clave de la cuenta.

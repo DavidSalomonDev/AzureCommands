@@ -1,0 +1,30 @@
+---
+title: Abrir un puerto en una VM
+description: Crea una regla de red para permitir tráfico entrante a un puerto.
+shell: azurecli
+category: Máquinas virtuales
+tags: [vm, red, puerto, nsg]
+template: "az vm open-port --resource-group <resourceGroup> --name <vmName> --port <port> --priority <priority>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+  - name: port
+    label: Puerto
+    type: string
+    required: true
+    placeholder: "443"
+  - name: priority
+    label: Prioridad de la regla
+    type: string
+    required: false
+    default: "900"
+---
+La **prioridad** debe ser única en el NSG (100–4096, menor = mayor precedencia). Usa `--port '80,443'` para abrir varios.

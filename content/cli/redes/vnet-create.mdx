@@ -1,0 +1,34 @@
+---
+title: Crear una red virtual
+description: Crea una VNet con una subred inicial.
+shell: azurecli
+category: Redes
+tags: [red, vnet, crear]
+template: "az network vnet create --resource-group <resourceGroup> --name <vnetName> --address-prefix <addressPrefix> --subnet-name <subnetName> --subnet-prefix <subnetPrefix>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vnetName
+    label: Nombre de la VNet
+    type: string
+    required: true
+    placeholder: mi-vnet
+  - name: addressPrefix
+    label: Espacio de direcciones
+    type: string
+    required: false
+    default: 10.0.0.0/16
+  - name: subnetName
+    label: Nombre de la subred
+    type: string
+    required: false
+    default: default
+  - name: subnetPrefix
+    label: Prefijo de la subred
+    type: string
+    required: false
+    default: 10.0.0.0/24
+---

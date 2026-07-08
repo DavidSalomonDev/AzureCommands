@@ -1,0 +1,22 @@
+---
+title: Listar máquinas virtuales
+description: Muestra todas las VMs de un grupo de recursos.
+shell: azurecli
+category: Máquinas virtuales
+tags: [vm, listar, consulta]
+template: "az vm list --resource-group <resourceGroup> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Usa `--query` para filtrar campos específicos, por ejemplo `--query "[].{Nombre:name, Estado:powerState}"`.

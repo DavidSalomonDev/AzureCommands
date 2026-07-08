@@ -1,0 +1,22 @@
+---
+title: Ver detalles de un Key Vault
+description: Obtiene la configuración y propiedades de un Key Vault.
+shell: azurecli
+category: Key Vault
+tags: [keyvault, secretos, show, detalle, get]
+template: "az keyvault show --name <vaultName> --output <output>"
+parameters:
+  - name: vaultName
+    label: Nombre del Key Vault
+    type: string
+    required: true
+    placeholder: mi-keyvault
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Para listar todos los Key Vault de la suscripción: `az keyvault list --output table`. Los secretos se listan aparte con `az keyvault secret list --vault-name <vault>`.

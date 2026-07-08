@@ -1,0 +1,26 @@
+---
+title: Crear un Azure Container Registry
+description: Crea un registro privado de imágenes de contenedor.
+shell: azurecli
+category: Container Registry
+tags: [acr, contenedores, registry, crear]
+template: "az acr create --resource-group <resourceGroup> --name <registryName> --sku <sku>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: registryName
+    label: Nombre del registro
+    type: string
+    required: true
+    placeholder: miregistro01
+  - name: sku
+    label: SKU
+    type: enum
+    required: false
+    default: Basic
+    options: [Basic, Standard, Premium]
+---
+El nombre debe ser **globalmente único** (solo alfanumérico). El login server será `<registryName>.azurecr.io`.

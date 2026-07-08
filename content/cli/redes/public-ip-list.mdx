@@ -1,0 +1,22 @@
+---
+title: Listar IPs públicas
+description: Muestra las direcciones IP públicas de un grupo de recursos.
+shell: azurecli
+category: Redes
+tags: [red, ip, publica, listar, get]
+template: "az network public-ip list --resource-group <resourceGroup> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Para ver solo la dirección asignada: `--query "[].{Nombre:name, IP:ipAddress}"`.

@@ -1,0 +1,32 @@
+---
+title: Crear una IP pública
+description: Reserva una dirección IP pública estática o dinámica.
+shell: azurecli
+category: Redes
+tags: [red, ip, crear]
+template: "az network public-ip create --resource-group <resourceGroup> --name <publicIpName> --sku <sku> --allocation-method <allocation>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: publicIpName
+    label: Nombre de la IP pública
+    type: string
+    required: true
+    placeholder: mi-ip
+  - name: sku
+    label: SKU
+    type: enum
+    required: false
+    default: Standard
+    options: [Standard, Basic]
+  - name: allocation
+    label: Método de asignación
+    type: enum
+    required: false
+    default: Static
+    options: [Static, Dynamic]
+---
+El SKU **Standard** siempre es estático y es el recomendado para producción.

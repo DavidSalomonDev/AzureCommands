@@ -1,0 +1,27 @@
+---
+title: Ver las claves de acceso de una cuenta
+description: Obtiene las claves de acceso de una cuenta de almacenamiento.
+shell: azurecli
+category: Almacenamiento
+tags: [storage, cuenta, claves, keys]
+template: "az storage account keys list --account-name <storageAccountName> --resource-group <resourceGroup> --output <output>"
+parameters:
+  - name: storageAccountName
+    label: Nombre de la cuenta
+    type: string
+    required: true
+    placeholder: micuentastorage
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Para extraer solo la primera clave: agrega `--query "[0].value" --output tsv`. Considera usar identidades administradas o `--auth-mode login` en vez de claves cuando sea posible.

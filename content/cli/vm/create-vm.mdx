@@ -1,0 +1,37 @@
+---
+title: Crear una máquina virtual
+description: Crea una VM Linux nueva con claves SSH generadas automáticamente.
+shell: azurecli
+category: Máquinas virtuales
+tags: [vm, crear]
+template: "az vm create --resource-group <resourceGroup> --name <vmName> --image <image> --size <size> --admin-username <adminUsername> --generate-ssh-keys"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+  - name: image
+    label: Imagen
+    type: enum
+    required: true
+    default: Ubuntu2204
+    options: [Ubuntu2204, Ubuntu2404, Debian11, RHELRaw8LVM, Win2022Datacenter]
+  - name: size
+    label: Tamaño (SKU)
+    type: enum
+    required: false
+    default: Standard_B2s
+    options: [Standard_B1s, Standard_B2s, Standard_D2s_v5, Standard_D4s_v5]
+  - name: adminUsername
+    label: Usuario administrador
+    type: string
+    required: true
+    placeholder: azureuser
+---
+Para VMs Windows sustituye `--generate-ssh-keys` por `--admin-password <password>`. Consulta tamaños disponibles con `az vm list-sizes --location <region>`.

@@ -1,0 +1,20 @@
+---
+title: Crear un grupo de recursos
+description: Crea un nuevo grupo de recursos en la región indicada.
+shell: azurecli
+category: Grupos de recursos
+tags: [resource-group, crear]
+template: "az group create --name <resourceGroup> --location <location>"
+parameters:
+  - name: resourceGroup
+    label: Nombre del grupo
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: eastus
+    options: [eastus, eastus2, westus2, westus3, centralus, westeurope, northeurope, brazilsouth, uksouth]
+---

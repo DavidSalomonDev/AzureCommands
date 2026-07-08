@@ -1,0 +1,22 @@
+---
+title: Listar Application Gateways
+description: Muestra los Application Gateway de un grupo de recursos.
+shell: azurecli
+category: Application Gateway
+tags: [application-gateway, appgw, listar, consulta, get]
+template: "az network application-gateway list --resource-group <resourceGroup> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Omite `--resource-group` para listar todos los gateways de la suscripción.

@@ -1,0 +1,21 @@
+---
+title: Obtener la cadena de conexión
+description: Devuelve la connection string de una cuenta de almacenamiento.
+shell: azurecli
+category: Almacenamiento
+tags: [storage, cuenta, connection-string]
+template: "az storage account show-connection-string --name <storageAccountName> --resource-group <resourceGroup> --output tsv"
+parameters:
+  - name: storageAccountName
+    label: Nombre de la cuenta
+    type: string
+    required: true
+    placeholder: micuentastorage
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Útil para configurar variables de entorno (`AZURE_STORAGE_CONNECTION_STRING`) en apps y pipelines.

@@ -1,0 +1,20 @@
+---
+title: Detener y desasignar una VM
+description: Detiene la VM y libera el cómputo para dejar de facturar.
+shell: powershell
+category: Máquinas virtuales
+tags: [vm, stop, deallocate, ahorro]
+template: "Stop-AzVM -ResourceGroupName <resourceGroup> -Name <vmName> -Force"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+---
+`Stop-AzVM` desasigna por defecto (libera cómputo). Usa `-StayProvisioned` si quieres apagar sin desasignar. `-Force` evita la confirmación.

@@ -1,0 +1,27 @@
+---
+title: Listar recursos (cualquier tipo)
+description: Lista todos los recursos de un grupo, opcionalmente filtrando por tipo.
+shell: azurecli
+category: Recursos generales
+tags: [recurso, resource, listar, inventario, get]
+template: "az resource list --resource-group <resourceGroup> --resource-type <resourceType> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: resourceType
+    label: Tipo de recurso (opcional)
+    type: string
+    required: false
+    placeholder: Microsoft.Compute/virtualMachines
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Omite `--resource-type` para ver todos los recursos. También puedes filtrar por etiqueta con `--tag entorno=produccion`. Útil para inventariar rápido lo que hay en un grupo.

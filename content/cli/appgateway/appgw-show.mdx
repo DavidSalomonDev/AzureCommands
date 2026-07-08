@@ -1,0 +1,27 @@
+---
+title: Ver detalles de un Application Gateway
+description: Obtiene la configuración completa de un Application Gateway.
+shell: azurecli
+category: Application Gateway
+tags: [application-gateway, appgw, show, detalle, get]
+template: "az network application-gateway show --resource-group <resourceGroup> --name <gatewayName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre del gateway
+    type: string
+    required: true
+    placeholder: mi-appgw
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Para ver solo el estado operativo y de salud usa `az network application-gateway show-backend-health --resource-group <rg> --name <appgw>`.

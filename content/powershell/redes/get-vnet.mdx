@@ -1,0 +1,21 @@
+---
+title: Ver redes virtuales
+description: Obtiene una o todas las VNets de un grupo de recursos.
+shell: powershell
+category: Redes
+tags: [red, vnet, get, listar, consulta]
+template: "Get-AzVirtualNetwork -ResourceGroupName <resourceGroup> -Name <vnetName> | Format-Table Name, Location, @{n='Prefijos';e={$_.AddressSpace.AddressPrefixes}}"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vnetName
+    label: Red virtual
+    type: string
+    required: false
+    placeholder: mi-vnet
+---
+
+Omite `-Name` para listar todas las VNets del grupo. Accede a las subredes con `(Get-AzVirtualNetwork -Name <vnet> -ResourceGroupName <rg>).Subnets`.

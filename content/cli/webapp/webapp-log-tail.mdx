@@ -1,0 +1,20 @@
+---
+title: Ver logs en vivo de una Web App
+description: Transmite en streaming los logs de la aplicación en la terminal.
+shell: azurecli
+category: App Service
+tags: [webapp, logs, diagnóstico]
+template: "az webapp log tail --resource-group <resourceGroup> --name <appName>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: appName
+    label: Nombre de la app
+    type: string
+    required: true
+    placeholder: mi-webapp-01
+---
+Requiere haber activado el logging: `az webapp log config --application-logging filesystem`.

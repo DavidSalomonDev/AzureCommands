@@ -1,0 +1,50 @@
+---
+title: Crear un Load Balancer
+description: Crea un balanceador de carga de capa 4 (TCP/UDP) con IP pública.
+shell: azurecli
+category: Load Balancer
+tags: [load-balancer, lb, red, balanceo, crear]
+template: "az network lb create --resource-group <resourceGroup> --name <lbName> --location <location> --sku <sku> --public-ip-address <publicIpName> --frontend-ip-name <frontendName> --backend-pool-name <backendPoolName>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: lbName
+    label: Nombre del balanceador
+    type: string
+    required: true
+    placeholder: mi-lb
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: eastus
+    options: [eastus, westus2, westeurope, northeurope, brazilsouth]
+  - name: sku
+    label: SKU
+    type: enum
+    required: false
+    default: Standard
+    options: [Standard, Basic, Gateway]
+  - name: publicIpName
+    label: IP pública
+    type: string
+    required: true
+    placeholder: mi-lb-ip
+  - name: frontendName
+    label: Nombre del frontend
+    type: string
+    required: false
+    default: frontend
+    placeholder: frontend
+  - name: backendPoolName
+    label: Nombre del backend pool
+    type: string
+    required: false
+    default: backendpool
+    placeholder: backendpool
+---
+
+Para un balanceador **interno** (sin IP pública) usa `--vnet-name` y `--subnet` en lugar de `--public-ip-address`. Después define reglas con `az network lb rule create` y sondeos con `az network lb probe create`.

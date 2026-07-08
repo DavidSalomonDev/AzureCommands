@@ -1,0 +1,33 @@
+---
+title: Reforzar la seguridad de una cuenta
+description: Exige HTTPS y una versión mínima de TLS en la cuenta de almacenamiento.
+shell: azurecli
+category: Almacenamiento
+tags: [storage, cuenta, seguridad, https, tls]
+template: "az storage account update --name <storageAccountName> --resource-group <resourceGroup> --https-only <httpsOnly> --min-tls-version <minTls>"
+parameters:
+  - name: storageAccountName
+    label: Nombre de la cuenta
+    type: string
+    required: true
+    placeholder: micuentastorage
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: httpsOnly
+    label: Solo HTTPS
+    type: enum
+    required: false
+    default: "true"
+    options: ["true", "false"]
+  - name: minTls
+    label: Versión mínima de TLS
+    type: enum
+    required: false
+    default: TLS1_2
+    options: [TLS1_2, TLS1_1, TLS1_0]
+---
+
+`TLS1_2` es la recomendación de seguridad actual. Puedes verificar la configuración con `az storage account show --name <cuenta> --query "{https:enableHttpsTrafficOnly, tls:minimumTlsVersion}"`.

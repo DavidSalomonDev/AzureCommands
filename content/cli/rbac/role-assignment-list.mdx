@@ -1,0 +1,21 @@
+---
+title: Listar asignaciones de rol
+description: Muestra los roles asignados en un ámbito o para un asignatario.
+shell: azurecli
+category: Roles y RBAC
+tags: [rbac, roles, listar, auditoría]
+template: "az role assignment list --scope <scope> --output <output>"
+parameters:
+  - name: scope
+    label: Ámbito (scope)
+    type: string
+    required: false
+    placeholder: /subscriptions/xxxx/resourceGroups/mi-grupo
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv]
+---
+Usa `--assignee <email>` para ver todo lo asignado a una persona, o `--all` para toda la suscripción.

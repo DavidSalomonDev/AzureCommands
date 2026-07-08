@@ -1,0 +1,27 @@
+---
+title: Crear un almacén de Recovery Services
+description: Crea un Recovery Services Vault para Azure Backup y Site Recovery.
+shell: powershell
+category: Recovery Services Vault
+tags: [backup, recovery, vault, crear]
+template: "New-AzRecoveryServicesVault -ResourceGroupName <resourceGroup> -Name <vaultName> -Location <location>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vaultName
+    label: Nombre del almacén
+    type: string
+    required: true
+    placeholder: mi-vault-backup
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: East US
+    options: [East US, West US 2, West Europe, North Europe, Brazil South]
+---
+
+Tras crearlo, fija el contexto del almacén con `Set-AzRecoveryServicesVaultContext -Vault (Get-AzRecoveryServicesVault -Name <vault>)` antes de operar sobre copias de seguridad.

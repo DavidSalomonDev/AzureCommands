@@ -1,0 +1,21 @@
+---
+title: Ver grupos de seguridad de red
+description: Obtiene los Network Security Groups (NSG) de un grupo de recursos.
+shell: powershell
+category: Redes
+tags: [red, nsg, seguridad, get, listar]
+template: "Get-AzNetworkSecurityGroup -ResourceGroupName <resourceGroup> -Name <nsgName> | Format-Table Name, Location"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: nsgName
+    label: Nombre del NSG
+    type: string
+    required: false
+    placeholder: mi-nsg
+---
+
+Omite `-Name` para listar todos los NSG del grupo. Revisa las reglas con `(Get-AzNetworkSecurityGroup -Name <nsg> -ResourceGroupName <rg>).SecurityRules`.

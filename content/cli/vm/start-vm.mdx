@@ -1,0 +1,19 @@
+---
+title: Iniciar una máquina virtual
+description: Enciende una VM detenida.
+shell: azurecli
+category: Máquinas virtuales
+tags: [vm, start, encender]
+template: "az vm start --resource-group <resourceGroup> --name <vmName>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+---

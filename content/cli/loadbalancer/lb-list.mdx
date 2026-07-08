@@ -1,0 +1,22 @@
+---
+title: Listar Load Balancers
+description: Muestra los balanceadores de carga de un grupo de recursos.
+shell: azurecli
+category: Load Balancer
+tags: [load-balancer, lb, listar, consulta, get]
+template: "az network lb list --resource-group <resourceGroup> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Omite `--resource-group` para listar todos los balanceadores de la suscripción.

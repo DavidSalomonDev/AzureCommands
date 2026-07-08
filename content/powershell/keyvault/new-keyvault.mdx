@@ -1,0 +1,26 @@
+---
+title: Crear un Key Vault
+description: Crea un almacén de secretos, claves y certificados.
+shell: powershell
+category: Key Vault
+tags: [keyvault, secretos, crear]
+template: "New-AzKeyVault -Name <vaultName> -ResourceGroupName <resourceGroup> -Location <location>"
+parameters:
+  - name: vaultName
+    label: Nombre del Key Vault
+    type: string
+    required: true
+    placeholder: mi-keyvault-01
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: East US
+    options: [East US, West US 2, West Europe, North Europe, Brazil South]
+---
+El nombre debe ser **globalmente único**.

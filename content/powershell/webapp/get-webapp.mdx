@@ -1,0 +1,21 @@
+---
+title: Ver Web Apps
+description: Obtiene una o todas las aplicaciones de App Service de un grupo de recursos.
+shell: powershell
+category: App Service
+tags: [webapp, app-service, get, listar, consulta]
+template: "Get-AzWebApp -ResourceGroupName <resourceGroup> -Name <appName> | Format-Table Name, State, DefaultHostName, Location"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: appName
+    label: Nombre de la app
+    type: string
+    required: false
+    placeholder: mi-webapp
+---
+
+Omite `-Name` para listar todas las Web Apps del grupo. La propiedad `DefaultHostName` contiene la URL pública de la aplicación.

@@ -1,0 +1,22 @@
+---
+title: Listar puertas de enlace de red virtual
+description: Muestra los Virtual Network Gateway de un grupo de recursos.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, red, listar, consulta]
+template: "az network vnet-gateway list --resource-group <resourceGroup> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Para ver el estado detallado de una puerta concreta usa `az network vnet-gateway show --name <gateway> --resource-group <rg>`.

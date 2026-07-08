@@ -1,0 +1,46 @@
+---
+title: Crear una regla de NSG
+description: Añade una regla de seguridad entrante a un grupo de seguridad de red.
+shell: azurecli
+category: Redes
+tags: [red, nsg, seguridad, regla]
+template: "az network nsg rule create --resource-group <resourceGroup> --nsg-name <nsgName> --name <ruleName> --priority <priority> --destination-port-ranges <ports> --access <access> --protocol <protocol>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: nsgName
+    label: Nombre del NSG
+    type: string
+    required: true
+    placeholder: mi-nsg
+  - name: ruleName
+    label: Nombre de la regla
+    type: string
+    required: true
+    placeholder: permitir-https
+  - name: priority
+    label: Prioridad
+    type: string
+    required: true
+    placeholder: "1000"
+  - name: ports
+    label: Puertos de destino
+    type: string
+    required: true
+    placeholder: "443"
+  - name: access
+    label: Acción
+    type: enum
+    required: false
+    default: Allow
+    options: [Allow, Deny]
+  - name: protocol
+    label: Protocolo
+    type: enum
+    required: false
+    default: Tcp
+    options: [Tcp, Udp, "*"]
+---

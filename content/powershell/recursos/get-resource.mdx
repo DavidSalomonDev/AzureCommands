@@ -1,0 +1,21 @@
+---
+title: Ver recursos (cualquier tipo)
+description: Lista recursos de un grupo, opcionalmente filtrando por tipo.
+shell: powershell
+category: Recursos generales
+tags: [recurso, resource, get, listar, inventario]
+template: "Get-AzResource -ResourceGroupName <resourceGroup> -ResourceType <resourceType> | Format-Table Name, ResourceType, Location"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: resourceType
+    label: Tipo de recurso (opcional)
+    type: string
+    required: false
+    placeholder: Microsoft.Compute/virtualMachines
+---
+
+Omite `-ResourceType` para ver todos los recursos del grupo. También puedes filtrar por etiqueta con `-Tag @{ entorno = 'produccion' }`. Útil para inventariar rápido lo que hay desplegado.

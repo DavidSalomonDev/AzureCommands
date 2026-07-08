@@ -1,0 +1,27 @@
+---
+title: Habilitar respaldo de una VM
+description: Protege una máquina virtual con una directiva de copia de seguridad del almacén.
+shell: powershell
+category: Recovery Services Vault
+tags: [backup, recovery, vm, proteger]
+template: "Enable-AzRecoveryServicesBackupProtection -ResourceGroupName <resourceGroup> -Name <vmName> -Policy (Get-AzRecoveryServicesBackupProtectionPolicy -Name <policyName>)"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+  - name: policyName
+    label: Directiva de respaldo
+    type: string
+    required: false
+    default: DefaultPolicy
+    placeholder: DefaultPolicy
+---
+
+Requiere haber fijado antes el contexto del almacén con `Set-AzRecoveryServicesVaultContext`. `DefaultPolicy` es la directiva integrada (diaria, retención de 30 días).

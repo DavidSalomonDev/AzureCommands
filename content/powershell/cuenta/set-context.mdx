@@ -1,0 +1,14 @@
+---
+title: Cambiar de suscripción activa
+description: Selecciona la suscripción sobre la que actuarán los siguientes comandos.
+shell: powershell
+category: Cuenta y sesión
+tags: [account, suscripción, contexto]
+template: "Set-AzContext -Subscription <subscription>"
+parameters:
+  - name: subscription
+    label: Suscripción (nombre o ID)
+    type: string
+    required: true
+    placeholder: Mi suscripción
+---

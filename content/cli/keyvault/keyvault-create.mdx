@@ -1,0 +1,26 @@
+---
+title: Crear un Key Vault
+description: Crea un almacén de secretos, claves y certificados.
+shell: azurecli
+category: Key Vault
+tags: [keyvault, secretos, crear]
+template: "az keyvault create --name <vaultName> --resource-group <resourceGroup> --location <location>"
+parameters:
+  - name: vaultName
+    label: Nombre del Key Vault
+    type: string
+    required: true
+    placeholder: mi-keyvault-01
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: eastus
+    options: [eastus, eastus2, westus2, westeurope, northeurope, brazilsouth]
+---
+El nombre debe ser **globalmente único**.

@@ -1,0 +1,16 @@
+---
+title: Listar puertas de enlace de red virtual
+description: Muestra los Virtual Network Gateway de un grupo de recursos.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, red, listar, consulta]
+template: "Get-AzVirtualNetworkGateway -ResourceGroupName <resourceGroup> | Format-Table Name, GatewayType, VpnType, Location"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Para el detalle de una puerta concreta: `Get-AzVirtualNetworkGateway -Name <gateway> -ResourceGroupName <rg>`.

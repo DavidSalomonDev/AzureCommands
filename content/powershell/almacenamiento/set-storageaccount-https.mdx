@@ -1,0 +1,27 @@
+---
+title: Reforzar la seguridad de una cuenta
+description: Exige HTTPS y una versión mínima de TLS en la cuenta de almacenamiento.
+shell: powershell
+category: Almacenamiento
+tags: [storage, cuenta, seguridad, https, tls]
+template: "Set-AzStorageAccount -ResourceGroupName <resourceGroup> -Name <storageAccountName> -EnableHttpsTrafficOnly $true -MinimumTlsVersion <minTls>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: storageAccountName
+    label: Nombre de la cuenta
+    type: string
+    required: true
+    placeholder: micuentastorage
+  - name: minTls
+    label: Versión mínima de TLS
+    type: enum
+    required: false
+    default: TLS1_2
+    options: [TLS1_2, TLS1_1, TLS1_0]
+---
+
+`TLS1_2` es la recomendación de seguridad actual. Verifica la configuración con `Get-AzStorageAccount -ResourceGroupName <rg> -Name <cuenta> | Select-Object EnableHttpsTrafficOnly, MinimumTlsVersion`.

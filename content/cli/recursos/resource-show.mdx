@@ -1,0 +1,22 @@
+---
+title: Ver un recurso por su ID
+description: Obtiene la información de cualquier recurso a partir de su Resource ID.
+shell: azurecli
+category: Recursos generales
+tags: [recurso, resource, show, detalle, get]
+template: "az resource show --ids <resourceId> --output <output>"
+parameters:
+  - name: resourceId
+    label: Resource ID
+    type: string
+    required: true
+    placeholder: /subscriptions/xxxx/resourceGroups/mi-rg/providers/Microsoft.Compute/virtualMachines/mi-vm
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Obtén el `--ids` de cualquier recurso con `az resource list --query "[].id" --output tsv`. Alternativamente puedes identificar el recurso con `--name`, `--resource-group` y `--resource-type` en vez de `--ids`.

@@ -1,0 +1,38 @@
+---
+title: Crear una máquina virtual
+description: Crea una VM nueva de forma simplificada (pedirá credenciales).
+shell: powershell
+category: Máquinas virtuales
+tags: [vm, crear]
+template: "New-AzVM -ResourceGroupName <resourceGroup> -Name <vmName> -Location <location> -Image <image> -Size <size>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: East US
+    options: [East US, East US 2, West US 2, West Europe, North Europe, Brazil South]
+  - name: image
+    label: Imagen
+    type: enum
+    required: false
+    default: Ubuntu2204
+    options: [Ubuntu2204, Win2022Datacenter, Debian11]
+  - name: size
+    label: Tamaño (SKU)
+    type: enum
+    required: false
+    default: Standard_B2s
+    options: [Standard_B1s, Standard_B2s, Standard_D2s_v5]
+---
+`New-AzVM` pedirá usuario y contraseña de administrador de forma interactiva. Para no interactivo pasa `-Credential (Get-Credential)`.

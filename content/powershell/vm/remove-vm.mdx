@@ -1,0 +1,20 @@
+---
+title: Eliminar una máquina virtual
+description: Elimina una VM de forma permanente.
+shell: powershell
+category: Máquinas virtuales
+tags: [vm, eliminar, destructivo]
+template: "Remove-AzVM -ResourceGroupName <resourceGroup> -Name <vmName> -Force"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+---
+⚠️ **Irreversible.** No elimina discos ni NICs asociados por defecto.

@@ -1,0 +1,27 @@
+---
+title: Crear un almacén de Recovery Services
+description: Crea un Recovery Services Vault para copias de seguridad y recuperación ante desastres.
+shell: azurecli
+category: Recovery Services Vault
+tags: [backup, recovery, vault, crear]
+template: "az backup vault create --resource-group <resourceGroup> --name <vaultName> --location <location>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vaultName
+    label: Nombre del almacén
+    type: string
+    required: true
+    placeholder: mi-vault-backup
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: eastus
+    options: [eastus, westus2, westeurope, northeurope, brazilsouth]
+---
+
+Un Recovery Services Vault agrupa los datos de respaldo (Azure Backup) y la replicación (Azure Site Recovery). Por defecto usa redundancia geográfica (GRS); cámbiala con `az backup vault backup-properties set --backup-storage-redundancy`.

@@ -1,0 +1,15 @@
+---
+title: Listar clústeres AKS
+description: Muestra los clústeres de Kubernetes de la suscripción o grupo.
+shell: powershell
+category: AKS
+tags: [aks, kubernetes, listar]
+template: "Get-AzAksCluster -ResourceGroupName <resourceGroup> | Format-Table Name, Location, KubernetesVersion, ProvisioningState"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: false
+    placeholder: mi-grupo-recursos
+---
+Omite `-ResourceGroupName` para listar los de toda la suscripción.

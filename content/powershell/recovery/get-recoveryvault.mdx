@@ -1,0 +1,16 @@
+---
+title: Listar almacenes de Recovery Services
+description: Muestra los Recovery Services Vault de un grupo de recursos.
+shell: powershell
+category: Recovery Services Vault
+tags: [backup, recovery, vault, listar, consulta]
+template: "Get-AzRecoveryServicesVault -ResourceGroupName <resourceGroup> | Format-Table Name, Location, Type"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Omite `-ResourceGroupName` para listar todos los almacenes de la suscripción.

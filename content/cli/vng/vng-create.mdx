@@ -1,0 +1,43 @@
+---
+title: Crear una puerta de enlace de red virtual
+description: Crea un Virtual Network Gateway VPN para conectar la VNet con redes locales o punto a sitio.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, red, crear]
+template: "az network vnet-gateway create --resource-group <resourceGroup> --name <gatewayName> --vnet <vnetName> --public-ip-address <publicIpName> --gateway-type Vpn --vpn-type <vpnType> --sku <sku> --no-wait"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+  - name: vnetName
+    label: Red virtual
+    type: string
+    required: true
+    placeholder: mi-vnet
+  - name: publicIpName
+    label: IP pública
+    type: string
+    required: true
+    placeholder: mi-vpn-ip
+  - name: vpnType
+    label: Tipo de VPN
+    type: enum
+    required: false
+    default: RouteBased
+    options: [RouteBased, PolicyBased]
+  - name: sku
+    label: SKU
+    type: enum
+    required: false
+    default: VpnGw1
+    options: [VpnGw1, VpnGw2, VpnGw3, Basic]
+---
+
+La VNet debe tener una subred llamada `GatewaySubnet`. Créala antes con `az network vnet subnet create --name GatewaySubnet ...`. El aprovisionamiento tarda 20-45 minutos; `--no-wait` devuelve el control de inmediato.

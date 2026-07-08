@@ -1,0 +1,16 @@
+---
+title: Ver perfiles de Front Door
+description: Obtiene los perfiles de Azure Front Door Standard/Premium de un grupo de recursos.
+shell: powershell
+category: Front Door
+tags: [front-door, afd, cdn, get, listar, consulta]
+template: "Get-AzFrontDoorCdnProfile -ResourceGroupName <resourceGroup> | Format-Table Name, SkuName, ResourceState"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Para ver los endpoints de un perfil: `Get-AzFrontDoorCdnEndpoint -ResourceGroupName <rg> -ProfileName <perfil>`. El cmdlet `Get-AzFrontDoorCdnProfile` corresponde a Front Door Standard/Premium; el Front Door clásico usa `Get-AzFrontDoor`.

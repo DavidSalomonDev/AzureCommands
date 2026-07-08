@@ -1,0 +1,36 @@
+---
+title: Ejecutar un respaldo bajo demanda
+description: Lanza inmediatamente una copia de seguridad de un elemento protegido.
+shell: azurecli
+category: Recovery Services Vault
+tags: [backup, recovery, on-demand]
+template: "az backup protection backup-now --resource-group <resourceGroup> --vault-name <vaultName> --container-name <containerName> --item-name <itemName> --retain-until <retainUntil>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vaultName
+    label: Nombre del almacén
+    type: string
+    required: true
+    placeholder: mi-vault-backup
+  - name: containerName
+    label: Contenedor (nombre de la VM)
+    type: string
+    required: true
+    placeholder: mi-vm
+  - name: itemName
+    label: Elemento protegido
+    type: string
+    required: true
+    placeholder: mi-vm
+  - name: retainUntil
+    label: Retener hasta (DD-MM-YYYY)
+    type: string
+    required: false
+    placeholder: 31-12-2026
+---
+
+Obtén los nombres de contenedor e ítem con `az backup item list --vault-name <vault> --resource-group <rg> --output table`.

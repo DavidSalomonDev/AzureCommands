@@ -1,0 +1,21 @@
+---
+title: Ver Key Vaults
+description: Obtiene uno o todos los Key Vault de un grupo de recursos.
+shell: powershell
+category: Key Vault
+tags: [keyvault, secretos, get, listar, consulta]
+template: "Get-AzKeyVault -ResourceGroupName <resourceGroup> -VaultName <vaultName>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vaultName
+    label: Nombre del Key Vault
+    type: string
+    required: false
+    placeholder: mi-keyvault
+---
+
+Omite `-VaultName` para listar todos los Key Vault del grupo. Lista los secretos con `Get-AzKeyVaultSecret -VaultName <vault>`.

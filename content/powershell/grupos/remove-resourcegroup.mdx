@@ -1,0 +1,15 @@
+---
+title: Eliminar un grupo de recursos
+description: Elimina el grupo de recursos y todo su contenido.
+shell: powershell
+category: Grupos de recursos
+tags: [resource-group, eliminar, destructivo]
+template: "Remove-AzResourceGroup -Name <resourceGroup> -Force"
+parameters:
+  - name: resourceGroup
+    label: Nombre del grupo
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+⚠️ **Acción destructiva.** Elimina TODOS los recursos del grupo. Añade `-AsJob` para ejecutarlo en segundo plano.

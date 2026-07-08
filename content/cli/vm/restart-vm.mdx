@@ -1,0 +1,19 @@
+---
+title: Reiniciar una máquina virtual
+description: Reinicia una VM en ejecución.
+shell: azurecli
+category: Máquinas virtuales
+tags: [vm, restart, reiniciar]
+template: "az vm restart --resource-group <resourceGroup> --name <vmName>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+---

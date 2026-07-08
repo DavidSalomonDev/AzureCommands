@@ -1,0 +1,15 @@
+---
+title: Cambiar de suscripción activa
+description: Establece la suscripción sobre la que actuarán los siguientes comandos.
+shell: azurecli
+category: Cuenta y sesión
+tags: [account, suscripción, contexto]
+template: "az account set --subscription <subscription>"
+parameters:
+  - name: subscription
+    label: Suscripción (nombre o ID)
+    type: string
+    required: true
+    placeholder: Mi suscripción
+---
+Puedes indicar el **nombre** o el **ID** de la suscripción. Consulta ambos con `az account list --output table`.

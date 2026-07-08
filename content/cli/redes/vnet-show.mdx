@@ -1,0 +1,27 @@
+---
+title: Ver detalles de una red virtual
+description: Obtiene la configuración de una VNet, incluidas sus subredes.
+shell: azurecli
+category: Redes
+tags: [red, vnet, show, subred, get]
+template: "az network vnet show --resource-group <resourceGroup> --name <vnetName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vnetName
+    label: Red virtual
+    type: string
+    required: true
+    placeholder: mi-vnet
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Para listar solo las subredes: `az network vnet subnet list --resource-group <rg> --vnet-name <vnet> --output table`.

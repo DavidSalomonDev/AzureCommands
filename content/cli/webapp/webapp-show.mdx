@@ -1,0 +1,27 @@
+---
+title: Ver detalles de una Web App
+description: Obtiene la configuración de una aplicación de App Service.
+shell: azurecli
+category: App Service
+tags: [webapp, app-service, show, detalle, get]
+template: "az webapp show --resource-group <resourceGroup> --name <appName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: appName
+    label: Nombre de la app
+    type: string
+    required: true
+    placeholder: mi-webapp
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Para obtener solo la URL por defecto: `--query defaultHostName --output tsv`. Lista todas las apps con `az webapp list --output table`.

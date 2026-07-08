@@ -1,0 +1,20 @@
+---
+title: Eliminar una máquina virtual
+description: Elimina una VM de forma permanente sin pedir confirmación.
+shell: azurecli
+category: Máquinas virtuales
+tags: [vm, eliminar, destructivo]
+template: "az vm delete --resource-group <resourceGroup> --name <vmName> --yes"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: mi-vm
+---
+⚠️ **Irreversible.** No elimina por defecto los discos, NICs ni IPs públicas asociados; bórralos aparte para no acumular costes.

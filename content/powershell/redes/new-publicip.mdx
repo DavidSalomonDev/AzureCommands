@@ -1,0 +1,37 @@
+---
+title: Crear una IP pública
+description: Reserva una dirección IP pública estática.
+shell: powershell
+category: Redes
+tags: [red, ip, crear]
+template: "New-AzPublicIpAddress -ResourceGroupName <resourceGroup> -Name <publicIpName> -Location <location> -Sku <sku> -AllocationMethod <allocation>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: publicIpName
+    label: Nombre de la IP pública
+    type: string
+    required: true
+    placeholder: mi-ip
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: East US
+    options: [East US, West US 2, West Europe, North Europe, Brazil South]
+  - name: sku
+    label: SKU
+    type: enum
+    required: false
+    default: Standard
+    options: [Standard, Basic]
+  - name: allocation
+    label: Método de asignación
+    type: enum
+    required: false
+    default: Static
+    options: [Static, Dynamic]
+---

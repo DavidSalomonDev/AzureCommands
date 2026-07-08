@@ -1,0 +1,15 @@
+---
+title: Listar cuentas de almacenamiento
+description: Muestra las cuentas de almacenamiento de un grupo de recursos.
+shell: powershell
+category: Almacenamiento
+tags: [storage, listar]
+template: "Get-AzStorageAccount -ResourceGroupName <resourceGroup> | Format-Table StorageAccountName, Location, SkuName"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+Omite `-ResourceGroupName` para listar las de toda la suscripción.
