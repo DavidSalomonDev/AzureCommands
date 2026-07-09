@@ -1,0 +1,21 @@
+---
+title: Listar grupos por etiqueta
+description: Filtra los grupos de recursos que tienen una etiqueta concreta.
+shell: powershell
+category: Grupos de recursos
+tags: [grupo, resource-group, listar, tag, etiqueta, filtrar, get]
+template: "Get-AzResourceGroup -Tag @{ <tagName> = '<tagValue>' } | Format-Table ResourceGroupName, Location"
+parameters:
+  - name: tagName
+    label: Nombre de la etiqueta
+    type: string
+    required: true
+    placeholder: entorno
+  - name: tagValue
+    label: Valor de la etiqueta
+    type: string
+    required: true
+    placeholder: produccion
+---
+
+Útil para agrupar por entorno, proyecto o centro de coste. Puedes filtrar solo por nombre de etiqueta con `-Tag @{ <nombre> = $null }`.

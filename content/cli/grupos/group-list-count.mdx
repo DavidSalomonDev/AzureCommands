@@ -1,0 +1,11 @@
+---
+title: Contar grupos de recursos
+description: Devuelve cuántos grupos de recursos hay en la suscripción.
+shell: azurecli
+category: Grupos de recursos
+tags: [grupo, resource-group, contar, count, get]
+template: "az group list --query \"length(@)\" --output tsv"
+parameters: []
+---
+
+`length(@)` es una función JMESPath que cuenta los elementos del arreglo devuelto.

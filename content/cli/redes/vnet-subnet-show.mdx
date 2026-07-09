@@ -1,0 +1,32 @@
+---
+title: Ver detalle de una subred
+description: Muestra la configuración completa de una subred concreta de una VNet.
+shell: azurecli
+category: Redes
+tags: [red, vnet, subred, subnet, show, detalle, get]
+template: "az network vnet subnet show --resource-group <resourceGroup> --vnet-name <vnetName> --name <subnetName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vnetName
+    label: Red virtual
+    type: string
+    required: true
+    placeholder: mi-vnet
+  - name: subnetName
+    label: Nombre de la subred
+    type: string
+    required: true
+    placeholder: default
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Incluye el rango de direcciones, el NSG y la tabla de rutas asociados, las delegaciones y los service endpoints de la subred.

@@ -1,0 +1,23 @@
+---
+title: Listar grupos por región
+description: Filtra los grupos de recursos que están en una región concreta.
+shell: azurecli
+category: Grupos de recursos
+tags: [grupo, resource-group, listar, region, filtrar, get]
+template: "az group list --query \"[?location=='<location>']\" --output <output>"
+parameters:
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: eastus
+    options: [eastus, westus2, westeurope, northeurope, brazilsouth]
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+El filtro `--query` usa JMESPath sobre el resultado. Ojo con el nombre exacto de la región (`eastus`, no `East US`).

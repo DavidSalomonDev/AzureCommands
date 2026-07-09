@@ -1,0 +1,21 @@
+---
+title: Ver las subredes de una VNet
+description: Muestra las subredes de una red virtual con su nombre y rango de direcciones.
+shell: powershell
+category: Redes
+tags: [red, vnet, subred, subnet, detalle, listar, get]
+template: "(Get-AzVirtualNetwork -ResourceGroupName <resourceGroup> -Name <vnetName>).Subnets | Format-Table Name, @{n='Prefijos';e={$_.AddressPrefix}}, @{n='NSG';e={$_.NetworkSecurityGroup.Id}}"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vnetName
+    label: Red virtual
+    type: string
+    required: true
+    placeholder: mi-vnet
+---
+
+Para el detalle completo de una subred concreta usa `Get-AzVirtualNetworkSubnetConfig -VirtualNetwork (Get-AzVirtualNetwork -ResourceGroupName <rg> -Name <vnet>) -Name <subred>`, que incluye NSG, tabla de rutas, delegaciones y service endpoints.

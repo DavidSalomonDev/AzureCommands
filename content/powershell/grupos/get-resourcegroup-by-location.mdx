@@ -1,0 +1,17 @@
+---
+title: Listar grupos por región
+description: Filtra los grupos de recursos que están en una región concreta.
+shell: powershell
+category: Grupos de recursos
+tags: [grupo, resource-group, listar, region, filtrar, get]
+template: "Get-AzResourceGroup -Location <location> | Format-Table ResourceGroupName, Location, ProvisioningState"
+parameters:
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: eastus
+    options: [eastus, westus2, westeurope, northeurope, brazilsouth]
+---
+
+El parámetro `-Location` usa el nombre corto de la región (`eastus`, no `East US`).

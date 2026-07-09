@@ -1,0 +1,15 @@
+---
+title: Listar solo los nombres de grupos
+description: Devuelve únicamente los nombres de los grupos de recursos, uno por línea.
+shell: powershell
+category: Grupos de recursos
+tags: [grupo, resource-group, listar, nombres, script, get]
+template: "(Get-AzResourceGroup).ResourceGroupName"
+parameters: []
+---
+
+Salida ideal para scripts o bucles, por ejemplo:
+
+```powershell
+foreach ($rg in (Get-AzResourceGroup).ResourceGroupName) { Write-Host $rg }
+```

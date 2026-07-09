@@ -1,0 +1,27 @@
+---
+title: Ver las subredes de una VNet
+description: Lista las subredes de una red virtual con sus prefijos, NSG y tabla de rutas.
+shell: azurecli
+category: Redes
+tags: [red, vnet, subred, subnet, detalle, listar, get]
+template: "az network vnet subnet list --resource-group <resourceGroup> --vnet-name <vnetName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: vnetName
+    label: Red virtual
+    type: string
+    required: true
+    placeholder: mi-vnet
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Para un resumen compacto (nombre + rango de direcciones) usa `--query "[].{Nombre:name, Prefijo:addressPrefix}" --output table`. Los detalles completos (NSG, tabla de rutas, delegaciones, service endpoints) aparecen con `--output json`.

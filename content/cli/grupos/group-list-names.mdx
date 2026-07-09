@@ -1,0 +1,15 @@
+---
+title: Listar solo los nombres de grupos
+description: Devuelve únicamente los nombres de los grupos de recursos, uno por línea.
+shell: azurecli
+category: Grupos de recursos
+tags: [grupo, resource-group, listar, nombres, script, get]
+template: "az group list --query \"[].name\" --output tsv"
+parameters: []
+---
+
+Salida ideal para scripts o bucles en Bash, por ejemplo:
+
+```bash
+for rg in $(az group list --query "[].name" --output tsv); do echo "$rg"; done
+```
