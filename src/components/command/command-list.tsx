@@ -62,7 +62,10 @@ export function CommandList({ commands, renderActions }: CommandListProps) {
           onChange={(e) => setQuery(e.target.value)}
           className="sm:max-w-md"
         />
-        <Select value={category} onValueChange={setCategory}>
+        <Select
+          value={category}
+          onValueChange={(value) => setCategory(value ?? ALL_CATEGORIES)}
+        >
           <SelectTrigger className="w-full sm:w-64" aria-label="Filtrar por categoría">
             <SelectValue>
               {(value: string) =>
