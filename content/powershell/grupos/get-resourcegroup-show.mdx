@@ -1,0 +1,16 @@
+---
+title: Ver detalles de un grupo de recursos
+description: Obtiene la información de un grupo de recursos concreto.
+shell: powershell
+category: Grupos de recursos
+tags: [grupo, resource-group, show, detalle, get]
+template: "Get-AzResourceGroup -Name <resourceGroup>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Devuelve ubicación, estado de aprovisionamiento, etiquetas e ID del recurso. Para comprobar solo si existe: `Get-AzResourceGroup -Name <grupo> -ErrorAction SilentlyContinue`.

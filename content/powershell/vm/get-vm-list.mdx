@@ -1,0 +1,16 @@
+---
+title: Listar máquinas virtuales
+description: Muestra todas las VMs de un grupo de recursos.
+shell: powershell
+category: Máquinas virtuales
+tags: [vm, listar, consulta, get]
+template: "Get-AzVM -ResourceGroupName <resourceGroup> | Format-Table Name, Location, @{n='Tamaño';e={$_.HardwareProfile.VmSize}}, ProvisioningState"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Omite `-ResourceGroupName` para listar todas las VMs de la suscripción. Añade `-Status` para ver el estado de energía (`PowerState`).

@@ -1,0 +1,42 @@
+---
+title: Crear una conexión VPN sitio a sitio
+description: Conecta un Virtual Network Gateway con una puerta de enlace local (site-to-site).
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, conexion, s2s, crear]
+template: "New-AzVirtualNetworkGatewayConnection -ResourceGroupName <resourceGroup> -Name <connectionName> -Location <location> -VirtualNetworkGateway1 (Get-AzVirtualNetworkGateway -ResourceGroupName <resourceGroup> -Name <gatewayName>) -LocalNetworkGateway2 (Get-AzLocalNetworkGateway -ResourceGroupName <resourceGroup> -Name <localGatewayName>) -ConnectionType IPsec -SharedKey <sharedKey>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: connectionName
+    label: Nombre de la conexión
+    type: string
+    required: true
+    placeholder: conexion-onprem
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: East US
+    options: [East US, West US 2, West Europe, North Europe, Brazil South]
+  - name: gatewayName
+    label: Puerta de enlace de la VNet
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+  - name: localGatewayName
+    label: Puerta de enlace local
+    type: string
+    required: true
+    placeholder: mi-local-gateway
+  - name: sharedKey
+    label: Clave compartida (PSK)
+    type: string
+    required: true
+    placeholder: MiClaveSecreta123
+---
+
+La clave compartida debe coincidir con la del dispositivo VPN local. Crea antes el local network gateway con `New-AzLocalNetworkGateway` indicando la IP pública y los prefijos de la red local.

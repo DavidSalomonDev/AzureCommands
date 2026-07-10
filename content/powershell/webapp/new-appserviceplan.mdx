@@ -1,0 +1,33 @@
+---
+title: Crear un plan de App Service
+description: Crea un plan de App Service (Linux) que aloja tus Web Apps.
+shell: powershell
+category: App Service
+tags: [webapp, app-service, plan, crear]
+template: "New-AzAppServicePlan -ResourceGroupName <resourceGroup> -Name <planName> -Location <location> -Tier <tier> -Linux"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: planName
+    label: Nombre del plan
+    type: string
+    required: true
+    placeholder: mi-plan
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: East US
+    options: [East US, West US 2, West Europe, North Europe, Brazil South]
+  - name: tier
+    label: Nivel (SKU)
+    type: enum
+    required: false
+    default: B1
+    options: [F1, B1, B2, S1, P1v3]
+---
+
+Quita `-Linux` para un plan en Windows. El nivel `F1` es gratuito (con límites); `B1` en adelante es de pago.

@@ -1,0 +1,36 @@
+---
+title: Subir un archivo a Blob Storage
+description: Sube un archivo local a un contenedor de una cuenta de almacenamiento.
+shell: powershell
+category: Almacenamiento
+tags: [storage, blob, subir, upload]
+template: "Set-AzStorageBlobContent -File <filePath> -Container <containerName> -Blob <blobName> -Context (Get-AzStorageAccount -ResourceGroupName <resourceGroup> -Name <storageAccountName>).Context"
+parameters:
+  - name: filePath
+    label: Ruta del archivo local
+    type: string
+    required: true
+    placeholder: C:\datos\reporte.csv
+  - name: containerName
+    label: Contenedor
+    type: string
+    required: true
+    placeholder: mi-contenedor
+  - name: blobName
+    label: Nombre del blob
+    type: string
+    required: true
+    placeholder: reporte.csv
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: storageAccountName
+    label: Nombre de la cuenta
+    type: string
+    required: true
+    placeholder: micuentastorage
+---
+
+Añade `-Force` para sobrescribir un blob existente sin confirmación.

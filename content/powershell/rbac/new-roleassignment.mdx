@@ -1,0 +1,27 @@
+---
+title: Asignar un rol RBAC
+description: Concede un rol a un usuario, grupo o service principal sobre un ámbito.
+shell: powershell
+category: Roles y RBAC
+tags: [rbac, rol, permisos, asignar]
+template: "New-AzRoleAssignment -SignInName <assignee> -RoleDefinitionName <role> -Scope <scope>"
+parameters:
+  - name: assignee
+    label: Usuario (correo o UPN)
+    type: string
+    required: true
+    placeholder: usuario@empresa.com
+  - name: role
+    label: Rol
+    type: enum
+    required: true
+    default: Reader
+    options: [Reader, Contributor, Owner, "Storage Blob Data Contributor", "Key Vault Secrets User"]
+  - name: scope
+    label: Ámbito (Scope)
+    type: string
+    required: true
+    placeholder: /subscriptions/xxxx/resourceGroups/mi-rg
+---
+
+Para un service principal o identidad administrada usa `-ObjectId <id>` en vez de `-SignInName`. El ámbito puede ser una suscripción, un grupo de recursos o un recurso concreto.

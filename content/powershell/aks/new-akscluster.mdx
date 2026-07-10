@@ -1,0 +1,33 @@
+---
+title: Crear un clúster AKS
+description: Crea un clúster de Azure Kubernetes Service con identidad administrada.
+shell: powershell
+category: AKS
+tags: [aks, kubernetes, crear]
+template: "New-AzAksCluster -ResourceGroupName <resourceGroup> -Name <clusterName> -NodeCount <nodeCount> -NodeVmSize <nodeSize> -EnableManagedIdentity -GenerateSshKey"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: clusterName
+    label: Nombre del clúster
+    type: string
+    required: true
+    placeholder: mi-aks
+  - name: nodeCount
+    label: Número de nodos
+    type: number
+    required: false
+    default: "2"
+    placeholder: "2"
+  - name: nodeSize
+    label: Tamaño de los nodos
+    type: enum
+    required: false
+    default: Standard_DS2_v2
+    options: [Standard_DS2_v2, Standard_D4s_v5, Standard_B2ms, Standard_D2s_v5]
+---
+
+El aprovisionamiento tarda varios minutos. Después importa las credenciales con `Import-AzAksCredential -ResourceGroupName <rg> -Name <cluster>` para usar `kubectl`.

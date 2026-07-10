@@ -1,0 +1,16 @@
+---
+title: Listar asignaciones de rol
+description: Muestra las asignaciones de rol RBAC de un ámbito.
+shell: powershell
+category: Roles y RBAC
+tags: [rbac, rol, permisos, listar, get]
+template: "Get-AzRoleAssignment -Scope <scope> | Format-Table DisplayName, RoleDefinitionName, Scope"
+parameters:
+  - name: scope
+    label: Ámbito (Scope)
+    type: string
+    required: true
+    placeholder: /subscriptions/xxxx/resourceGroups/mi-rg
+---
+
+Puedes filtrar por identidad con `-SignInName <correo>` o `-ObjectId <id>`, o por grupo de recursos con `-ResourceGroupName <rg>`.

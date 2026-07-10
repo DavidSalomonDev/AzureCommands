@@ -1,0 +1,16 @@
+---
+title: Ver un recurso por su ID
+description: Obtiene la información de cualquier recurso a partir de su Resource ID.
+shell: powershell
+category: Recursos generales
+tags: [recurso, resource, show, detalle, get]
+template: "Get-AzResource -ResourceId <resourceId>"
+parameters:
+  - name: resourceId
+    label: Resource ID
+    type: string
+    required: true
+    placeholder: /subscriptions/xxxx/resourceGroups/mi-rg/providers/Microsoft.Compute/virtualMachines/mi-vm
+---
+
+Añade `-ExpandProperties` para incluir las propiedades específicas del tipo de recurso. Obtén IDs con `(Get-AzResource -ResourceGroupName <rg>).ResourceId`.

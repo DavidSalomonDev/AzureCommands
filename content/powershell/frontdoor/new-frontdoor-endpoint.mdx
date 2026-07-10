@@ -1,0 +1,32 @@
+---
+title: Crear un endpoint de Front Door
+description: Crea un endpoint público dentro de un perfil de Front Door.
+shell: powershell
+category: Front Door
+tags: [front-door, afd, endpoint, crear]
+template: "New-AzFrontDoorCdnEndpoint -ResourceGroupName <resourceGroup> -ProfileName <profileName> -Name <endpointName> -Location Global -EnabledState <enabledState>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: profileName
+    label: Nombre del perfil
+    type: string
+    required: true
+    placeholder: mi-frontdoor
+  - name: endpointName
+    label: Nombre del endpoint
+    type: string
+    required: true
+    placeholder: mi-endpoint
+  - name: enabledState
+    label: Estado
+    type: enum
+    required: false
+    default: Enabled
+    options: [Enabled, Disabled]
+---
+
+El endpoint genera un host único `<endpoint>-<hash>.z01.azurefd.net`. Luego asocia orígenes (`New-AzFrontDoorCdnOriginGroup` + `New-AzFrontDoorCdnOrigin`) y rutas (`New-AzFrontDoorCdnRoute`).

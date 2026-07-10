@@ -1,0 +1,11 @@
+---
+title: Contar grupos de recursos
+description: Devuelve cuántos grupos de recursos hay en la suscripción.
+shell: powershell
+category: Grupos de recursos
+tags: [grupo, resource-group, contar, count, get]
+template: "(Get-AzResourceGroup).Count"
+parameters: []
+---
+
+`.Count` cuenta los elementos devueltos por el cmdlet. Para contar los de una región: `(Get-AzResourceGroup -Location eastus).Count`.

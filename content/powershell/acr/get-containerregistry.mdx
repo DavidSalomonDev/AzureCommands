@@ -1,0 +1,16 @@
+---
+title: Listar Container Registries
+description: Muestra los Azure Container Registry de un grupo de recursos.
+shell: powershell
+category: Container Registry
+tags: [acr, registry, contenedores, listar, get]
+template: "Get-AzContainerRegistry -ResourceGroupName <resourceGroup> | Format-Table Name, Sku, LoginServer, ProvisioningState"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Omite `-ResourceGroupName` para listar todos los registros de la suscripción. Lista las imágenes con `Get-AzContainerRegistryRepository -RegistryName <registro>`.

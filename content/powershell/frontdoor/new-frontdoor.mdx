@@ -1,0 +1,27 @@
+---
+title: Crear un perfil de Front Door
+description: Crea un perfil de Azure Front Door Standard/Premium (CDN global + WAF).
+shell: powershell
+category: Front Door
+tags: [front-door, afd, cdn, crear]
+template: "New-AzFrontDoorCdnProfile -ResourceGroupName <resourceGroup> -Name <profileName> -SkuName <sku> -Location Global"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: profileName
+    label: Nombre del perfil
+    type: string
+    required: true
+    placeholder: mi-frontdoor
+  - name: sku
+    label: SKU
+    type: enum
+    required: false
+    default: Standard_AzureFrontDoor
+    options: [Standard_AzureFrontDoor, Premium_AzureFrontDoor]
+---
+
+Front Door es un servicio global (`-Location Global`). El SKU `Premium` añade WAF administrado y Private Link. Tras el perfil crea un endpoint con `New-AzFrontDoorCdnEndpoint`.

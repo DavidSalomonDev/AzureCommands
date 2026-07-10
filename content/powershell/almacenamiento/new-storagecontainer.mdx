@@ -1,0 +1,26 @@
+---
+title: Crear un contenedor de blobs
+description: Crea un contenedor dentro de una cuenta de almacenamiento.
+shell: powershell
+category: Almacenamiento
+tags: [storage, blob, contenedor, crear]
+template: "New-AzStorageContainer -Name <containerName> -Context (Get-AzStorageAccount -ResourceGroupName <resourceGroup> -Name <storageAccountName>).Context"
+parameters:
+  - name: containerName
+    label: Nombre del contenedor
+    type: string
+    required: true
+    placeholder: mi-contenedor
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: storageAccountName
+    label: Nombre de la cuenta
+    type: string
+    required: true
+    placeholder: micuentastorage
+---
+
+El contexto (`.Context`) autentica la operación contra la cuenta. Añade `-Permission Blob` para acceso público de lectura a los blobs.

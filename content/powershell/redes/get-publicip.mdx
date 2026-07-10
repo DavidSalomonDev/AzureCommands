@@ -1,0 +1,16 @@
+---
+title: Listar IPs públicas
+description: Muestra las direcciones IP públicas de un grupo de recursos.
+shell: powershell
+category: Redes
+tags: [red, ip, publica, listar, get]
+template: "Get-AzPublicIpAddress -ResourceGroupName <resourceGroup> | Format-Table Name, IpAddress, PublicIpAllocationMethod, Location"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Omite `-ResourceGroupName` para listar todas las IPs públicas de la suscripción. `IpAddress` aparece como `Dynamic` hasta que la IP se asocia a un recurso.

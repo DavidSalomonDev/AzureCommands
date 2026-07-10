@@ -1,0 +1,21 @@
+---
+title: Ejecutar un respaldo bajo demanda
+description: Lanza inmediatamente una copia de seguridad de un elemento protegido.
+shell: powershell
+category: Recovery Services Vault
+tags: [backup, recovery, on-demand]
+template: "$item = Get-AzRecoveryServicesBackupItem -BackupManagementType AzureVM -WorkloadType AzureVM -Name <vmName>; Backup-AzRecoveryServicesBackupItem -Item $item -ExpiryDateTimeUTC <retainUntil>"
+parameters:
+  - name: vmName
+    label: Nombre de la VM protegida
+    type: string
+    required: true
+    placeholder: mi-vm
+  - name: retainUntil
+    label: Retener hasta (fecha UTC)
+    type: string
+    required: false
+    placeholder: (Get-Date).AddDays(30)
+---
+
+Requiere haber fijado antes el contexto del almacén con `Set-AzRecoveryServicesVaultContext`. Puedes pasar una expresión de fecha directamente, por ejemplo `-ExpiryDateTimeUTC (Get-Date).AddDays(30)`.

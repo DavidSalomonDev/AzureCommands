@@ -1,0 +1,27 @@
+---
+title: Escalar un clúster AKS
+description: Cambia el número de nodos del grupo predeterminado de un clúster AKS.
+shell: powershell
+category: AKS
+tags: [aks, kubernetes, escalar, nodos]
+template: "Set-AzAksCluster -ResourceGroupName <resourceGroup> -Name <clusterName> -NodeCount <nodeCount>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: clusterName
+    label: Nombre del clúster
+    type: string
+    required: true
+    placeholder: mi-aks
+  - name: nodeCount
+    label: Número de nodos
+    type: number
+    required: true
+    default: "3"
+    placeholder: "3"
+---
+
+Para escalar un node pool concreto usa `Update-AzAksNodePool -ResourceGroupName <rg> -ClusterName <cluster> -Name <pool> -Count <n>`.
