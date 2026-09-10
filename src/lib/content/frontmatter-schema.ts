@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { commandParameterSchema, shellSchema } from "@/lib/schema";
+import { commandParameterSchema, crudOperationSchema, shellSchema } from "@/lib/schema";
 
 /**
  * Shape of the YAML frontmatter authored at the top of each command `.mdx`
@@ -15,6 +15,8 @@ export const frontmatterSchema = z.object({
   tags: z.array(z.string()).optional(),
   template: z.string().min(1),
   parameters: z.array(commandParameterSchema).default([]),
+  /** Overrides the CRUD sub-category inferred from the template. */
+  operation: crudOperationSchema.optional(),
   /** Optional explicit slug; defaults to the filename when omitted. */
   slug: z.string().optional(),
 });

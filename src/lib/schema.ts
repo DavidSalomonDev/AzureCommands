@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+export const crudOperationSchema = z.enum([
+  "read",
+  "create",
+  "update",
+  "delete",
+  "other",
+]);
+
 export const paramTypeSchema = z.enum(["string", "number", "boolean", "enum"]);
 
 export const shellSchema = z.enum([
@@ -34,6 +42,7 @@ export const commandSchema = z.object({
   tags: z.array(z.string()).optional(),
   template: z.string().min(1),
   parameters: z.array(commandParameterSchema),
+  operation: crudOperationSchema.optional(),
   notes: z.string().optional(),
   source: z.enum(["library", "user"]),
 });

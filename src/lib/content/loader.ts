@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm";
 import remarkHtml from "remark-html";
 
 import { frontmatterSchema } from "@/lib/content/frontmatter-schema";
+import { inferOperation } from "@/lib/operations";
 import { slugify } from "@/lib/slugify";
 import type { Command, Shell } from "@/lib/types";
 
@@ -75,6 +76,7 @@ async function loadFile(file: string): Promise<Command> {
     tags: fm.tags,
     template: fm.template,
     parameters: fm.parameters,
+    operation: fm.operation ?? inferOperation(fm.template, fm.shell),
     notesHtml: notesHtml || undefined,
     source: "library",
   };

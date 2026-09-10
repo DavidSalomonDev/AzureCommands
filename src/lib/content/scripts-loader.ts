@@ -108,6 +108,7 @@ async function loadScript(file: string): Promise<Script> {
     fileName,
     code,
     usage: fm?.usage,
+    operation: fm?.operation ?? "other",
     parameters: fm?.parameters ?? [],
     requirements: fm?.requirements,
     notesHtml: sidecar ? (await markdownToHtml(sidecar.body)) || undefined : undefined,

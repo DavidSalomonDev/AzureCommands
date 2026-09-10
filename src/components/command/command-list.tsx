@@ -14,9 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CATEGORY_PARAM } from "@/components/app-sidebar";
+import { CATEGORY_PARAM, OPERATION_PARAM } from "@/components/app-sidebar";
+import {
+  OperationHeading,
+  groupByCategoryAndOperation,
+} from "@/components/grouped-section";
 import { CommandCard } from "@/components/command/command-card";
-import type { Command } from "@/lib/types";
+import { OPERATION_LABELS, resolveOperation } from "@/lib/operations";
+import type { Command, CrudOperation } from "@/lib/types";
 
 interface CommandListProps {
   commands: Command[];
@@ -41,6 +46,7 @@ export function CommandList({
 }: CommandListProps) {
   const searchParams = useSearchParams();
   const urlCategory = searchParams.get(CATEGORY_PARAM);
+  const urlOperation = searchParams.get(OPERATION_PARAM) as CrudOperation | null;
 
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string>(ALL_CATEGORIES);
@@ -56,6 +62,7 @@ export function CommandList({
     const q = query.trim().toLowerCase();
     return commands.filter((c) => {
       if (category !== ALL_CATEGORIES && c.category !== category) return false;
+      if (urlOperation && resolveOperation(c) !== urlOperation) return false;
       if (!q) return true;
       return (
         c.title.toLowerCase().includes(q) ||
@@ -64,17 +71,21 @@ export function CommandList({
         c.tags?.some((t) => t.toLowerCase().includes(q))
       );
     });
-  }, [commands, query, category]);
+  }, [commands, query, category, urlOperation]);
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, Command[]>();
-    for (const cmd of filtered) {
-      const list = map.get(cmd.category) ?? [];
-      list.push(cmd);
-      map.set(cmd.category, list);
-    }
-    return map;
-  }, [filtered]);
+  const grouped = useMemo(
+    () =>
+      groupByCategoryAndOperation(
+        filtered,
+        (c) => c.category,
+        (c) => resolveOperation(c)
+      ),
+    [filtered]
+  );
+
+  const clearHref = urlCategory
+    ? `${basePath}?${CATEGORY_PARAM}=${encodeURIComponent(urlCategory)}`
+    : basePath || "?";
 
   return (
     <div className="flex flex-col gap-6">
@@ -108,15 +119,26 @@ export function CommandList({
             </SelectContent>
           </Select>
         ) : (
-          urlCategory && (
-            <Link href={basePath || "?"} className="w-fit">
-              <Badge variant="secondary" className="gap-1 py-1">
-                {urlCategory}
-                <X className="size-3" />
-                <span className="sr-only">Quitar filtro de categoría</span>
-              </Badge>
-            </Link>
-          )
+          <div className="flex flex-wrap gap-2">
+            {urlCategory && (
+              <Link href={basePath || "?"}>
+                <Badge variant="secondary" className="gap-1 py-1">
+                  {urlCategory}
+                  <X className="size-3" />
+                  <span className="sr-only">Quitar filtro de categoría</span>
+                </Badge>
+              </Link>
+            )}
+            {urlOperation && (
+              <Link href={clearHref}>
+                <Badge variant="secondary" className="gap-1 py-1">
+                  {OPERATION_LABELS[urlOperation]}
+                  <X className="size-3" />
+                  <span className="sr-only">Quitar filtro de operación</span>
+                </Badge>
+              </Link>
+            )}
+          </div>
         )}
       </div>
 
@@ -124,20 +146,23 @@ export function CommandList({
         <p className="text-sm text-muted-foreground">
           {query.trim()
             ? `No se encontraron comandos para “${query}”.`
-            : "No hay comandos en esta categoría."}
+            : "No hay comandos con estos filtros."}
         </p>
       )}
 
-      {Array.from(grouped.entries()).map(([category, cmds]) => (
-        <section key={category} className="flex flex-col gap-3">
+      {grouped.map(({ category: groupCategory, groups }) => (
+        <section key={groupCategory} className="flex flex-col gap-3">
           <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-            {category}
+            {groupCategory}
           </h2>
-          <div className="flex flex-col gap-4">
-            {cmds.map((cmd) => (
-              <CommandCard key={cmd.id} command={cmd} actions={renderActions?.(cmd)} />
-            ))}
-          </div>
+          {groups.map(({ operation, items }) => (
+            <div key={operation} className="flex flex-col gap-3">
+              <OperationHeading operation={operation} count={items.length} />
+              {items.map((cmd) => (
+                <CommandCard key={cmd.id} command={cmd} actions={renderActions?.(cmd)} />
+              ))}
+            </div>
+          ))}
         </section>
       ))}
     </div>

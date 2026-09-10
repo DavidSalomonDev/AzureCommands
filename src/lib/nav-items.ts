@@ -5,7 +5,8 @@ export type NavIcon =
   | "powershell"
   | "scripts"
   | "template"
-  | "bookmark";
+  | "bookmark"
+  | "star";
 
 export interface NavItem {
   href: string;
@@ -45,6 +46,13 @@ export const NAV_ITEMS: NavItem[] = [
     status: "available",
     icon: "powershell",
     shell: "powershell",
+  },
+  {
+    href: "/favoritos",
+    label: "Favoritos",
+    description: "Comandos y scripts marcados",
+    status: "available",
+    icon: "star",
   },
   {
     href: "/mis-comandos",

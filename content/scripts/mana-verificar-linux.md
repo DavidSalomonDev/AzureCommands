@@ -3,6 +3,7 @@ title: Verificar driver MANA en VMs Linux
 description: Ejecuta de forma remota, vía el agente de Azure, la búsqueda del módulo mana en el kernel de cada VM Linux indicada.
 category: Diagnóstico MANA
 tags: [mana, linux, run-command, driver, kernel]
+operation: read
 language: bash
 usage: "bash mana-verificar-linux.sh"
 requirements:

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Check, ChevronDown, ChevronUp, Copy, Download } from "lucide-react";
 import { toast } from "sonner";
 
+import { FavoriteButton } from "@/components/favorite-button";
 import { ParamInput } from "@/components/command/param-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,11 @@ import {
   parseTemplateSegments,
   renderTemplate,
 } from "@/lib/params/template-engine";
+import {
+  OPERATION_BADGE_CLASSES,
+  OPERATION_LABELS,
+  resolveScriptOperation,
+} from "@/lib/operations";
 import { SCRIPT_LANGUAGE_LABELS, type Script } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +55,7 @@ export function ScriptCard({ script }: { script: Script }) {
     buildDefaultValues(script.parameters)
   );
 
+  const operation = resolveScriptOperation(script);
   const lines = useMemo(() => script.code.split("\n"), [script.code]);
   const truncated = lines.length > PREVIEW_LINES;
 
@@ -104,6 +111,7 @@ export function ScriptCard({ script }: { script: Script }) {
             <CardDescription>{script.description}</CardDescription>
           </div>
           <div className="flex shrink-0 gap-1">
+            <FavoriteButton id={script.id} title={script.title} />
             <Button
               variant="outline"
               size="icon-sm"
@@ -124,6 +132,9 @@ export function ScriptCard({ script }: { script: Script }) {
         </div>
         <div className="flex flex-wrap gap-1.5">
           <Badge variant="secondary">{SCRIPT_LANGUAGE_LABELS[script.language]}</Badge>
+          <Badge variant="outline" className={cn(OPERATION_BADGE_CLASSES[operation])}>
+            {OPERATION_LABELS[operation]}
+          </Badge>
           <Badge variant="outline">{script.category}</Badge>
           <Badge variant="outline" className="font-mono text-muted-foreground">
             {script.fileName}

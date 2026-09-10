@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { commandParameterSchema } from "@/lib/schema";
+import { commandParameterSchema, crudOperationSchema } from "@/lib/schema";
 
 export const scriptLanguageSchema = z.enum(["powershell", "bash"]);
 
@@ -22,6 +22,8 @@ export const scriptFrontmatterSchema = z.object({
   /** Example invocation, e.g. `./Backup-VMs.ps1 -VMNames "vm1,vm2"`. */
   usage: z.string().optional(),
   requirements: z.array(z.string()).optional(),
+  /** CRUD sub-category; "other" cuando no aplica. */
+  operation: crudOperationSchema.default("other"),
   /**
    * Inputs shown above the code. Each `name` must match a `<token>` used in the
    * script body, exactly like the command templates.

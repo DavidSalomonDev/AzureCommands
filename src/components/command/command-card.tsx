@@ -10,9 +10,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FavoriteButton } from "@/components/favorite-button";
 import { ParamInput } from "@/components/command/param-input";
 import { CodeBlock } from "@/components/command/code-block";
+import {
+  OPERATION_BADGE_CLASSES,
+  OPERATION_LABELS,
+  resolveOperation,
+} from "@/lib/operations";
 import { SHELL_LABELS, type Command } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import {
   buildDefaultValues,
   parseTemplateSegments,
@@ -28,6 +35,8 @@ export function CommandCard({ command, actions }: CommandCardProps) {
   const [values, setValues] = useState<Record<string, string>>(() =>
     buildDefaultValues(command.parameters)
   );
+
+  const operation = resolveOperation(command);
 
   const segments = useMemo(
     () => parseTemplateSegments(command.template),
@@ -50,10 +59,16 @@ export function CommandCard({ command, actions }: CommandCardProps) {
             <CardTitle>{command.title}</CardTitle>
             <CardDescription>{command.description}</CardDescription>
           </div>
-          {actions}
+          <div className="flex shrink-0 items-center gap-1">
+            <FavoriteButton id={command.id} title={command.title} />
+            {actions}
+          </div>
         </div>
         <div className="flex flex-wrap gap-1.5">
           <Badge variant="secondary">{SHELL_LABELS[command.shell]}</Badge>
+          <Badge variant="outline" className={cn(OPERATION_BADGE_CLASSES[operation])}>
+            {OPERATION_LABELS[operation]}
+          </Badge>
           <Badge variant="outline">{command.category}</Badge>
           {command.tags?.map((tag) => (
             <Badge key={tag} variant="outline" className="text-muted-foreground">

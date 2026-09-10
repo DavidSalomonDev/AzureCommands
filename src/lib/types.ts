@@ -10,6 +10,12 @@ export type Shell =
 
 export type ParamType = "string" | "number" | "boolean" | "enum";
 
+/**
+ * CRUD bucket used as sub-category inside each product. See
+ * `src/lib/operations.ts` for the labels, ordering and inference rules.
+ */
+export type CrudOperation = "read" | "create" | "update" | "delete" | "other";
+
 export interface CommandParameter {
   /** Token as it appears in the template, e.g. "resourceGroup" for <resourceGroup> */
   name: string;
@@ -35,6 +41,8 @@ export interface Command {
   /** Raw command text containing <token> placeholders */
   template: string;
   parameters: CommandParameter[];
+  /** CRUD sub-category; inferred from the template when not declared. */
+  operation?: CrudOperation;
   /** Free-form notes, tips, doc links (plain text; used by user commands). */
   notes?: string;
   /** Notes rendered from the MDX body to HTML at build time (library commands). */
@@ -89,6 +97,8 @@ export interface Script {
   code: string;
   /** Inputs that fill the `<token>` placeholders of the code. */
   parameters: CommandParameter[];
+  /** CRUD sub-category of the script. */
+  operation?: CrudOperation;
   /** Example invocation line, shown above the code. */
   usage?: string;
   /** Prerequisites (Azure CLI, módulo Az, permisos…). */

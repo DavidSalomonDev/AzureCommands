@@ -3,6 +3,7 @@ title: Inventario de VMs afectadas por MANA
 description: Recorre las VMs de la suscripción y marca las que requieren revisión por tamaño afectado, Accelerated Networking y SO no compatible, exportando el resultado a CSV.
 category: Diagnóstico MANA
 tags: [mana, vm, accelerated-networking, inventario, reporte]
+operation: read
 language: bash
 usage: "bash mana-inventario-vms.sh"
 requirements:

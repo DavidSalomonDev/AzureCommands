@@ -4,6 +4,7 @@ description: Sube un archivo local a un contenedor de una cuenta de almacenamien
 shell: powershell
 category: Almacenamiento
 tags: [storage, blob, subir, upload]
+operation: create
 template: "Set-AzStorageBlobContent -File <filePath> -Container <containerName> -Blob <blobName> -Context (Get-AzStorageAccount -ResourceGroupName <resourceGroup> -Name <storageAccountName>).Context"
 parameters:
   - name: filePath

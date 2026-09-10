@@ -18,6 +18,13 @@ importación para llevártelas entre equipos.
 - **Menú lateral** con las secciones y sus categorías, colapsable con el botón
   hamburguesa (en escritorio queda como barra de iconos; en móvil se abre como cajón).
   Al elegir una categoría se filtra la sección mediante el parámetro `?cat=`.
+- **Subcategorías CRUD** dentro de cada producto: los comandos se agrupan en
+  **Consultar → Crear → Actualizar → Eliminar → Otras acciones**, siempre en ese orden
+  (consultar primero, que es lo que más se usa). La operación se deduce del propio
+  comando (`az … list`, `Get-Az…`, `az … delete`, `Remove-Az…`) y se puede forzar con
+  `operation:` en el frontmatter.
+- **Favoritos:** marca cualquier comando o script con la estrella y encuéntralos todos en
+  la sección **Favoritos**. Se guardan en `localStorage`.
 - **Búsqueda** por título, descripción, categoría o etiqueta en cada sección.
 - **Scripts** de varias líneas, todos en Azure CLI (Bash): con los mismos inputs
   dinámicos que los comandos —los valores se sustituyen en vivo dentro del código— y
@@ -37,6 +44,7 @@ CLI, después Scripts y luego PowerShell.
 | Azure CLI      | Disponible    | Comandos `az` (opción recomendada)                    |
 | Scripts        | Disponible    | Scripts completos en Azure CLI (Bash)                 |
 | PowerShell     | Disponible    | Comandos del módulo `Az`                              |
+| Favoritos      | Disponible    | Lo que marcaste con la estrella (localStorage)        |
 | Mis comandos   | Disponible    | Comandos propios del usuario (localStorage)           |
 | ARM            | Próximamente  | Plantillas ARM                                        |
 | Bicep          | Próximamente  | Plantillas Bicep                                      |
@@ -78,6 +86,7 @@ description: Muestra todas las VMs de un grupo de recursos.
 shell: azurecli            # powershell | azurecli | arm | bicep | terraform | bash | cmd | other
 category: Máquinas virtuales
 tags: [vm, listar, consulta]
+operation: read            # opcional; si falta se deduce del comando
 template: "az vm list --resource-group <resourceGroup> --output <output>"
 parameters:
   - name: resourceGroup     # debe coincidir con el <token> de la plantilla
@@ -100,6 +109,8 @@ enlaces y listas).
 Reglas:
 
 - Cada `<token>` de `template` debe tener un `parameters[].name` que coincida.
+- `operation` solo hace falta cuando la deducción falla (por ejemplo
+  `az aks get-credentials`, que parece lectura y también escribe el kubeconfig).
 - Los valores numéricos de `default` van entre comillas (`default: "2"`), ya que el
   frontmatter se valida con Zod.
 - El frontmatter se valida al cargar; un archivo mal formado hace fallar el build con un
@@ -122,6 +133,7 @@ title: Respaldo masivo de VMs
 description: Lanza un backup on-demand para varias VMs y monitorea el snapshot.
 category: Respaldo y snapshots
 tags: [backup, vm]
+operation: create           # consulta/creación/… para agrupar y ordenar
 language: bash              # opcional; por defecto se deduce de la extensión
 usage: "bash backup-vms.sh"
 requirements:
@@ -170,15 +182,17 @@ src/
   app/                       # Rutas: /, /cli, /scripts, /powershell, /mis-comandos, (arm|bicep|terraform)
   components/
     app-shell.tsx            # Cabecera + menú lateral colapsable (estado del sidebar)
-    app-sidebar.tsx          # Secciones y categorías del menú lateral
+    app-sidebar.tsx          # Secciones, productos y operaciones del menú lateral
+    favorite-button.tsx      # Estrella de favoritos (comandos y scripts)
     command/                 # CommandCard, CommandList, CodeBlock, formulario, import/export
     script/                  # ScriptCard, ScriptList
     ui/                      # Componentes shadcn/ui
   lib/
-    content/                 # Loader MDX + esquema de frontmatter (server-only)
+    operations.ts            # Subcategorías CRUD: orden, etiquetas y deducción
+    content/                 # Loaders + esquemas de frontmatter (server-only)
     repositories/            # Repositorio de "Mis comandos" (localStorage)
     params/                  # Motor de plantillas (<token> → valores)
-    store/                   # Hook useUserCommands
+    store/                   # Hooks useUserCommands y useFavorites
     types.ts, schema.ts, ...
 ```
 

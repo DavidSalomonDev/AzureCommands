@@ -5,21 +5,28 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 
-import { CATEGORY_PARAM } from "@/components/app-sidebar";
+import { CATEGORY_PARAM, OPERATION_PARAM } from "@/components/app-sidebar";
+import {
+  OperationHeading,
+  groupByCategoryAndOperation,
+} from "@/components/grouped-section";
 import { ScriptCard } from "@/components/script/script-card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import type { Script } from "@/lib/types";
+import { OPERATION_LABELS, resolveScriptOperation } from "@/lib/operations";
+import type { CrudOperation, Script } from "@/lib/types";
 
 export function ScriptList({ scripts }: { scripts: Script[] }) {
   const searchParams = useSearchParams();
   const category = searchParams.get(CATEGORY_PARAM);
+  const operation = searchParams.get(OPERATION_PARAM) as CrudOperation | null;
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return scripts.filter((s) => {
       if (category && s.category !== category) return false;
+      if (operation && resolveScriptOperation(s) !== operation) return false;
       if (!q) return true;
       return (
         s.title.toLowerCase().includes(q) ||
@@ -29,17 +36,21 @@ export function ScriptList({ scripts }: { scripts: Script[] }) {
         s.tags?.some((t) => t.toLowerCase().includes(q))
       );
     });
-  }, [scripts, query, category]);
+  }, [scripts, query, category, operation]);
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, Script[]>();
-    for (const script of filtered) {
-      const list = map.get(script.category) ?? [];
-      list.push(script);
-      map.set(script.category, list);
-    }
-    return map;
-  }, [filtered]);
+  const grouped = useMemo(
+    () =>
+      groupByCategoryAndOperation(
+        filtered,
+        (s) => s.category,
+        (s) => resolveScriptOperation(s)
+      ),
+    [filtered]
+  );
+
+  const clearOperationHref = category
+    ? `/scripts?${CATEGORY_PARAM}=${encodeURIComponent(category)}`
+    : "/scripts";
 
   return (
     <div className="flex flex-col gap-6">
@@ -50,35 +61,49 @@ export function ScriptList({ scripts }: { scripts: Script[] }) {
           onChange={(e) => setQuery(e.target.value)}
           className="sm:max-w-md"
         />
-        {category && (
-          <Link href="/scripts" className="w-fit">
-            <Badge variant="secondary" className="gap-1 py-1">
-              {category}
-              <X className="size-3" />
-              <span className="sr-only">Quitar filtro de categoría</span>
-            </Badge>
-          </Link>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {category && (
+            <Link href="/scripts">
+              <Badge variant="secondary" className="gap-1 py-1">
+                {category}
+                <X className="size-3" />
+                <span className="sr-only">Quitar filtro de categoría</span>
+              </Badge>
+            </Link>
+          )}
+          {operation && (
+            <Link href={clearOperationHref}>
+              <Badge variant="secondary" className="gap-1 py-1">
+                {OPERATION_LABELS[operation]}
+                <X className="size-3" />
+                <span className="sr-only">Quitar filtro de operación</span>
+              </Badge>
+            </Link>
+          )}
+        </div>
       </div>
 
       {filtered.length === 0 && (
         <p className="text-sm text-muted-foreground">
           {query.trim()
             ? `No se encontraron scripts para “${query}”.`
-            : "No hay scripts en esta categoría."}
+            : "No hay scripts con estos filtros."}
         </p>
       )}
 
-      {Array.from(grouped.entries()).map(([groupCategory, items]) => (
+      {grouped.map(({ category: groupCategory, groups }) => (
         <section key={groupCategory} className="flex flex-col gap-3">
           <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             {groupCategory}
           </h2>
-          <div className="flex flex-col gap-4">
-            {items.map((script) => (
-              <ScriptCard key={script.id} script={script} />
-            ))}
-          </div>
+          {groups.map(({ operation: groupOperation, items }) => (
+            <div key={groupOperation} className="flex flex-col gap-3">
+              <OperationHeading operation={groupOperation} count={items.length} />
+              {items.map((script) => (
+                <ScriptCard key={script.id} script={script} />
+              ))}
+            </div>
+          ))}
         </section>
       ))}
     </div>

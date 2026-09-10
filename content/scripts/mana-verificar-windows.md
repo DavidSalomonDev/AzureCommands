@@ -3,6 +3,7 @@ title: Verificar driver MANA en VMs Windows
 description: Consulta remotamente los drivers "Microsoft Azure Network Adapter" de cada VM Windows mediante az vm run-command.
 category: Diagnóstico MANA
 tags: [mana, windows, run-command, driver]
+operation: read
 language: bash
 usage: "bash mana-verificar-windows.sh"
 requirements:

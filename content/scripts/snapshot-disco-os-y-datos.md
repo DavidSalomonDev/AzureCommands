@@ -3,6 +3,7 @@ title: Snapshot manual de disco de SO y discos de datos
 description: Igual que el snapshot de disco de SO, pero además recorre los discos de datos de cada VM y crea un snapshot por LUN.
 category: Respaldo y snapshots
 tags: [snapshot, disco, data-disk, os-disk, vm]
+operation: create
 language: bash
 usage: "bash snapshot-disco-os-y-datos.sh"
 requirements:

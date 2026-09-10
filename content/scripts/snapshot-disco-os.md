@@ -3,6 +3,7 @@ title: Snapshot manual del disco de SO
 description: Crea un snapshot del disco de sistema operativo de una o varias VMs, resolviendo grupo de recursos y ubicación automáticamente.
 category: Respaldo y snapshots
 tags: [snapshot, disco, os-disk, vm]
+operation: create
 language: bash
 usage: "bash snapshot-disco-os.sh"
 requirements:
