@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Check, ChevronDown, ChevronUp, Copy, Download } from "lucide-react";
 import { toast } from "sonner";
 
+import { ParamInput } from "@/components/command/param-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +14,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  buildDefaultValues,
+  parseTemplateSegments,
+  renderTemplate,
+} from "@/lib/params/template-engine";
 import { SCRIPT_LANGUAGE_LABELS, type Script } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 /** Renders `backticked` fragments of a plain string as inline code. */
 function InlineCode({ text }: { text: string }) {
@@ -33,20 +40,43 @@ function InlineCode({ text }: { text: string }) {
 }
 
 /** Lines shown before the script is expanded. */
-const PREVIEW_LINES = 14;
+const PREVIEW_LINES = 18;
 
 export function ScriptCard({ script }: { script: Script }) {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [values, setValues] = useState<Record<string, string>>(() =>
+    buildDefaultValues(script.parameters)
+  );
 
-  const lines = script.code.split("\n");
+  const lines = useMemo(() => script.code.split("\n"), [script.code]);
   const truncated = lines.length > PREVIEW_LINES;
-  const visibleCode =
-    expanded || !truncated ? script.code : lines.slice(0, PREVIEW_LINES).join("\n");
+
+  // The preview is truncated on the template so the <token> highlighting still
+  // works; copy and download always use the full, substituted script.
+  const visibleSegments = useMemo(() => {
+    const source =
+      expanded || !truncated ? script.code : lines.slice(0, PREVIEW_LINES).join("\n");
+    return parseTemplateSegments(source);
+  }, [script.code, lines, expanded, truncated]);
+
+  const renderedCode = useMemo(
+    () => renderTemplate(script.code, values),
+    [script.code, values]
+  );
+
+  const renderedUsage = useMemo(
+    () => (script.usage ? renderTemplate(script.usage, values) : null),
+    [script.usage, values]
+  );
+
+  function handleChange(name: string, value: string) {
+    setValues((prev) => ({ ...prev, [name]: value }));
+  }
 
   async function handleCopy() {
     try {
-      await navigator.clipboard.writeText(script.code);
+      await navigator.clipboard.writeText(renderedCode);
       setCopied(true);
       toast.success("Script copiado al portapapeles");
       setTimeout(() => setCopied(false), 1500);
@@ -56,7 +86,7 @@ export function ScriptCard({ script }: { script: Script }) {
   }
 
   function handleDownload() {
-    const blob = new Blob([script.code], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob([renderedCode + "\n"], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
@@ -86,7 +116,7 @@ export function ScriptCard({ script }: { script: Script }) {
               variant="outline"
               size="icon-sm"
               onClick={handleDownload}
-              aria-label={`Descargar ${script.fileName}`}
+              aria-label={"Descargar " + script.fileName}
             >
               <Download />
             </Button>
@@ -107,13 +137,27 @@ export function ScriptCard({ script }: { script: Script }) {
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3">
-        {script.usage && (
+        {script.parameters.length > 0 && (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {script.parameters.map((param) => (
+              <ParamInput
+                key={param.name}
+                parameter={param}
+                idPrefix={script.id}
+                value={values[param.name] ?? ""}
+                onChange={(v) => handleChange(param.name, v)}
+              />
+            ))}
+          </div>
+        )}
+
+        {renderedUsage && (
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
               Uso
             </span>
             <pre className="overflow-x-auto rounded-lg border bg-muted/40 p-2.5 text-sm dark:bg-muted/20">
-              <code className="font-mono">{script.usage}</code>
+              <code className="font-mono">{renderedUsage}</code>
             </pre>
           </div>
         )}
@@ -135,7 +179,26 @@ export function ScriptCard({ script }: { script: Script }) {
 
         <div className="relative rounded-lg border bg-muted/40 dark:bg-muted/20">
           <pre className="overflow-x-auto p-3 text-xs leading-relaxed">
-            <code className="font-mono whitespace-pre">{visibleCode}</code>
+            <code className="font-mono whitespace-pre">
+              {visibleSegments.map((seg, i) => {
+                if (seg.type === "text") return <span key={i}>{seg.value}</span>;
+                const filled = (values[seg.value] ?? "").trim().length > 0;
+                return (
+                  <span
+                    key={i}
+                    className={cn(
+                      "rounded px-0.5",
+                      filled
+                        ? "text-primary font-medium"
+                        : "text-amber-600 underline decoration-dashed decoration-amber-500/60 underline-offset-4 dark:text-amber-400"
+                    )}
+                    title={filled ? undefined : "Falta el parámetro: " + seg.value}
+                  >
+                    {filled ? values[seg.value] : "<" + seg.value + ">"}
+                  </span>
+                );
+              })}
+            </code>
           </pre>
           {truncated && (
             <Button

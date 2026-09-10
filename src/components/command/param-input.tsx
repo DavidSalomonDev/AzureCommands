@@ -15,10 +15,15 @@ interface ParamInputProps {
   parameter: CommandParameter;
   value: string;
   onChange: (value: string) => void;
+  /**
+   * Distinguishes inputs of the same parameter name across cards, so that each
+   * label points at its own field.
+   */
+  idPrefix?: string;
 }
 
-export function ParamInput({ parameter, value, onChange }: ParamInputProps) {
-  const inputId = `param-${parameter.name}`;
+export function ParamInput({ parameter, value, onChange, idPrefix }: ParamInputProps) {
+  const inputId = `${idPrefix ?? "param"}-${parameter.name}`;
 
   return (
     <div className="flex flex-col gap-1.5">

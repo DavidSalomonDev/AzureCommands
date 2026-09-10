@@ -133,7 +133,7 @@ export function CommandList({
           <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             {category}
           </h2>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="flex flex-col gap-4">
             {cmds.map((cmd) => (
               <CommandCard key={cmd.id} command={cmd} actions={renderActions?.(cmd)} />
             ))}

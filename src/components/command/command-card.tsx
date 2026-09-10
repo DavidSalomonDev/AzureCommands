@@ -64,11 +64,12 @@ export function CommandCard({ command, actions }: CommandCardProps) {
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {command.parameters.length > 0 && (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {command.parameters.map((param) => (
               <ParamInput
                 key={param.name}
                 parameter={param}
+                idPrefix={command.id}
                 value={values[param.name] ?? ""}
                 onChange={(v) => handleChange(param.name, v)}
               />

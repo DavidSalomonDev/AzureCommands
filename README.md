@@ -19,8 +19,9 @@ importación para llevártelas entre equipos.
   hamburguesa (en escritorio queda como barra de iconos; en móvil se abre como cajón).
   Al elegir una categoría se filtra la sección mediante el parámetro `?cat=`.
 - **Búsqueda** por título, descripción, categoría o etiqueta en cada sección.
-- **Scripts** de varias líneas (PowerShell o Azure CLI): se ven completos, se copian de
-  una vez y se descargan como archivo `.ps1` / `.sh`.
+- **Scripts** de varias líneas, todos en Azure CLI (Bash): con los mismos inputs
+  dinámicos que los comandos —los valores se sustituyen en vivo dentro del código— y
+  botones para copiar el script completo o descargarlo ya rellenado.
 - **Mis comandos:** guarda tus propias líneas (Linux o Windows) en `localStorage`, con
   autodetección de parámetros `<token>`, y **exporta/importa** en JSON para migrar entre
   equipos.
@@ -34,7 +35,7 @@ CLI, después Scripts y luego PowerShell.
 | Sección        | Estado        | Contenido                                             |
 | -------------- | ------------- | ----------------------------------------------------- |
 | Azure CLI      | Disponible    | Comandos `az` (opción recomendada)                    |
-| Scripts        | Disponible    | Scripts completos de PowerShell / Azure CLI           |
+| Scripts        | Disponible    | Scripts completos en Azure CLI (Bash)                 |
 | PowerShell     | Disponible    | Comandos del módulo `Az`                              |
 | Mis comandos   | Disponible    | Comandos propios del usuario (localStorage)           |
 | ARM            | Próximamente  | Plantillas ARM                                        |
@@ -106,13 +107,13 @@ Reglas:
 
 ## Cómo añadir un script
 
-Los scripts viven en `content/scripts/` como archivos reales `.ps1` (o `.sh`), tal cual
+Los scripts viven en `content/scripts/` como archivos reales `.sh` (o `.ps1`), tal cual
 los ejecutas. Junto a cada uno puedes dejar un `.md` **con el mismo nombre base** que
 aporta el frontmatter y las notas:
 
 ```
-content/scripts/Backup-VMs.ps1     # el script, sin tocar
-content/scripts/Backup-VMs.md      # metadatos + notas (opcional)
+content/scripts/backup-vms.sh      # el script, con <tokens> donde van los valores
+content/scripts/backup-vms.md      # metadatos + notas (opcional)
 ```
 
 ```md
@@ -121,14 +122,24 @@ title: Respaldo masivo de VMs
 description: Lanza un backup on-demand para varias VMs y monitorea el snapshot.
 category: Respaldo y snapshots
 tags: [backup, vm]
-language: powershell        # opcional; por defecto se deduce de la extensión
-usage: './Backup-VMs.ps1 -VMNames "vm1,vm2" -RetentionInDays 30'
+language: bash              # opcional; por defecto se deduce de la extensión
+usage: "bash backup-vms.sh"
 requirements:
   - Azure CLI (`az`) con sesión iniciada
+parameters:                 # mismos campos que los comandos MDX
+  - name: vmNames           # debe coincidir con el <token> usado en el script
+    label: VMs a respaldar
+    type: string
+    required: true
+    placeholder: vm-app01,vm-sql01
 ---
 
 Notas en Markdown: qué hace, parámetros, advertencias…
 ```
+
+Los `<token>` del script se convierten en inputs sobre el bloque de código y se
+sustituyen en vivo; copiar y descargar usan siempre el script ya rellenado. Evita usar
+`<` y `>` en el código para otra cosa que no sean parámetros.
 
 Sin sidecar el script igual aparece: toma el nombre del archivo como título y la carpeta
 que lo contiene como categoría (`content/scripts/<categoría>/<script>.ps1`).
@@ -153,7 +164,8 @@ que lo contiene como categoría (`content/scripts/<categoría>/<script>.ps1`).
 ```
 content/
   cli/  powershell/          # Catálogo MDX por servicio
-  scripts/                   # Scripts .ps1/.sh + sidecar .md con sus metadatos
+  scripts/                   # Scripts .sh + sidecar .md con sus metadatos
+  _powershell-originales/    # Versiones PowerShell previas, fuera del catálogo
 src/
   app/                       # Rutas: /, /cli, /scripts, /powershell, /mis-comandos, (arm|bicep|terraform)
   components/

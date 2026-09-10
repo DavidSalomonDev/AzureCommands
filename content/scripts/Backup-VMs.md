@@ -3,25 +3,46 @@ title: Respaldo masivo de VMs con monitoreo de snapshot
 description: Lanza un backup on-demand en Recovery Services Vault para varias VMs y monitorea la fase de snapshot hasta liberarlas para mantenimiento.
 category: Respaldo y snapshots
 tags: [backup, recovery-services, vm, snapshot, mantenimiento]
-language: powershell
-usage: './Backup-VMs.ps1 -VMNames "vm-app01,vm-sql01" -RetentionInDays 30'
+language: bash
+usage: "bash backup-vms.sh"
 requirements:
   - Azure CLI (`az`) con sesión iniciada (`az login`) y la suscripción correcta activa
-  - Extensión `az backup` disponible
   - Permisos de *Backup Operator* sobre los Recovery Services Vault
+  - Las VMs ya deben estar protegidas en algún vault
+parameters:
+  - name: vmNames
+    label: VMs a respaldar
+    description: Nombres separados por coma.
+    type: string
+    required: true
+    placeholder: vm-app01,vm-sql01
+  - name: retentionDays
+    label: Días de retención
+    type: number
+    required: true
+    default: "30"
+  - name: waitForSnapshot
+    label: Liberar al terminar el snapshot
+    description: Con "true" no espera la transferencia completa al vault.
+    type: enum
+    required: true
+    default: "true"
+    options: ["true", "false"]
+  - name: pollSeconds
+    label: Intervalo de monitoreo (segundos)
+    type: number
+    required: true
+    default: "60"
 ---
 
-Recorre todos los Recovery Services Vault de la suscripción activa, localiza los
-elementos protegidos que coinciden con las VMs indicadas y dispara un respaldo con la
-fecha de expiración calculada a partir de `-RetentionInDays`.
+Recorre todos los Recovery Services Vault de la suscripción activa, localiza el elemento
+protegido de cada VM y dispara `az backup protection backup-now` con la fecha de
+expiración calculada a partir de los días de retención.
 
-**Parámetros**
+Después consulta el job con `az backup job show` y revisa la subtarea **Take Snapshot**:
+en cuanto termina, la VM se marca como liberada y puedes continuar con el mantenimiento
+sin esperar a que suba todo el respaldo. Si el job no reporta esa subtarea, se asume
+completada tras 12 minutos.
 
-- `-VMNames` *(obligatorio)*: lista de VMs, como array o separadas por coma.
-- `-RetentionInDays` *(obligatorio)*: días de retención del punto de recuperación.
-- `-WaitForSnapshotOnly` *(opcional, por defecto `$true`)*: espera solo a que termine la
-  fase *take snapshot* en lugar de la transferencia completa al vault.
-
-Cuando el snapshot de una VM finaliza, el script la marca como liberada: ya puedes
-continuar con el mantenimiento sin esperar a que suba todo el respaldo. Si el job no
-reporta la subtarea de snapshot, asume que terminó tras 12 minutos.
+Ejecuta el script con `bash backup-vms.sh` (en Windows, desde WSL, Git Bash o Cloud
+Shell).

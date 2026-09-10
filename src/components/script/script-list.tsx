@@ -74,7 +74,7 @@ export function ScriptList({ scripts }: { scripts: Script[] }) {
           <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             {groupCategory}
           </h2>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="flex flex-col gap-4">
             {items.map((script) => (
               <ScriptCard key={script.id} script={script} />
             ))}

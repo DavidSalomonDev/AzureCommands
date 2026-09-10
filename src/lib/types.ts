@@ -85,8 +85,10 @@ export interface Script {
   tags?: string[];
   /** File name as it lives in `content/scripts/`, e.g. "Backup-VMs.ps1". */
   fileName: string;
-  /** Full source code of the script. */
+  /** Full source code of the script, with `<token>` placeholders. */
   code: string;
+  /** Inputs that fill the `<token>` placeholders of the code. */
+  parameters: CommandParameter[];
   /** Example invocation line, shown above the code. */
   usage?: string;
   /** Prerequisites (Azure CLI, módulo Az, permisos…). */
