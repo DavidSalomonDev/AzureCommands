@@ -3,6 +3,7 @@ title: Respaldo masivo de VMs con monitoreo de snapshot
 description: Lanza un backup on-demand en Recovery Services Vault para varias VMs y monitorea la fase de snapshot hasta liberarlas para mantenimiento.
 category: Respaldo y snapshots
 tags: [backup, recovery-services, vm, snapshot, mantenimiento]
+operation: create
 language: bash
 usage: "bash backup-vms.sh"
 requirements:
