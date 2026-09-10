@@ -1,21 +1,26 @@
 # Azure Commands · Biblia de comandos de Azure
 
-Organizador web de comandos para administrar Azure. Reúne los comandos más usados de
-**PowerShell** y **Azure CLI**, permite completar sus parámetros con inputs dinámicos y
-copiar la línea lista para pegar en Cloud Shell o en tu terminal. Además puedes guardar
-tus propios comandos en **Mis comandos**, con exportación e importación para llevártelos
-entre equipos.
+Organizador web de comandos para administrar Azure. Prioriza **Azure CLI** (`az`) —misma
+sintaxis en Cloud Shell, Linux, macOS y Windows— y mantiene **PowerShell** (módulo `Az`)
+para quien lo prefiera. Permite completar los parámetros con inputs dinámicos y copiar la
+línea lista para pegar. Para las tareas que no caben en una sola línea está la sección
+**Scripts**, y puedes guardar tus propias líneas en **Mis comandos**, con exportación e
+importación para llevártelas entre equipos.
 
 ## Características
 
-- **Catálogo curado** de comandos de PowerShell (módulo `Az`) y Azure CLI (`az`),
+- **Catálogo curado** de comandos de Azure CLI (`az`) y PowerShell (módulo `Az`),
   organizados por producto de Azure (VMs, Redes, Almacenamiento, AKS, Key Vault,
   Application Gateway, Load Balancer, Front Door, Recovery Services Vault, etc.).
 - **Parámetros dinámicos:** cada comando expone inputs por cada `<token>` de su plantilla;
   al escribir, la sustitución se refleja en vivo en el bloque de código.
 - **Copiar al portapapeles** con un clic en cada bloque de código.
-- **Filtro por categoría** (dropdown) y búsqueda por título, descripción, categoría o
-  etiqueta en cada sección.
+- **Menú lateral** con las secciones y sus categorías, colapsable con el botón
+  hamburguesa (en escritorio queda como barra de iconos; en móvil se abre como cajón).
+  Al elegir una categoría se filtra la sección mediante el parámetro `?cat=`.
+- **Búsqueda** por título, descripción, categoría o etiqueta en cada sección.
+- **Scripts** de varias líneas (PowerShell o Azure CLI): se ven completos, se copian de
+  una vez y se descargan como archivo `.ps1` / `.sh`.
 - **Mis comandos:** guarda tus propias líneas (Linux o Windows) en `localStorage`, con
   autodetección de parámetros `<token>`, y **exporta/importa** en JSON para migrar entre
   equipos.
@@ -23,14 +28,18 @@ entre equipos.
 
 ## Secciones
 
+El orden de las secciones (menú lateral y portada) refleja la prioridad: primero Azure
+CLI, después Scripts y luego PowerShell.
+
 | Sección        | Estado        | Contenido                                             |
 | -------------- | ------------- | ----------------------------------------------------- |
-| PowerShell     | Disponible    | Comandos del módulo `Az`                               |
-| Azure CLI      | Disponible    | Comandos `az` en Bash                                  |
+| Azure CLI      | Disponible    | Comandos `az` (opción recomendada)                    |
+| Scripts        | Disponible    | Scripts completos de PowerShell / Azure CLI           |
+| PowerShell     | Disponible    | Comandos del módulo `Az`                              |
+| Mis comandos   | Disponible    | Comandos propios del usuario (localStorage)           |
 | ARM            | Próximamente  | Plantillas ARM                                        |
 | Bicep          | Próximamente  | Plantillas Bicep                                      |
 | Terraform      | Próximamente  | Configuraciones Terraform                             |
-| Mis comandos   | Disponible    | Comandos propios del usuario (localStorage)           |
 
 ## Requisitos
 
@@ -95,11 +104,42 @@ Reglas:
 - El frontmatter se valida al cargar; un archivo mal formado hace fallar el build con un
   mensaje indicando el problema.
 
+## Cómo añadir un script
+
+Los scripts viven en `content/scripts/` como archivos reales `.ps1` (o `.sh`), tal cual
+los ejecutas. Junto a cada uno puedes dejar un `.md` **con el mismo nombre base** que
+aporta el frontmatter y las notas:
+
+```
+content/scripts/Backup-VMs.ps1     # el script, sin tocar
+content/scripts/Backup-VMs.md      # metadatos + notas (opcional)
+```
+
+```md
+---
+title: Respaldo masivo de VMs
+description: Lanza un backup on-demand para varias VMs y monitorea el snapshot.
+category: Respaldo y snapshots
+tags: [backup, vm]
+language: powershell        # opcional; por defecto se deduce de la extensión
+usage: './Backup-VMs.ps1 -VMNames "vm1,vm2" -RetentionInDays 30'
+requirements:
+  - Azure CLI (`az`) con sesión iniciada
+---
+
+Notas en Markdown: qué hace, parámetros, advertencias…
+```
+
+Sin sidecar el script igual aparece: toma el nombre del archivo como título y la carpeta
+que lo contiene como categoría (`content/scripts/<categoría>/<script>.ps1`).
+
 ## Arquitectura
 
 - **Next.js 16** (App Router, React 19, Turbopack). Las páginas de sección son Server
   Components `async` que leen el catálogo en el servidor.
-- **Capa de contenido** (`src/lib/content/`): `fs` + `gray-matter` para el frontmatter,
+- **Capa de contenido** (`src/lib/content/`): `loader.ts` para los comandos MDX,
+  `scripts-loader.ts` para `content/scripts/` y `nav-tree.ts` para armar el menú lateral
+  (secciones + categorías con su conteo). Usa `fs` + `gray-matter` para el frontmatter,
   `remark` (+ `remark-gfm`) para convertir las notas Markdown a HTML, y **Zod** para
   validar el frontmatter.
 - **Mis comandos** usa un patrón de repositorio (`src/lib/repositories/`) con una
@@ -111,11 +151,16 @@ Reglas:
 ### Estructura del proyecto
 
 ```
-content/                     # Catálogo MDX (cli/ y powershell/ por servicio)
+content/
+  cli/  powershell/          # Catálogo MDX por servicio
+  scripts/                   # Scripts .ps1/.sh + sidecar .md con sus metadatos
 src/
-  app/                       # Rutas: /, /powershell, /cli, /mis-comandos, (arm|bicep|terraform)
+  app/                       # Rutas: /, /cli, /scripts, /powershell, /mis-comandos, (arm|bicep|terraform)
   components/
+    app-shell.tsx            # Cabecera + menú lateral colapsable (estado del sidebar)
+    app-sidebar.tsx          # Secciones y categorías del menú lateral
     command/                 # CommandCard, CommandList, CodeBlock, formulario, import/export
+    script/                  # ScriptCard, ScriptList
     ui/                      # Componentes shadcn/ui
   lib/
     content/                 # Loader MDX + esquema de frontmatter (server-only)

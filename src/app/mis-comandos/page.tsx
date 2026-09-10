@@ -102,6 +102,7 @@ export default function MisComandosPage() {
           />
           <CommandList
             commands={commands}
+            showCategorySelect
             renderActions={(cmd) => (
               <DropdownMenu>
                 <DropdownMenuTrigger

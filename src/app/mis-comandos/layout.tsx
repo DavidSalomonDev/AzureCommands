@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Mis comandos · Azure Commands" };
@@ -7,5 +8,5 @@ export default function MisComandosLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <Suspense fallback={null}>{children}</Suspense>;
 }

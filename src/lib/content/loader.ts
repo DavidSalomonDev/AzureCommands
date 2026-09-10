@@ -14,6 +14,8 @@ import { slugify } from "@/lib/slugify";
 import type { Command, Shell } from "@/lib/types";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
+/** Folders under `content/` that hold something other than command MDX files. */
+const IGNORED_DIRS = new Set(["scripts"]);
 const USE_CACHE = process.env.NODE_ENV === "production";
 
 let cache: Command[] | null = null;
@@ -28,7 +30,10 @@ async function walkMdxFiles(dir: string): Promise<string[]> {
   const nested = await Promise.all(
     entries.map((entry) => {
       const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) return walkMdxFiles(full);
+      if (entry.isDirectory()) {
+        if (IGNORED_DIRS.has(entry.name)) return Promise.resolve([]);
+        return walkMdxFiles(full);
+      }
       return /\.mdx?$/.test(entry.name) ? Promise.resolve([full]) : Promise.resolve([]);
     })
   );

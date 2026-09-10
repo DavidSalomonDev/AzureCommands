@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
+import { X } from "lucide-react";
+import Link from "next/link";
 
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,19 +14,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CATEGORY_PARAM } from "@/components/app-sidebar";
 import { CommandCard } from "@/components/command/command-card";
 import type { Command } from "@/lib/types";
 
 interface CommandListProps {
   commands: Command[];
   renderActions?: (command: Command) => ReactNode;
+  /**
+   * Sections listed in the sidebar filter by category through the `?cat=` query
+   * param. "Mis comandos" has no sidebar categories (its data lives in the
+   * browser), so it renders its own dropdown instead.
+   */
+  showCategorySelect?: boolean;
+  /** Base path used to clear the category filter, e.g. "/cli". */
+  basePath?: string;
 }
 
 const ALL_CATEGORIES = "__all__";
 
-export function CommandList({ commands, renderActions }: CommandListProps) {
+export function CommandList({
+  commands,
+  renderActions,
+  showCategorySelect = false,
+  basePath = "",
+}: CommandListProps) {
+  const searchParams = useSearchParams();
+  const urlCategory = searchParams.get(CATEGORY_PARAM);
+
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<string>(ALL_CATEGORIES);
+  const [selected, setSelected] = useState<string>(ALL_CATEGORIES);
+
+  const category = showCategorySelect ? selected : (urlCategory ?? ALL_CATEGORIES);
 
   const categories = useMemo(() => {
     const set = new Set(commands.map((c) => c.category));
@@ -62,26 +85,39 @@ export function CommandList({ commands, renderActions }: CommandListProps) {
           onChange={(e) => setQuery(e.target.value)}
           className="sm:max-w-md"
         />
-        <Select
-          value={category}
-          onValueChange={(value) => setCategory(value ?? ALL_CATEGORIES)}
-        >
-          <SelectTrigger className="w-full sm:w-64" aria-label="Filtrar por categoría">
-            <SelectValue>
-              {(value: string) =>
-                value === ALL_CATEGORIES ? "Todas las categorías" : value
-              }
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL_CATEGORIES}>Todas las categorías</SelectItem>
-            {categories.map((c) => (
-              <SelectItem key={c} value={c}>
-                {c}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+
+        {showCategorySelect ? (
+          <Select
+            value={selected}
+            onValueChange={(value) => setSelected(value ?? ALL_CATEGORIES)}
+          >
+            <SelectTrigger className="w-full sm:w-64" aria-label="Filtrar por categoría">
+              <SelectValue>
+                {(value: string) =>
+                  value === ALL_CATEGORIES ? "Todas las categorías" : value
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_CATEGORIES}>Todas las categorías</SelectItem>
+              {categories.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          urlCategory && (
+            <Link href={basePath || "?"} className="w-fit">
+              <Badge variant="secondary" className="gap-1 py-1">
+                {urlCategory}
+                <X className="size-3" />
+                <span className="sr-only">Quitar filtro de categoría</span>
+              </Badge>
+            </Link>
+          )
+        )}
       </div>
 
       {filtered.length === 0 && (

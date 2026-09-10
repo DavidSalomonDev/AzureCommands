@@ -128,3 +128,9 @@
     @apply font-sans;
   }
 }
+@layer base {
+  :root {
+    /* Alto de la cabecera fija; el sidebar se ancla justo debajo. */
+    --header-h: 3.5rem;
+  }
+}

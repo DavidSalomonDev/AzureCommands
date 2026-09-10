@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
-import { SiteHeader } from "@/components/site-header";
+import { AppShell } from "@/components/app-shell";
+import { getNavSections } from "@/lib/content/nav-tree";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -23,11 +24,13 @@ export const metadata: Metadata = {
     "Biblioteca de comandos de PowerShell, Azure CLI, ARM, Bicep y Terraform para administrar recursos en Azure.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const sections = await getNavSections();
+
   return (
     <html
       lang="es"
@@ -42,8 +45,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>
-            <SiteHeader />
-            <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</main>
+            <AppShell sections={sections}>{children}</AppShell>
             <Toaster position="bottom-right" />
           </TooltipProvider>
         </ThemeProvider>

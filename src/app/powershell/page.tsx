@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import { CommandList } from "@/components/command/command-list";
@@ -13,11 +14,13 @@ export default async function PowerShellPage() {
       <div>
         <h1 className="font-heading text-2xl font-semibold">PowerShell</h1>
         <p className="text-muted-foreground">
-          Comandos del módulo Az para crear, modificar, eliminar y consultar recursos de
-          Azure desde Cloud Shell o tu terminal local.
+          Comandos del módulo Az, útiles cuando ya trabajas dentro de PowerShell o
+          necesitas encadenar objetos. Si te da igual el shell, empieza por Azure CLI.
         </p>
       </div>
-      <CommandList commands={commands} />
+      <Suspense fallback={null}>
+        <CommandList commands={commands} basePath="/powershell" />
+      </Suspense>
     </div>
   );
 }

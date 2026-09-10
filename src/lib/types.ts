@@ -61,3 +61,36 @@ export const USER_SHELL_OPTIONS: Shell[] = [
   "cmd",
   "other",
 ];
+
+/** Language a script is written in. Drives the code fence + download extension. */
+export type ScriptLanguage = "powershell" | "bash";
+
+export const SCRIPT_LANGUAGE_LABELS: Record<ScriptLanguage, string> = {
+  powershell: "PowerShell",
+  bash: "Bash / Azure CLI",
+};
+
+export const SCRIPT_EXTENSIONS: Record<ScriptLanguage, string> = {
+  powershell: ".ps1",
+  bash: ".sh",
+};
+
+export interface Script {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  language: ScriptLanguage;
+  category: string;
+  tags?: string[];
+  /** File name as it lives in `content/scripts/`, e.g. "Backup-VMs.ps1". */
+  fileName: string;
+  /** Full source code of the script. */
+  code: string;
+  /** Example invocation line, shown above the code. */
+  usage?: string;
+  /** Prerequisites (Azure CLI, módulo Az, permisos…). */
+  requirements?: string[];
+  /** Notes rendered from the sidecar markdown body to HTML at build time. */
+  notesHtml?: string;
+}

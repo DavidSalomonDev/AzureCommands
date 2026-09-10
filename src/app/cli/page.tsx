@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import { CommandList } from "@/components/command/command-list";
@@ -13,12 +14,14 @@ export default async function CliPage() {
       <div>
         <h1 className="font-heading text-2xl font-semibold">Azure CLI</h1>
         <p className="text-muted-foreground">
-          Comandos <code className="font-mono text-sm">az</code> en Bash para crear,
-          modificar, eliminar y consultar recursos de Azure desde Cloud Shell o tu
-          terminal local.
+          Comandos <code className="font-mono text-sm">az</code> para crear, modificar,
+          eliminar y consultar recursos de Azure desde Cloud Shell o tu terminal local.
+          Es la opción recomendada: misma sintaxis en Linux, macOS y Windows.
         </p>
       </div>
-      <CommandList commands={commands} />
+      <Suspense fallback={null}>
+        <CommandList commands={commands} basePath="/cli" />
+      </Suspense>
     </div>
   );
 }

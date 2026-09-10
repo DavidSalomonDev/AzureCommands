@@ -9,21 +9,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { NAV_ITEMS } from "@/lib/nav-items";
-import { getLibraryCommands } from "@/lib/content/loader";
-import type { Shell } from "@/lib/types";
+import { getNavSections } from "@/lib/content/nav-tree";
 
-const SHELL_BY_HREF: Partial<Record<string, Shell>> = {
-  "/powershell": "powershell",
-  "/cli": "azurecli",
+const ITEM_NOUN: Record<string, string> = {
+  "/scripts": "scripts",
 };
 
 export default async function Home() {
-  const library = await getLibraryCommands();
-  const countByShell = library.reduce<Partial<Record<Shell, number>>>((acc, c) => {
-    acc[c.shell] = (acc[c.shell] ?? 0) + 1;
-    return acc;
-  }, {});
+  const sections = await getNavSections();
 
   return (
     <div className="flex flex-col gap-10">
@@ -35,43 +28,43 @@ export default async function Home() {
           Organiza, completa y copia tus comandos de Azure
         </h1>
         <p className="max-w-2xl text-muted-foreground">
-          Encuentra los comandos más usados de PowerShell y Azure CLI, completa sus
-          parámetros y copia la línea lista para pegar en Cloud Shell o tu terminal.
-          Guarda además tus propios comandos en “Mis comandos”.
+          Empieza por <strong className="text-foreground">Azure CLI</strong>: los comandos{" "}
+          <code className="font-mono text-sm">az</code> funcionan igual en Cloud Shell,
+          Linux, macOS y Windows. Completa sus parámetros, copia la línea lista para
+          pegar y, cuando una tarea necesite más de una línea, pásate a{" "}
+          <strong className="text-foreground">Scripts</strong>. PowerShell sigue
+          disponible para cuando prefieras el módulo Az.
         </p>
       </section>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {NAV_ITEMS.map((item) => {
-          const shell = SHELL_BY_HREF[item.href];
-          const count = shell ? countByShell[shell] ?? 0 : null;
-
-          return (
-            <Link key={item.href} href={item.href} className="group">
-              <Card className="h-full transition-colors group-hover:ring-primary/40">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>{item.label}</CardTitle>
-                    {item.status === "soon" ? (
-                      <Badge variant="outline">pronto</Badge>
-                    ) : (
-                      count !== null && (
-                        <Badge variant="secondary">{count} comandos</Badge>
-                      )
-                    )}
-                  </div>
-                  <CardDescription>{item.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
-                    Explorar
-                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                </CardContent>
-              </Card>
-            </Link>
-          );
-        })}
+        {sections.map((section) => (
+          <Link key={section.href} href={section.href} className="group">
+            <Card className="h-full transition-colors group-hover:ring-primary/40">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>{section.label}</CardTitle>
+                  {section.status === "soon" ? (
+                    <Badge variant="outline">pronto</Badge>
+                  ) : (
+                    section.count !== undefined && (
+                      <Badge variant="secondary">
+                        {section.count} {ITEM_NOUN[section.href] ?? "comandos"}
+                      </Badge>
+                    )
+                  )}
+                </div>
+                <CardDescription>{section.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
+                  Explorar
+                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
       </section>
     </div>
   );
