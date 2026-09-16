@@ -1,0 +1,21 @@
+---
+title: Ver detalle de una puerta de enlace de red virtual
+description: Muestra la configuración completa de un Virtual Network Gateway - SKU, tipo de VPN, BGP y estado de aprovisionamiento.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, detalle, estado, consulta]
+template: "Get-AzVirtualNetworkGateway -ResourceGroupName <resourceGroup> -Name <gatewayName> | Select-Object Name, GatewayType, VpnType, @{n='SKU';e={$_.Sku.Name}}, ActiveActive, EnableBgp, ProvisioningState"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+---
+
+Para ver la configuración de BGP completa: `(Get-AzVirtualNetworkGateway -ResourceGroupName <rg> -Name <gw>).BgpSettings`, que devuelve el ASN y las direcciones de peering.

@@ -1,0 +1,22 @@
+---
+title: Listar las puertas de enlace locales
+description: Muestra los local network gateway de un grupo de recursos con su IP pública y los prefijos de la red local.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, local-gateway, local-network-gateway, listar, onpremise, consulta]
+template: "az network local-gateway list --resource-group <resourceGroup> --query \"[].{Nombre:name, IpDispositivo:gatewayIpAddress, Prefijos:localNetworkAddressSpace.addressPrefixes, ASN:bgpSettings.asn, Estado:provisioningState}\" --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+El local network gateway representa la red del otro extremo del túnel: su IP pública (`gatewayIpAddress`) y los rangos que hay detrás (`localNetworkAddressSpace`). Azure solo enruta hacia los prefijos declarados aquí.

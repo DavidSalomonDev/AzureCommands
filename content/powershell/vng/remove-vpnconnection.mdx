@@ -1,0 +1,21 @@
+---
+title: Eliminar una conexión VPN
+description: Borra una conexión del Virtual Network Gateway y corta el túnel de forma definitiva.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, conexion, eliminar, borrar]
+template: "Remove-AzVirtualNetworkGatewayConnection -ResourceGroupName <resourceGroup> -Name <connectionName> -Force"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: connectionName
+    label: Nombre de la conexión
+    type: string
+    required: true
+    placeholder: conexion-onprem
+---
+
+Ni la puerta de enlace ni el local network gateway se borran: puedes volver a crear la conexión con los mismos extremos. Quita `-Force` si prefieres que pida confirmación.

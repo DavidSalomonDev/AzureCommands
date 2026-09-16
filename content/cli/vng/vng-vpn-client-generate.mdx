@@ -1,0 +1,33 @@
+---
+title: Generar el perfil de cliente VPN (punto a sitio)
+description: Crea el paquete de configuración de cliente P2S y devuelve la URL de descarga.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, p2s, punto-a-sitio, cliente, perfil, crear]
+template: "az network vnet-gateway vpn-client generate --resource-group <resourceGroup> --name <gatewayName> --authentication-method <authMethod> --processor-architecture <arch> --output tsv"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+  - name: authMethod
+    label: Método de autenticación
+    type: enum
+    required: false
+    default: EAPTLS
+    options: [EAPTLS, EAPMSCHAPv2]
+  - name: arch
+    label: Arquitectura del cliente
+    type: enum
+    required: false
+    default: Amd64
+    options: [Amd64, X86]
+---
+
+Devuelve una URL temporal a un ZIP con los perfiles para Windows, macOS y OpenVPN. La puerta de enlace debe tener configurado antes el pool de direcciones de punto a sitio y el certificado raíz (`az network vnet-gateway root-cert create`).

@@ -1,0 +1,33 @@
+---
+title: Crear una puerta de enlace local
+description: Define el extremo local del túnel - la IP pública del dispositivo VPN y los rangos de la red on-premise.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, local-gateway, local-network-gateway, crear, onpremise, s2s]
+template: "az network local-gateway create --resource-group <resourceGroup> --name <localGatewayName> --gateway-ip-address <deviceIp> --local-address-prefixes <addressPrefixes>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: localGatewayName
+    label: Nombre de la puerta de enlace local
+    type: string
+    required: true
+    placeholder: mi-local-gateway
+  - name: deviceIp
+    label: IP pública del dispositivo VPN local
+    type: string
+    required: true
+    placeholder: 203.0.113.10
+  - name: addressPrefixes
+    label: Prefijos de la red local (separados por espacio)
+    type: string
+    required: true
+    placeholder: 192.168.0.0/16 10.50.0.0/16
+---
+
+Es el paso previo a `az network vpn-connection create`. Los prefijos no pueden solaparse con el espacio de direcciones de la VNet ni con los de otro local network gateway conectado a la misma puerta de enlace.
+
+Para BGP añade `--asn 65050 --bgp-peering-address 10.50.0.254`.

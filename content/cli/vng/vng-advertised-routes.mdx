@@ -1,0 +1,32 @@
+---
+title: Ver las rutas que anuncia la puerta de enlace
+description: Muestra los prefijos que el Virtual Network Gateway anuncia a un peer BGP concreto.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, bgp, rutas, advertised-routes, diagnostico, consulta]
+template: "az network vnet-gateway list-advertised-routes --resource-group <resourceGroup> --name <gatewayName> --peer <peerIp> --query \"value[].{Red:network, SiguienteSalto:nextHop, Origen:origin, RutaAS:asPath}\" --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+  - name: peerIp
+    label: IP del peer BGP
+    type: string
+    required: true
+    placeholder: 10.0.0.254
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+La IP del peer es la del vecino BGP remoto; la obtienes con `az network vnet-gateway list-bgp-peer-status`. Sirve para confirmar qué rangos de la VNet está viendo realmente la red local.

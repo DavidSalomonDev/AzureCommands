@@ -1,0 +1,28 @@
+---
+title: Cambiar la clave compartida de una conexión
+description: Sustituye la clave precompartida (PSK) de una conexión VPN sitio a sitio.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, conexion, clave, psk, shared-key, actualizar]
+template: "Set-AzVirtualNetworkGatewayConnectionSharedKey -ResourceGroupName <resourceGroup> -Name <connectionName> -Value <sharedKey> -Force"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: connectionName
+    label: Nombre de la conexión
+    type: string
+    required: true
+    placeholder: conexion-onprem
+  - name: sharedKey
+    label: Nueva clave compartida (PSK)
+    type: string
+    required: true
+    placeholder: MiClaveSecreta123
+---
+
+El túnel se cae hasta que el dispositivo local use la misma clave: cámbiala en los dos extremos dentro de la misma ventana de mantenimiento.
+
+Para que sea Azure quien genere una clave aleatoria usa `Reset-AzVirtualNetworkGatewayConnectionSharedKey -KeyLength 128`.

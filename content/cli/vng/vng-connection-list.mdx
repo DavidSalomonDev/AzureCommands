@@ -1,0 +1,24 @@
+---
+title: Listar las conexiones VPN
+description: Muestra las conexiones de un grupo de recursos con su tipo y su estado actual.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, conexion, listar, estado, consulta]
+template: "az network vpn-connection list --resource-group <resourceGroup> --query \"[].{Nombre:name, Tipo:connectionType, Estado:connectionStatus, Modo:connectionMode, Aprovisionamiento:provisioningState}\" --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Añade `--vnet-gateway <nombre>` para limitar la lista a las conexiones de una puerta de enlace concreta.
+
+`connectionType` distingue `IPsec` (sitio a sitio), `Vnet2Vnet` y `ExpressRoute`.

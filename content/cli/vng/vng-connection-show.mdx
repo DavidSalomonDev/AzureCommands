@@ -1,0 +1,27 @@
+---
+title: Ver detalle de una conexión VPN
+description: Muestra la configuración completa de una conexión - gateways implicados, BGP y política IPsec.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, conexion, detalle, show, consulta]
+template: "az network vpn-connection show --resource-group <resourceGroup> --name <connectionName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: connectionName
+    label: Nombre de la conexión
+    type: string
+    required: true
+    placeholder: conexion-onprem
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Devuelve el `virtualNetworkGateway1`, el `localNetworkGateway2` (o `virtualNetworkGateway2` en las conexiones Vnet2Vnet), `enableBgp`, `usePolicyBasedTrafficSelectors` y las políticas IPsec personalizadas si las hay.

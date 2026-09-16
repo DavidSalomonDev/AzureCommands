@@ -1,0 +1,17 @@
+---
+title: Listar todas las VPN Gateway de la suscripción
+description: Recorre la suscripción completa y muestra cada Virtual Network Gateway con su grupo de recursos y región.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, listar, suscripcion, inventario, consulta]
+template: "az network vnet-gateway list --query \"[].{Nombre:name, Grupo:resourceGroup, Region:location, SKU:sku.name, Tipo:gatewayType, Estado:provisioningState}\" --output <output>"
+parameters:
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Sin `--resource-group`, `az network vnet-gateway list` devuelve las puertas de enlace de toda la suscripción. Comprueba antes en qué suscripción estás con `az account show --query name -o tsv`.

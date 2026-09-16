@@ -1,0 +1,27 @@
+---
+title: Ver la clave compartida de una conexión
+description: Recupera la clave precompartida (PSK) configurada en una conexión VPN sitio a sitio.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, conexion, clave, psk, shared-key, consulta]
+template: "az network vpn-connection shared-key show --resource-group <resourceGroup> --connection-name <connectionName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: connectionName
+    label: Nombre de la conexión
+    type: string
+    required: true
+    placeholder: conexion-onprem
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: tsv
+    options: [tsv, json, jsonc, table, yaml]
+---
+
+Devuelve la clave en texto plano: no la vuelques en logs ni en historiales compartidos. Requiere permisos de escritura sobre la conexión (rol `Network Contributor` o equivalente).

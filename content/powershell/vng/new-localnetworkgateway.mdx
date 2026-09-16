@@ -1,0 +1,39 @@
+---
+title: Crear una puerta de enlace local
+description: Define el extremo local del túnel - la IP pública del dispositivo VPN y los rangos de la red on-premise.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, local-gateway, local-network-gateway, crear, onpremise, s2s]
+template: "New-AzLocalNetworkGateway -ResourceGroupName <resourceGroup> -Name <localGatewayName> -Location <location> -GatewayIpAddress <deviceIp> -AddressPrefix <addressPrefixes>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: localGatewayName
+    label: Nombre de la puerta de enlace local
+    type: string
+    required: true
+    placeholder: mi-local-gateway
+  - name: location
+    label: Región
+    type: enum
+    required: true
+    default: East US
+    options: [East US, West US 2, West Europe, North Europe, Brazil South]
+  - name: deviceIp
+    label: IP pública del dispositivo VPN local
+    type: string
+    required: true
+    placeholder: 203.0.113.10
+  - name: addressPrefixes
+    label: Prefijos de la red local
+    type: string
+    required: true
+    placeholder: "@('192.168.0.0/16','10.50.0.0/16')"
+---
+
+Es el paso previo a `New-AzVirtualNetworkGatewayConnection`. Los prefijos no pueden solaparse con el espacio de direcciones de la VNet ni con los de otro local network gateway conectado a la misma puerta de enlace.
+
+Para BGP añade `-Asn 65050 -BgpPeeringAddress 10.50.0.254`.

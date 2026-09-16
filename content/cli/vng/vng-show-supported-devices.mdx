@@ -1,0 +1,21 @@
+---
+title: Ver los dispositivos VPN compatibles
+description: Devuelve la lista de fabricantes y modelos de dispositivo VPN admitidos por la puerta de enlace.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, dispositivo, compatibilidad, consulta]
+template: "az network vnet-gateway show-supported-devices --resource-group <resourceGroup> --name <gatewayName>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+---
+
+Devuelve un XML con los fabricantes, familias y versiones de firmware soportados. A partir de ahí puedes generar el script de configuración del equipo local con `az network vpn-connection show-device-config-script`.

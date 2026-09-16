@@ -1,0 +1,23 @@
+---
+title: Eliminar una puerta de enlace de red virtual
+description: Borra el Virtual Network Gateway junto con toda la conectividad que depende de él.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, eliminar, borrar]
+template: "Remove-AzVirtualNetworkGateway -ResourceGroupName <resourceGroup> -Name <gatewayName> -Force"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+---
+
+Elimina antes todas sus conexiones con `Remove-AzVirtualNetworkGatewayConnection` o la operación fallará. El borrado tarda entre 10 y 20 minutos; añade `-AsJob` para no bloquear la consola.
+
+La IP pública y la subred `GatewaySubnet` no se borran: quítalas aparte si tampoco las necesitas.

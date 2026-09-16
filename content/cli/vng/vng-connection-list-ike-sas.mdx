@@ -1,0 +1,21 @@
+---
+title: Ver las asociaciones de seguridad IKE de una conexión
+description: Lista las SA de IKE negociadas en el túnel, útil para diagnosticar fallos de fase 1 y fase 2.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, conexion, ike, ipsec, diagnostico, consulta]
+template: "az network vpn-connection list-ike-sas --resource-group <resourceGroup> --name <connectionName>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: connectionName
+    label: Nombre de la conexión
+    type: string
+    required: true
+    placeholder: conexion-onprem
+---
+
+Muestra los algoritmos de cifrado e integridad que se han negociado realmente. Si la conexión no llega a establecerse la salida viene vacía, lo que ya apunta a un fallo de fase 1 (IKE): normalmente una clave compartida distinta o políticas IPsec incompatibles.

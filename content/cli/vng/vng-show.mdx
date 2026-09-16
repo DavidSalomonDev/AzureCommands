@@ -1,0 +1,29 @@
+---
+title: Ver detalle de una puerta de enlace de red virtual
+description: Muestra la configuración completa de un Virtual Network Gateway - SKU, tipo de VPN, BGP y estado de aprovisionamiento.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, detalle, show, estado, consulta]
+template: "az network vnet-gateway show --resource-group <resourceGroup> --name <gatewayName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Incluye `provisioningState` (Succeeded / Updating / Failed), el `sku` activo, `vpnType`, `activeActive`, la configuración de BGP (`bgpSettings.asn` y `bgpPeeringAddress`) y el pool de direcciones de punto a sitio.
+
+Para quedarte solo con lo esencial añade `--query "{Estado:provisioningState, SKU:sku.name, Tipo:vpnType, ActivoActivo:activeActive}" -o table`.

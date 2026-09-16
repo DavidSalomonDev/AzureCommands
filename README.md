@@ -11,7 +11,8 @@ importación para llevártelas entre equipos.
 
 - **Catálogo curado** de comandos de Azure CLI (`az`) y PowerShell (módulo `Az`),
   organizados por producto de Azure (VMs, Redes, Almacenamiento, AKS, Key Vault,
-  Application Gateway, Load Balancer, Front Door, Recovery Services Vault, etc.).
+  Application Gateway, Load Balancer, Front Door, Recovery Services Vault,
+  Virtual Network Gateway, etc.).
 - **Parámetros dinámicos:** cada comando expone inputs por cada `<token>` de su plantilla;
   al escribir, la sustitución se refleja en vivo en el bloque de código.
 - **Copiar al portapapeles** con un clic en cada bloque de código.

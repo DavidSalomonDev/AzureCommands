@@ -1,0 +1,28 @@
+---
+title: Actualizar los prefijos de una puerta de enlace local
+description: Cambia los rangos de la red on-premise sin recrear la conexión VPN.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, local-gateway, local-network-gateway, actualizar, prefijos, rutas]
+template: "Set-AzLocalNetworkGateway -LocalNetworkGateway (Get-AzLocalNetworkGateway -ResourceGroupName <resourceGroup> -Name <localGatewayName>) -AddressPrefix <addressPrefixes>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: localGatewayName
+    label: Nombre de la puerta de enlace local
+    type: string
+    required: true
+    placeholder: mi-local-gateway
+  - name: addressPrefixes
+    label: Prefijos de la red local
+    type: string
+    required: true
+    placeholder: "@('192.168.0.0/16','10.50.0.0/16')"
+---
+
+La lista que indicas reemplaza a la anterior, no se suma: incluye siempre todos los rangos que quieras mantener.
+
+En túneles con rutas estáticas el cambio de prefijos renegocia los selectores de tráfico y puede cortar el túnel unos segundos.

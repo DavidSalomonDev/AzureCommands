@@ -1,0 +1,27 @@
+---
+title: Cambiar el SKU de una puerta de enlace
+description: Escala el Virtual Network Gateway a otra SKU para ampliar ancho de banda y número de túneles.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, sku, escalar, actualizar, resize]
+template: "az network vnet-gateway update --resource-group <resourceGroup> --name <gatewayName> --sku <sku>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+  - name: sku
+    label: Nueva SKU
+    type: enum
+    required: true
+    default: VpnGw2
+    options: [Basic, VpnGw1, VpnGw2, VpnGw3, VpnGw1AZ, VpnGw2AZ, VpnGw3AZ]
+---
+
+El cambio de SKU corta la conectividad unos minutos mientras se reaprovisiona la puerta de enlace. No se puede pasar de `Basic` a la familia `VpnGw*` ni entre familias `VpnGw*` y `VpnGw*AZ`: en esos casos hay que recrear la puerta de enlace.

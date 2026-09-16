@@ -1,0 +1,21 @@
+---
+title: Eliminar una puerta de enlace local
+description: Borra un local network gateway que ya no se usa.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, local-gateway, local-network-gateway, eliminar, borrar]
+template: "az network local-gateway delete --resource-group <resourceGroup> --name <localGatewayName>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: localGatewayName
+    label: Nombre de la puerta de enlace local
+    type: string
+    required: true
+    placeholder: mi-local-gateway
+---
+
+Falla mientras exista una conexión que lo referencie: elimina antes la `vpn-connection` correspondiente.

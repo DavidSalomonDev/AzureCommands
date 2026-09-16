@@ -1,0 +1,23 @@
+---
+title: Eliminar una puerta de enlace de red virtual
+description: Borra el Virtual Network Gateway junto con toda la conectividad que depende de él.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, eliminar, borrar]
+template: "az network vnet-gateway delete --resource-group <resourceGroup> --name <gatewayName> --no-wait"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+---
+
+Elimina antes todas sus conexiones (`az network vpn-connection delete`) o la operación fallará. El borrado tarda entre 10 y 20 minutos; `--no-wait` devuelve el control de inmediato.
+
+La IP pública y la `GatewaySubnet` no se borran: quítalas aparte si tampoco las necesitas.

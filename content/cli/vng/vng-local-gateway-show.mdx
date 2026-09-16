@@ -1,0 +1,27 @@
+---
+title: Ver detalle de una puerta de enlace local
+description: Muestra la configuración completa de un local network gateway, incluidos sus prefijos y ajustes BGP.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, local-gateway, local-network-gateway, detalle, show, consulta]
+template: "az network local-gateway show --resource-group <resourceGroup> --name <localGatewayName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: localGatewayName
+    label: Nombre de la puerta de enlace local
+    type: string
+    required: true
+    placeholder: mi-local-gateway
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Si el tráfico hacia una subred local no sale de Azure, lo primero que hay que mirar es si ese rango está en `localNetworkAddressSpace.addressPrefixes` de este recurso.

@@ -1,0 +1,21 @@
+---
+title: Ver las rutas aprendidas por la puerta de enlace
+description: Lista la tabla de rutas que el Virtual Network Gateway ha aprendido por BGP o de forma estática.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, bgp, rutas, learned-routes, diagnostico, consulta]
+template: "Get-AzVirtualNetworkGatewayLearnedRoute -ResourceGroupName <resourceGroup> -VirtualNetworkGatewayName <gatewayName> | Format-Table Network, Origin, NextHop, AsPath, Weight"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+---
+
+`Origin` distingue las rutas propias de la VNet (`Network`) de las aprendidas del otro extremo (`EBgp` / `IBgp`). Si esperas un prefijo local y no aparece aquí, el problema está en el anuncio del dispositivo remoto y no en Azure.

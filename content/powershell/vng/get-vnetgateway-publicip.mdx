@@ -1,0 +1,21 @@
+---
+title: Ver la IP pública de una puerta de enlace
+description: Resuelve la dirección IP pública del Virtual Network Gateway, la que se configura en el dispositivo VPN local.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, ip, publica, direccion, consulta]
+template: "(Get-AzVirtualNetworkGateway -ResourceGroupName <resourceGroup> -Name <gatewayName>).IpConfigurations | ForEach-Object { Get-AzResource -ResourceId $_.PublicIpAddress.Id | ForEach-Object { Get-AzPublicIpAddress -ResourceGroupName $_.ResourceGroupName -Name $_.Name } } | Format-Table Name, IpAddress, PublicIpAllocationMethod"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+---
+
+Una puerta de enlace activo-activo tiene dos configuraciones de IP y devuelve dos direcciones: las dos deben estar dadas de alta en el dispositivo local.

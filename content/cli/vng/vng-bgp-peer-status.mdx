@@ -1,0 +1,27 @@
+---
+title: Ver el estado de los peers BGP
+description: Muestra los vecinos BGP de la puerta de enlace, el estado de la sesión y las rutas recibidas de cada uno.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, bgp, peer, rutas, diagnostico, consulta]
+template: "az network vnet-gateway list-bgp-peer-status --resource-group <resourceGroup> --name <gatewayName> --query \"value[].{Vecino:neighbor, Estado:state, ASN:asn, RutasRecibidas:routesReceived, Conectado:connectedDuration}\" --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Solo aplica a puertas de enlace con BGP habilitado. Un peer en `Connected` pero con `routesReceived` a 0 significa que la sesión BGP está levantada y que el equipo local no está anunciando prefijos.

@@ -1,0 +1,23 @@
+---
+title: Ver el estado de una conexión VPN
+description: Consulta si el túnel está conectado y cuántos bytes ha transferido desde que se estableció.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, conexion, estado, status, diagnostico, consulta]
+template: "Get-AzVirtualNetworkGatewayConnection -ResourceGroupName <resourceGroup> -Name <connectionName> | Select-Object Name, ConnectionStatus, EgressBytesTransferred, IngressBytesTransferred, @{n='UltimoIntento';e={$_.TunnelConnectionStatus.LastConnectionEstablishedUtcTime}}"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: connectionName
+    label: Nombre de la conexión
+    type: string
+    required: true
+    placeholder: conexion-onprem
+---
+
+`ConnectionStatus` toma los valores `Connected`, `Connecting`, `NotConnected` y `Unknown`.
+
+Si se queda en `Connecting` o `NotConnected`, revisa en este orden: la clave compartida en los dos extremos, la IP pública declarada en el local network gateway, los prefijos anunciados y las reglas del firewall local (UDP 500 y 4500, y el protocolo ESP).

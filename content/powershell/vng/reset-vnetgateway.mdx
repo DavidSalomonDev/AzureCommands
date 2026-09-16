@@ -1,0 +1,24 @@
+---
+title: Reiniciar una puerta de enlace de red virtual
+description: Fuerza el reinicio del Virtual Network Gateway para restablecer túneles que quedaron colgados.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, reset, reiniciar, diagnostico, actualizar]
+operation: update
+template: "Reset-AzVirtualNetworkGateway -VirtualNetworkGateway (Get-AzVirtualNetworkGateway -ResourceGroupName <resourceGroup> -Name <gatewayName>)"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+---
+
+Último recurso cuando la conexión sigue en `NotConnected` y la configuración de los dos extremos es correcta. Corta todos los túneles de la puerta de enlace durante el reinicio (unos minutos) y no cambia ninguna IP pública.
+
+En puertas de enlace activo-activo puedes reiniciar solo una instancia con `-GatewayVip <ip>`.

@@ -1,0 +1,16 @@
+---
+title: Listar las conexiones VPN
+description: Muestra las conexiones de un grupo de recursos con su tipo y su estado actual.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, conexion, listar, estado, consulta]
+template: "Get-AzVirtualNetworkGatewayConnection -ResourceGroupName <resourceGroup> | Format-Table Name, ConnectionType, ConnectionStatus, ProvisioningState, EnableBgp"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+`ConnectionType` distingue `IPsec` (sitio a sitio), `Vnet2Vnet` y `ExpressRoute`. Para el detalle de una conexión concreta añade `-Name <conexion>`.

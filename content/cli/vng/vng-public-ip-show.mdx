@@ -1,0 +1,29 @@
+---
+title: Ver la IP pública de una puerta de enlace
+description: Resuelve la dirección IP pública asignada al Virtual Network Gateway, la que se configura en el dispositivo VPN local.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, ip, publica, direccion, consulta]
+template: "az network public-ip show --ids $(az network vnet-gateway show --resource-group <resourceGroup> --name <gatewayName> --query \"ipConfigurations[].publicIPAddress.id\" --output tsv) --query \"{Nombre:name, IP:ipAddress, Asignacion:publicIPAllocationMethod, SKU:sku.name}\" --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Una puerta de enlace activo-activo tiene dos configuraciones de IP y devuelve dos direcciones: ambas deben estar dadas de alta en el dispositivo local.
+
+Requiere Bash o Cloud Shell por la sustitución de comandos. En Windows usa el comando equivalente de la sección PowerShell.

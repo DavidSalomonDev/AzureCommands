@@ -1,0 +1,26 @@
+---
+title: Ver las rutas que anuncia la puerta de enlace
+description: Muestra los prefijos que el Virtual Network Gateway anuncia a un peer BGP concreto.
+shell: powershell
+category: Virtual Network Gateway
+tags: [vpn, gateway, bgp, rutas, advertised-routes, diagnostico, consulta]
+template: "Get-AzVirtualNetworkGatewayAdvertisedRoute -ResourceGroupName <resourceGroup> -VirtualNetworkGatewayName <gatewayName> -Peer <peerIp> | Format-Table Network, NextHop, Origin, AsPath"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+  - name: peerIp
+    label: IP del peer BGP
+    type: string
+    required: true
+    placeholder: 10.0.0.254
+---
+
+La IP del peer es la del vecino BGP remoto; la obtienes con `Get-AzVirtualNetworkGatewayBGPPeerStatus`. Sirve para confirmar qué rangos de la VNet está viendo realmente la red local.

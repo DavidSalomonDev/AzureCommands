@@ -1,0 +1,27 @@
+---
+title: Desconectar conexiones VPN de una puerta de enlace
+description: Corta túneles concretos sin borrar la configuración de la conexión.
+shell: azurecli
+category: Virtual Network Gateway
+tags: [vpn, gateway, conexion, desconectar, diagnostico]
+operation: update
+template: "az network vnet-gateway disconnect-vpn-connections --resource-group <resourceGroup> --name <gatewayName> --vpn-connections <connectionNames>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: mi-vpn-gateway
+  - name: connectionNames
+    label: Conexiones a desconectar (separadas por espacio)
+    type: string
+    required: true
+    placeholder: conexion-onprem conexion-sucursal
+---
+
+La conexión sigue existiendo y vuelve a negociarse sola cuando el otro extremo lo intente. Útil para forzar una renegociación después de cambiar la clave compartida o las políticas IPsec.
