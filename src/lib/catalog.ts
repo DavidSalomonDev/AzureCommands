@@ -6,7 +6,13 @@ import type { Shell } from "@/lib/types";
  * work out which files it needs before downloading anything: the id carries
  * its section, and every id is built here so both ends agree on the shape.
  */
-export const CATALOG_SECTIONS = ["cli", "powershell", "scripts"] as const;
+export const CATALOG_SECTIONS = [
+  "cli",
+  "powershell",
+  "scripts",
+  "linux",
+  "windows",
+] as const;
 
 export type CatalogSection = (typeof CATALOG_SECTIONS)[number];
 
@@ -14,6 +20,8 @@ export type CatalogSection = (typeof CATALOG_SECTIONS)[number];
 export const SHELL_BY_SECTION = {
   cli: "azurecli",
   powershell: "powershell",
+  linux: "bash",
+  windows: "cmd",
 } as const satisfies Partial<Record<CatalogSection, Shell>>;
 
 export type CommandSection = keyof typeof SHELL_BY_SECTION;

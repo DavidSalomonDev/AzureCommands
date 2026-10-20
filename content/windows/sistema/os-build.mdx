@@ -1,0 +1,12 @@
+---
+title: Build exacta de Windows
+description: Nombre del producto, versión mostrada, build y revisión (UBR).
+shell: cmd
+category: Sistema
+tags: [powershell, sistema, version, build]
+operation: read
+template: 'Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" | Select-Object ProductName, DisplayVersion, CurrentBuild, UBR'
+---
+`CurrentBuild` + `UBR` es la build completa (por ejemplo `26100.3194`). Es el dato que piden los artículos de KB y los boletines de seguridad para decidir si un parche aplica.
+
+`winver` muestra lo mismo en una ventana, pero no sirve por consola remota.

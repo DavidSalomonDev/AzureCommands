@@ -1,0 +1,12 @@
+---
+title: Discos físicos y su LUN
+description: Discos vistos por el sistema, con estado, estilo de partición, tamaño y ubicación.
+shell: cmd
+category: Discos y almacenamiento
+tags: [powershell, disco, lun, particiones]
+operation: read
+template: "Get-Disk | Format-Table Number, FriendlyName, OperationalStatus, PartitionStyle, Size, Location -AutoSize"
+---
+La columna **Location** termina con el **LUN** con el que se adjuntó el disco de datos en Azure (`az vm disk attach --lun`). Así se empareja cada disco del portal con su número de disco en Windows.
+
+Si acabas de adjuntar un disco y no aparece, fuerza el redescubrimiento con `Update-HostStorageCache`. Un disco nuevo sale como `Offline` y con `PartitionStyle` a `RAW`.

@@ -1,0 +1,18 @@
+---
+title: KBs instalados, de más reciente a más antiguo
+description: Lista los parches y actualizaciones instalados con su fecha y quién los instaló.
+shell: cmd
+category: Actualizaciones de Windows
+tags: [powershell, kb, parches, updates]
+operation: read
+template: "Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First <count> HotFixID, Description, InstalledOn, InstalledBy"
+parameters:
+  - name: count
+    label: Cuántos KBs mostrar
+    type: number
+    required: false
+    default: "20"
+---
+La consulta de referencia para responder "¿está parcheado este servidor?". Ordenado por fecha, las primeras líneas dicen cuándo se aplicó el último ciclo de parches.
+
+`Get-HotFix` solo ve lo que viene del motor de Windows Update / CBS: las actualizaciones de Defender y las de Store no aparecen. Para un KB concreto: `Get-HotFix -Id KB5034123`.

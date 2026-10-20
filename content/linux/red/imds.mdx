@@ -1,0 +1,12 @@
+---
+title: Metadatos de la propia VM (IMDS)
+description: Nombre, grupo de recursos, tamaño, zona y suscripción, preguntados desde dentro.
+shell: bash
+category: Red
+tags: [azure, imds, metadatos]
+operation: read
+template: "curl -sS -H 'Metadata:true' 'http://169.254.169.254/metadata/instance?api-version=2021-02-01' | jq ."
+---
+El Instance Metadata Service responde solo desde dentro de la VM y sin credenciales. Es la forma rápida de saber **en qué VM estás** cuando heredas una sesión sin contexto.
+
+La cabecera `Metadata:true` es obligatoria. Si no tienes `jq`, quita la tubería o usa `python3 -m json.tool`. Para un solo dato, añade `&format=text` a la ruta concreta, por ejemplo `/metadata/instance/compute/resourceGroupName`.

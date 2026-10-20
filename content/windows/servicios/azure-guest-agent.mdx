@@ -1,0 +1,12 @@
+---
+title: Estado del agente de Azure
+description: Servicios del Windows Guest Agent, que habilitan extensiones y Run Command.
+shell: cmd
+category: Servicios y eventos
+tags: [powershell, azure, agente, extensiones]
+operation: read
+template: "Get-Service WindowsAzureGuestAgent, RdAgent | Format-Table Name, Status, StartType -AutoSize"
+---
+Si el portal muestra el estado del agente como *Not Ready*, o una extensión se queda en *Transitioning*, empieza aquí: los dos servicios deben estar `Running` y en `Automatic`.
+
+Los logs están en `C:\WindowsAzure\Logs\` (`WaAppAgent.log` para el agente) y los de cada extensión en `C:\WindowsAzure\Logs\Plugins\`.

@@ -18,6 +18,8 @@ describe("ida y vuelta entre id y sección", () => {
   it("devuelve la sección de un comando de cada shell", () => {
     expect(sectionForId(commandId("azurecli", "group-list"))).toBe("cli");
     expect(sectionForId(commandId("powershell", "get-azvm"))).toBe("powershell");
+    expect(sectionForId(commandId("bash", "df"))).toBe("linux");
+    expect(sectionForId(commandId("cmd", "get-hotfix"))).toBe("windows");
   });
 
   it("devuelve 'scripts' para un script", () => {
@@ -41,7 +43,7 @@ describe("ida y vuelta entre id y sección", () => {
 
   it("no confunde un shell sin sección propia con uno que la tiene", () => {
     expect(sectionForId(commandId("terraform", "algo"))).toBeNull();
-    expect(sectionForId(commandId("bash", "algo"))).toBeNull();
+    expect(sectionForId(commandId("other", "algo"))).toBeNull();
   });
 
   it("no toma por script un id que sólo contiene la palabra", () => {

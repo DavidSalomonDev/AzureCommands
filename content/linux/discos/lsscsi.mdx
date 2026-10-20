@@ -1,0 +1,12 @@
+---
+title: Dispositivos SCSI conectados
+description: Lista host:canal:target:LUN de cada disco visto por el kernel.
+shell: bash
+category: Discos y almacenamiento
+tags: [disco, scsi, lsscsi, lun]
+operation: read
+template: "lsscsi --size"
+---
+Vista cruda de lo que el kernel ve. Útil cuando acabas de adjuntar un disco y `lsblk` todavía no lo muestra.
+
+No viene instalado de serie: `sudo apt-get install -y lsscsi` o `sudo dnf install -y lsscsi`. Si no puedes instalarlo, `ls -l /dev/disk/azure/` da información parecida.

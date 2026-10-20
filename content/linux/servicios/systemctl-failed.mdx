@@ -1,0 +1,12 @@
+---
+title: Servicios que fallaron
+description: Todas las unidades de systemd en estado failed.
+shell: bash
+category: Servicios y logs
+tags: [servicios, systemd, errores]
+operation: read
+template: "systemctl list-units --state=failed --no-pager"
+---
+Barrido de un golpe tras un reinicio inesperado o un cambio de configuración. Si la lista sale vacía, systemd considera que todo arrancó bien.
+
+Para el detalle de cada una, pasa su nombre a `systemctl status` o a `journalctl -u`.

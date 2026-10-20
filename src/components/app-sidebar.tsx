@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
+  AppWindow,
   Bookmark,
   FileCode2,
   Layers,
+  Server,
   SquareTerminal,
   Star,
   Terminal,
@@ -25,6 +27,8 @@ const ICONS: Record<NavIcon, LucideIcon> = {
   terminal: Terminal,
   powershell: SquareTerminal,
   scripts: FileCode2,
+  linux: Server,
+  windows: AppWindow,
   template: Layers,
   bookmark: Bookmark,
   star: Star,

@@ -1,0 +1,23 @@
+---
+title: Qué está ocupando el disco
+description: Directorios más grandes bajo una ruta, ordenados de mayor a menor.
+shell: bash
+category: Discos y almacenamiento
+tags: [disco, espacio, du]
+operation: read
+template: "sudo du -xh --max-depth=1 <path> 2>/dev/null | sort -rh | head -n <count>"
+parameters:
+  - name: path
+    label: Ruta a analizar
+    type: string
+    required: true
+    default: /
+  - name: count
+    label: Cuántas líneas mostrar
+    type: number
+    required: false
+    default: "15"
+---
+El paso siguiente a `df`: baja un nivel cada vez cambiando la ruta hasta encontrar al culpable. `-x` no cruza a otros sistemas de archivos, así que un `/mnt` con datos no contamina el resultado de `/`.
+
+Sospechosos habituales en VMs de Azure: `/var/log` (journal sin rotar), `/var/lib/docker` y `/var/cache`.

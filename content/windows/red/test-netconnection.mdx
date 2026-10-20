@@ -1,0 +1,23 @@
+---
+title: Probar conectividad a un puerto
+description: Comprueba si hay ruta y si el puerto TCP responde desde esta VM.
+shell: cmd
+category: Red
+tags: [powershell, red, puertos, conectividad]
+operation: read
+template: "Test-NetConnection -ComputerName <host> -Port <port> -InformationLevel Detailed"
+parameters:
+  - name: host
+    label: Host o IP destino
+    type: string
+    required: true
+    placeholder: mi-sql.database.windows.net
+  - name: port
+    label: Puerto TCP
+    type: number
+    required: true
+    placeholder: "1433"
+---
+El `telnet` de toda la vida, pero sin instalar nada. Mira **TcpTestSucceeded**: si sale `False` y la resolución DNS sí funcionó, el problema está en el NSG, en el firewall local o en que el servicio no escucha.
+
+Sin `-Port` hace un ping ICMP, que en Azure está bloqueado por defecto y da falsos negativos: prueba siempre contra un puerto.

@@ -1,0 +1,12 @@
+---
+title: KBs instalados desde cmd.exe
+description: Filtra la salida de systeminfo para quedarse con la lista de hotfixes.
+shell: cmd
+category: Actualizaciones de Windows
+tags: [cmd, kb, parches, systeminfo]
+operation: read
+template: 'systeminfo | findstr /C:"KB"'
+---
+La opción cuando no hay PowerShell a mano: Serial Console en modo recuperación, una sesión heredada en `cmd.exe` o una imagen muy recortada.
+
+`systeminfo` completo tarda unos segundos porque además consulta dominio, memoria y hora de arranque; aquí solo nos quedamos con las líneas de hotfix.

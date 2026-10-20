@@ -1,0 +1,12 @@
+---
+title: Metadatos de la propia VM (IMDS)
+description: Nombre, grupo de recursos, tamaño, zona y suscripción, preguntados desde dentro.
+shell: cmd
+category: Red
+tags: [powershell, azure, imds, metadatos]
+operation: read
+template: "Invoke-RestMethod -Headers @{Metadata='true'} -Uri 'http://169.254.169.254/metadata/instance?api-version=2021-02-01' -Method GET | ConvertTo-Json -Depth 10"
+---
+El Instance Metadata Service responde solo desde dentro de la VM y sin credenciales. Es la forma rápida de saber **en qué VM estás** cuando heredas una sesión sin contexto: suscripción, grupo de recursos, tamaño, zona e imagen de origen.
+
+La cabecera `Metadata` es obligatoria. Si la llamada se queda colgada, revisa que no haya un proxy interceptando `169.254.169.254`.

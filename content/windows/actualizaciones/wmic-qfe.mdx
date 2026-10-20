@@ -1,0 +1,12 @@
+---
+title: Tabla de actualizaciones (wmic)
+description: Lista los hotfixes en forma de tabla con su fecha de instalación.
+shell: cmd
+category: Actualizaciones de Windows
+tags: [cmd, wmic, kb, parches]
+operation: read
+template: "wmic qfe list brief /format:table"
+---
+Útil en servidores antiguos (2012 R2, 2016) donde sigue siendo lo más rápido de teclear.
+
+**`wmic` está en desuso** y ya no viene habilitado en Windows Server 2025 ni en las imágenes recientes de Windows 11. Si falla, usa `Get-HotFix`.

@@ -1,0 +1,18 @@
+---
+title: Procesos que más memoria consumen
+description: Procesos ordenados por memoria de trabajo, con su PID y CPU acumulada.
+shell: cmd
+category: Sistema
+tags: [powershell, procesos, memoria, cpu]
+operation: read
+template: "Get-Process | Sort-Object -Property WorkingSet64 -Descending | Select-Object -First <count> Name, Id, CPU, @{Name='RAM-MB';Expression={[math]::Round($_.WorkingSet64/1MB)}}"
+parameters:
+  - name: count
+    label: Cuántos procesos mostrar
+    type: number
+    required: false
+    default: "15"
+---
+Para ordenar por CPU en lugar de memoria, cambia `WorkingSet64` por `CPU`. Ten en cuenta que `CPU` es el **total acumulado** en segundos desde que arrancó el proceso, no el porcentaje actual.
+
+Desde `cmd.exe`, `tasklist /v` da una vista parecida.

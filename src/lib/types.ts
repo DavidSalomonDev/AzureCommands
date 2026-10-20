@@ -57,7 +57,7 @@ export const SHELL_LABELS: Record<Shell, string> = {
   bicep: "Bicep",
   terraform: "Terraform",
   bash: "Bash / Linux",
-  cmd: "CMD (Windows)",
+  cmd: "Windows (CMD / PowerShell)",
   other: "Otro",
 };
 

@@ -1,0 +1,20 @@
+---
+title: Estado del agente de Azure (waagent)
+description: Versión y estado del Azure Linux Agent, que habilita extensiones y Run Command.
+shell: bash
+category: Sistema
+tags: [azure, waagent, agente, extensiones]
+operation: read
+template: "sudo waagent --version && systemctl status <service> --no-pager"
+parameters:
+  - name: service
+    label: Nombre del servicio
+    description: walinuxagent en Debian/Ubuntu, waagent en RHEL/SUSE.
+    type: enum
+    required: true
+    default: walinuxagent
+    options: [walinuxagent, waagent]
+---
+Si el portal muestra el estado del agente como *Not Ready*, o una extensión se queda en *Transitioning*, empieza aquí.
+
+El log del agente está en `/var/log/waagent.log` y el de las extensiones en `/var/log/azure/`.

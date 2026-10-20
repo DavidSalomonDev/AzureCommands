@@ -1,0 +1,12 @@
+---
+title: ¿Queda un reinicio pendiente?
+description: Comprueba la marca de reinicio pendiente que deja Component Based Servicing.
+shell: cmd
+category: Actualizaciones de Windows
+tags: [powershell, reinicio, updates, registro]
+operation: read
+template: 'Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending"'
+---
+Devuelve `True` si hay un reinicio pendiente por instalación de componentes o parches. Vale la pena mirarlo antes de dar por buena una ventana de mantenimiento: un servidor parcheado pero sin reiniciar sigue expuesto.
+
+Las otras dos marcas habituales son `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired` y el valor `PendingFileRenameOperations` en `HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager`.

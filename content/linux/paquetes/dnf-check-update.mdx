@@ -1,0 +1,12 @@
+---
+title: Actualizaciones pendientes (RHEL/Rocky/Alma)
+description: Lista los paquetes con actualización disponible sin instalarla.
+shell: bash
+category: Paquetes y actualizaciones
+tags: [paquetes, dnf, yum, actualizaciones, rhel]
+operation: read
+template: "sudo dnf check-update"
+---
+Devuelve código de salida **100** cuando hay actualizaciones y **0** cuando no hay ninguna: eso es lo esperado, no un error.
+
+Solo las de seguridad: `sudo dnf updateinfo list security`. En SUSE el equivalente es `sudo zypper list-updates`.

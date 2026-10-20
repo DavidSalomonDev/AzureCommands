@@ -1,0 +1,12 @@
+---
+title: Último arranque de la VM
+description: Fecha y hora en que se inició el sistema operativo.
+shell: cmd
+category: Sistema
+tags: [powershell, sistema, uptime, reinicio]
+operation: read
+template: "(Get-CimInstance Win32_OperatingSystem).LastBootUpTime"
+---
+Responde a "¿se reinició solo?" y a "¿cuánto lleva arriba?". Para el tiempo transcurrido: `(Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime`.
+
+En Windows Server no hay *fast startup*, así que la hora de arranque es fiable; en imágenes de cliente puede quedar desfasada.

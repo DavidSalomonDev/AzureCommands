@@ -1,0 +1,12 @@
+---
+title: Actualizaciones pendientes (Debian/Ubuntu)
+description: Refresca los índices y lista los paquetes con versión nueva disponible.
+shell: bash
+category: Paquetes y actualizaciones
+tags: [paquetes, apt, actualizaciones, ubuntu]
+operation: read
+template: "sudo apt-get update && apt list --upgradable"
+---
+Solo consulta: no instala nada. Para saber si además hace falta reiniciar, comprueba si existe `/var/run/reboot-required`.
+
+En Ubuntu Pro de Azure, `pro security-status` resume qué parches de seguridad quedan cubiertos.

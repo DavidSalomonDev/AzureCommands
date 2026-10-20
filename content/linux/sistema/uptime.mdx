@@ -1,0 +1,12 @@
+---
+title: Tiempo encendido y carga del sistema
+description: Desde cuándo está arriba la VM y su carga media.
+shell: bash
+category: Sistema
+tags: [sistema, uptime, carga]
+operation: read
+template: "uptime"
+---
+Las tres cifras de *load average* son la carga media a 1, 5 y 15 minutos. Compáralas con el número de vCPU (`nproc`): una carga de 4 en una VM de 4 vCPU está al límite, en una de 16 está tranquila.
+
+Para el historial de reinicios y apagados: `last -x reboot shutdown | head`.

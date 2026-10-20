@@ -1,0 +1,12 @@
+---
+title: Puertos en escucha y su proceso
+description: Conexiones TCP en estado Listen con el nombre del proceso dueño del puerto.
+shell: cmd
+category: Red
+tags: [powershell, red, puertos]
+operation: read
+template: "Get-NetTCPConnection -State Listen | Sort-Object LocalPort | Select-Object LocalAddress, LocalPort, OwningProcess, @{Name='Proceso';Expression={(Get-Process -Id $_.OwningProcess).ProcessName}}"
+---
+Si el servicio escucha en `127.0.0.1` y no en `0.0.0.0`, no entrará tráfico desde fuera aunque el NSG esté abierto.
+
+Comprueba también el firewall local con `Get-NetFirewallRule -Enabled True -Direction Inbound`. Desde `cmd.exe`, el equivalente de este comando es `netstat -ano | findstr LISTENING`.

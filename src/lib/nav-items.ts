@@ -4,6 +4,8 @@ export type NavIcon =
   | "terminal"
   | "powershell"
   | "scripts"
+  | "linux"
+  | "windows"
   | "template"
   | "bookmark"
   | "star";
@@ -21,7 +23,8 @@ export interface NavItem {
 /**
  * Order matters: it drives the sidebar, the home grid and the docs. Azure CLI
  * goes first — it is the shell we recommend by default (multiplataforma, misma
- * sintaxis en Cloud Shell, Bash y Windows).
+ * sintaxis en Cloud Shell, Bash y Windows). The three Azure sections come first,
+ * then the two that run inside the VM itself, then the personal ones.
  */
 export const NAV_ITEMS: NavItem[] = [
   {
@@ -46,6 +49,22 @@ export const NAV_ITEMS: NavItem[] = [
     status: "available",
     icon: "powershell",
     shell: "powershell",
+  },
+  {
+    href: "/linux",
+    label: "Linux en la VM",
+    description: "Diagnóstico dentro de VMs Linux",
+    status: "available",
+    icon: "linux",
+    shell: "bash",
+  },
+  {
+    href: "/windows",
+    label: "Windows en la VM",
+    description: "Diagnóstico dentro de VMs Windows",
+    status: "available",
+    icon: "windows",
+    shell: "cmd",
   },
   {
     href: "/favoritos",

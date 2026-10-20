@@ -1,0 +1,18 @@
+---
+title: Estado de un servicio
+description: Si un servicio está activo, habilitado al arranque y sus últimas líneas de log.
+shell: bash
+category: Servicios y logs
+tags: [servicios, systemd]
+operation: read
+template: "systemctl status <service> --no-pager"
+parameters:
+  - name: service
+    label: Servicio
+    type: string
+    required: true
+    placeholder: nginx
+---
+`--no-pager` evita que la salida se quede atrapada en `less`, que es justo lo que no quieres por Serial Console ni dentro de un `az vm run-command`.
+
+Fíjate en las dos primeras líneas: **Loaded** dice si arranca solo (`enabled`) y **Active** si está corriendo ahora.

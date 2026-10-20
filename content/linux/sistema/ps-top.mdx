@@ -1,0 +1,18 @@
+---
+title: Procesos que más consumen
+description: Procesos ordenados por CPU, con su memoria y tiempo de ejecución.
+shell: bash
+category: Sistema
+tags: [sistema, procesos, cpu, memoria]
+operation: read
+template: "ps -eo pid,ppid,user,pcpu,pmem,etime,cmd --sort=-pcpu | head -n <count>"
+parameters:
+  - name: count
+    label: Cuántas líneas mostrar
+    type: number
+    required: false
+    default: "15"
+---
+Equivalente a `top` pero en una sola salida, que es lo que quieres cuando trabajas por Serial Console o dentro de un `az vm run-command`.
+
+Cambia `--sort=-pcpu` por `--sort=-pmem` para ordenar por memoria. La columna `etime` dice cuánto lleva vivo el proceso: uno recién nacido al 100 % de CPU suele ser un arranque normal.

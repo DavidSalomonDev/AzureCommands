@@ -1,0 +1,12 @@
+---
+title: Servicios automáticos que no están corriendo
+description: Servicios marcados como automáticos pero detenidos.
+shell: cmd
+category: Servicios y eventos
+tags: [powershell, servicios]
+operation: read
+template: "Get-Service | Where-Object { $_.StartType -eq 'Automatic' -and $_.Status -ne 'Running' } | Format-Table Name, DisplayName, Status, StartType -AutoSize"
+---
+Barrido de un golpe tras un reinicio inesperado: cualquier cosa que debía arrancar sola y no arrancó aparece aquí.
+
+Algunos servicios de Windows son automáticos *con inicio retrasado* y es normal verlos detenidos justo después del arranque. Para el detalle de uno, `Get-Service -Name BITS | Format-List *`.

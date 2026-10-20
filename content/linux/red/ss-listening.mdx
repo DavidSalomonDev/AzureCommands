@@ -1,0 +1,12 @@
+---
+title: Puertos en escucha y su proceso
+description: Sockets TCP y UDP abiertos, con el proceso dueño de cada puerto.
+shell: bash
+category: Red
+tags: [red, puertos, ss, netstat]
+operation: read
+template: "sudo ss -tulpn"
+---
+Sustituto moderno de `netstat -tulpn`. El `sudo` es lo que permite ver la columna de procesos.
+
+Si el servicio escucha en `127.0.0.1` en lugar de `0.0.0.0`, no habrá conexión desde fuera por más que el NSG esté abierto. Confirma también el firewall local con `sudo iptables -L -n` o `sudo firewall-cmd --list-all`.

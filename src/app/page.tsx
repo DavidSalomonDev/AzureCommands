@@ -33,7 +33,10 @@ export default async function Home() {
           Linux, macOS y Windows. Completa sus parámetros, copia la línea lista para
           pegar y, cuando una tarea necesite más de una línea, pásate a{" "}
           <strong className="text-foreground">Scripts</strong>. PowerShell sigue
-          disponible para cuando prefieras el módulo Az.
+          disponible para cuando prefieras el módulo Az, y cuando toque entrar a la
+          máquina, <strong className="text-foreground">Linux</strong> y{" "}
+          <strong className="text-foreground">Windows en la VM</strong> tienen lo básico
+          de diagnóstico.
         </p>
       </section>
 

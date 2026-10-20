@@ -1,0 +1,27 @@
+---
+title: Últimas líneas de log de un servicio
+description: Registro de systemd de un servicio concreto, acotado a N líneas.
+shell: bash
+category: Servicios y logs
+tags: [logs, journalctl, systemd]
+operation: read
+template: "sudo journalctl -u <service> -n <lines> --no-pager"
+parameters:
+  - name: service
+    label: Servicio
+    type: string
+    required: true
+    placeholder: nginx
+  - name: lines
+    label: Número de líneas
+    type: number
+    required: false
+    default: "100"
+---
+Variantes que se usan a diario:
+
+- `-f` para seguir el log en vivo.
+- `-p err -b` para ver solo los errores del arranque actual.
+- `--since "1 hour ago"` para acotar por tiempo.
+
+Si el journal no sobrevive a los reinicios es que no es persistente: `sudo mkdir -p /var/log/journal && sudo systemctl restart systemd-journald`.

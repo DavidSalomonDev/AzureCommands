@@ -1,0 +1,10 @@
+---
+title: Distribución y versión del kernel
+description: Qué sistema operativo y kernel corre realmente la VM.
+shell: bash
+category: Sistema
+tags: [sistema, version, kernel]
+operation: read
+template: "cat /etc/os-release && uname -r"
+---
+Lo primero que pregunta cualquier soporte. `/etc/os-release` da el nombre y la versión de la distribución; `uname -r` el kernel en uso, que puede ser más antiguo que el instalado si falta reiniciar tras una actualización.

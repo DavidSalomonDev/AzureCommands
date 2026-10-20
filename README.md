@@ -4,8 +4,9 @@ Organizador web de comandos para administrar Azure. Prioriza **Azure CLI** (`az`
 sintaxis en Cloud Shell, Linux, macOS y Windows— y mantiene **PowerShell** (módulo `Az`)
 para quien lo prefiera. Permite completar los parámetros con inputs dinámicos y copiar la
 línea lista para pegar. Para las tareas que no caben en una sola línea está la sección
-**Scripts**, y puedes guardar tus propias líneas en **Mis comandos**, con exportación e
-importación para llevártelas entre equipos.
+**Scripts**. Para cuando toca entrar a la propia máquina hay dos secciones cortas de
+diagnóstico, **Linux en la VM** y **Windows en la VM**, y puedes guardar tus propias
+líneas en **Mis comandos**, con exportación e importación para llevártelas entre equipos.
 
 ## Características
 
@@ -33,6 +34,11 @@ importación para llevártelas entre equipos.
 - **Resaltado de sintaxis** de Bash (comandos `az` y scripts) con un tokenizador propio,
   necesario porque los `<token>` se sustituyen en vivo en el navegador. PowerShell se
   muestra sin colores por ahora, con sus placeholders igualmente resaltados.
+- **Dentro de la VM:** dos secciones cortas de diagnóstico para las veces que hay que
+  entrar a una máquina por SSH, RDP, Bastion o Serial Console: discos, red, servicios,
+  actualizaciones y estado general. **Linux** (Bash) y **Windows** (PowerShell, con la
+  alternativa en `cmd.exe` cuando existe). No pretenden ser un manual del sistema
+  operativo, solo lo que se teclea de verdad en ese momento.
 - **Mis comandos:** guarda tus propias líneas (Linux o Windows) en `localStorage`, con
   autodetección de parámetros `<token>`, y **exporta/importa** en JSON para migrar entre
   equipos.
@@ -40,19 +46,22 @@ importación para llevártelas entre equipos.
 
 ## Secciones
 
-El orden de las secciones (menú lateral y portada) refleja la prioridad: primero Azure
-CLI, después Scripts y luego PowerShell.
+El orden de las secciones (menú lateral y portada) refleja la prioridad: primero lo que
+se ejecuta desde fuera (Azure CLI, Scripts, PowerShell) y después lo que se ejecuta
+dentro de la propia VM (Linux, Windows).
 
-| Sección        | Estado        | Contenido                                             |
-| -------------- | ------------- | ----------------------------------------------------- |
-| Azure CLI      | Disponible    | Comandos `az` (opción recomendada)                    |
-| Scripts        | Disponible    | Scripts completos en Azure CLI (Bash)                 |
-| PowerShell     | Disponible    | Comandos del módulo `Az`                              |
-| Favoritos      | Disponible    | Lo que marcaste con la estrella (localStorage)        |
-| Mis comandos   | Disponible    | Comandos propios del usuario (localStorage)           |
-| ARM            | Próximamente  | Plantillas ARM                                        |
-| Bicep          | Próximamente  | Plantillas Bicep                                      |
-| Terraform      | Próximamente  | Configuraciones Terraform                             |
+| Sección          | Estado        | Contenido                                             |
+| ---------------- | ------------- | ----------------------------------------------------- |
+| Azure CLI        | Disponible    | Comandos `az` (opción recomendada)                    |
+| Scripts          | Disponible    | Scripts completos en Azure CLI (Bash)                 |
+| PowerShell       | Disponible    | Comandos del módulo `Az`                              |
+| Linux en la VM   | Disponible    | Diagnóstico dentro de una VM Linux (Bash)             |
+| Windows en la VM | Disponible    | Diagnóstico dentro de una VM Windows (PowerShell/cmd) |
+| Favoritos        | Disponible    | Lo que marcaste con la estrella (localStorage)        |
+| Mis comandos     | Disponible    | Comandos propios del usuario (localStorage)           |
+| ARM              | Próximamente  | Plantillas ARM                                        |
+| Bicep            | Próximamente  | Plantillas Bicep                                      |
+| Terraform        | Próximamente  | Configuraciones Terraform                             |
 
 ## Requisitos
 
@@ -84,8 +93,14 @@ Abre [http://localhost:3000](http://localhost:3000).
 ## Cómo añadir un comando a la biblioteca
 
 Los comandos de la biblioteca son archivos **MDX** dentro de `content/`, organizados por
-shell y producto: `content/<cli|powershell>/<servicio>/<nombre>.mdx`. No hace falta tocar
-código: crea un `.mdx` con frontmatter y el catálogo lo recoge en el siguiente build.
+shell y producto: `content/<cli|powershell|linux|windows>/<servicio>/<nombre>.mdx`. No
+hace falta tocar código: crea un `.mdx` con frontmatter y el catálogo lo recoge en el
+siguiente build.
+
+El campo `shell` es lo que decide en qué sección aparece el comando: `azurecli` → Azure
+CLI, `powershell` → PowerShell, `bash` → Linux en la VM, `cmd` → Windows en la VM. La
+carpeta solo sirve para tenerlo ordenado en el repo; la agrupación del menú sale de
+`category`.
 
 ```mdx
 ---
@@ -196,11 +211,13 @@ que lo contiene como categoría (`content/scripts/<categoría>/<script>.ps1`).
 
 ```
 content/
-  cli/  powershell/          # Catálogo MDX por servicio
+  cli/  powershell/          # Catálogo MDX por servicio de Azure
+  linux/  windows/           # Catálogo MDX de diagnóstico dentro de la VM
   scripts/                   # Scripts .sh + sidecar .md con sus metadatos
   _powershell-originales/    # Versiones PowerShell previas, fuera del catálogo
 src/
-  app/                       # Rutas: /, /cli, /scripts, /powershell, /favoritos, /mis-comandos, (arm|bicep|terraform)
+  app/                       # Rutas: /, /cli, /scripts, /powershell, /linux, /windows,
+                             #         /favoritos, /mis-comandos, (arm|bicep|terraform)
     catalog/[section]/       # JSON estático del catálogo, para la página de favoritos
   components/
     app-shell.tsx            # Cabecera + menú lateral colapsable (estado del sidebar)

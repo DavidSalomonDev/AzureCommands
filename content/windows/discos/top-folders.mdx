@@ -1,0 +1,23 @@
+---
+title: Qué está ocupando el disco
+description: Carpetas más grandes bajo una ruta, en GB y ordenadas de mayor a menor.
+shell: cmd
+category: Discos y almacenamiento
+tags: [powershell, disco, espacio]
+operation: read
+template: "Get-ChildItem <path> -Directory -ErrorAction SilentlyContinue | ForEach-Object { [PSCustomObject]@{ Carpeta = $_.FullName; GB = [math]::Round((Get-ChildItem $_.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum / 1GB, 2) } } | Sort-Object GB -Descending | Select-Object -First <count>"
+parameters:
+  - name: path
+    label: Ruta a analizar
+    type: string
+    required: true
+    default: 'C:\'
+  - name: count
+    label: Cuántas carpetas mostrar
+    type: number
+    required: false
+    default: "15"
+---
+El equivalente de `du` para cuando `C:` se llena. Recorre un nivel de carpetas y suma el tamaño real de cada rama, así que en un disco grande tarda: baja de nivel cambiando la ruta en lugar de lanzarlo sobre todo el disco.
+
+Sospechosos habituales: `C:\Windows\Temp`, `C:\Windows\SoftwareDistribution\Download` (caché de Windows Update), `C:\inetpub\logs` y los volcados de memoria en `C:\Windows\MEMORY.DMP`.

@@ -1,0 +1,12 @@
+---
+title: Memoria y swap en uso
+description: RAM total, usada, disponible y swap.
+shell: bash
+category: Sistema
+tags: [sistema, memoria, ram, swap]
+operation: read
+template: "free -h"
+---
+Mira la columna **available**, no **free**: Linux usa toda la RAM que sobra como caché de disco y eso es correcto, no un problema.
+
+Muchas imágenes de Azure no traen swap configurada. Si hace falta, se habilita sobre el disco temporal (`/mnt`) vía `cloud-init`, nunca sobre el disco de sistema.

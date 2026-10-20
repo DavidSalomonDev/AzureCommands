@@ -1,0 +1,12 @@
+---
+title: Configuración de red completa
+description: IP, máscara, puerta de enlace, DNS y sufijo DNS de cada adaptador.
+shell: cmd
+category: Red
+tags: [cmd, red, ip, dns]
+operation: read
+template: "ipconfig /all"
+---
+La IP que aparece es siempre la **privada**: la pública vive en la infraestructura de Azure y la VM no la ve.
+
+Los DNS deberían ser el `168.63.129.16` de Azure, o los de tu DNS privado si la VNet está configurada así. Para la tabla de rutas, `route print`.

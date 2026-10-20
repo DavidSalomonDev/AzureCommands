@@ -1,0 +1,19 @@
+---
+title: Espacio libre por sistema de archivos
+description: Uso de disco de cada punto de montaje, en unidades legibles.
+shell: bash
+category: Discos y almacenamiento
+tags: [disco, espacio, df]
+operation: read
+template: "df -hT -x tmpfs -x devtmpfs <path>"
+parameters:
+  - name: path
+    label: Ruta concreta (opcional)
+    description: Déjalo vacío para ver todos los sistemas de archivos.
+    type: string
+    required: false
+    placeholder: /var
+---
+Primer comando cuando algo "se llenó". `-T` añade el tipo de sistema de archivos y los dos `-x` quitan el ruido de los pseudo-montajes.
+
+Si `df` dice que hay espacio pero los procesos fallan, mira los **inodos** con `df -i`: un directorio con millones de ficheros pequeños agota los inodos antes que los bytes.

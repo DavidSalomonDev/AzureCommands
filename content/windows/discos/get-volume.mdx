@@ -1,0 +1,16 @@
+---
+title: Volúmenes y espacio libre
+description: Letra, etiqueta, sistema de archivos, salud y espacio libre de cada volumen.
+shell: cmd
+category: Discos y almacenamiento
+tags: [powershell, disco, espacio, volumen]
+operation: read
+template: "Get-Volume | Sort-Object DriveLetter | Format-Table DriveLetter, FileSystemLabel, FileSystem, HealthStatus, Size, SizeRemaining -AutoSize"
+---
+El equivalente de `df -h` en Windows. `Size` y `SizeRemaining` salen en bytes; para GB redondeados añade al final:
+
+```powershell
+| Select-Object DriveLetter, @{Name='GB';Expression={[math]::Round($_.Size/1GB,1)}}, @{Name='LibreGB';Expression={[math]::Round($_.SizeRemaining/1GB,1)}}
+```
+
+En VMs de Azure, `D:` suele ser el **disco temporal**: se borra al reasignar la VM, así que nada importante debería vivir ahí.

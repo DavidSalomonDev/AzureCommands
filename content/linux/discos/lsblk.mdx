@@ -1,0 +1,12 @@
+---
+title: Discos, particiones y LUN
+description: Árbol de discos con tamaño, sistema de archivos, UUID y el LUN de Azure.
+shell: bash
+category: Discos y almacenamiento
+tags: [disco, lsblk, lun, particiones]
+operation: read
+template: "lsblk -o NAME,HCTL,TYPE,SIZE,FSTYPE,MOUNTPOINT,UUID"
+---
+La columna **HCTL** es la que importa en Azure: su último número es el **LUN** con el que se adjuntó el disco de datos (`az vm disk attach --lun`). Así se sabe qué `/dev/sdX` corresponde a qué disco del portal.
+
+El `UUID` es lo que debe ir en `/etc/fstab`, nunca `/dev/sdc1`: el orden de los `sd*` puede cambiar entre reinicios.

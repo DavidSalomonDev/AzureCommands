@@ -1,0 +1,12 @@
+---
+title: Tabla de rutas
+description: Rutas activas y puerta de enlace predeterminada.
+shell: bash
+category: Red
+tags: [red, rutas, gateway]
+operation: read
+template: "ip route show"
+---
+La puerta de enlace predeterminada de una VM de Azure es siempre la primera IP utilizable de su subred (la `.1`).
+
+Esta tabla es la del sistema operativo. Las rutas que Azure aplica de verdad (UDR, peerings, gateways) se consultan desde fuera con `az network nic show-effective-route-table`.

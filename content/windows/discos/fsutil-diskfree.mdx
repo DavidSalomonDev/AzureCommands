@@ -1,0 +1,19 @@
+---
+title: Espacio libre de una unidad (cmd)
+description: Bytes totales, libres y disponibles de una unidad, sin PowerShell.
+shell: cmd
+category: Discos y almacenamiento
+tags: [cmd, disco, espacio, fsutil]
+operation: read
+template: "fsutil volume diskfree <drive>"
+parameters:
+  - name: drive
+    label: Unidad
+    type: string
+    required: true
+    default: "C:"
+    placeholder: "C:"
+---
+Alternativa a `Get-Volume` cuando solo tienes `cmd.exe`. A diferencia de `wmic logicaldisk`, `fsutil` no está en desuso.
+
+Distingue *libres* de *disponibles*: en un volumen con cuotas o puntos de restauración, el segundo número es el que de verdad puedes usar.

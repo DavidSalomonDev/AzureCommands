@@ -1,0 +1,23 @@
+---
+title: Errores recientes del registro de eventos
+description: Errores y eventos críticos del log del sistema en los últimos días.
+shell: cmd
+category: Servicios y eventos
+tags: [powershell, eventos, logs, errores]
+operation: read
+template: "Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2; StartTime=(Get-Date).AddDays(-<days>)} -MaxEvents <count> | Format-Table TimeCreated, Id, ProviderName, LevelDisplayName -AutoSize"
+parameters:
+  - name: days
+    label: Días hacia atrás
+    type: number
+    required: false
+    default: "1"
+  - name: count
+    label: Máximo de eventos
+    type: number
+    required: false
+    default: "50"
+---
+`Level=1,2` son los eventos críticos y de error. Cambia `LogName` a `Application` para el log de aplicación.
+
+Para leer el mensaje completo de un evento, sustituye la tabla final por `Format-List TimeCreated, Id, ProviderName, Message`. Si no hay eventos en el rango, el cmdlet devuelve un error en lugar de una lista vacía: es normal.

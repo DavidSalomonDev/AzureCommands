@@ -1,0 +1,12 @@
+---
+title: Direcciones IP de las interfaces
+description: IP, máscara y estado de cada interfaz de red, en formato breve.
+shell: bash
+category: Red
+tags: [red, ip, interfaz]
+operation: read
+template: "ip -brief address show"
+---
+La IP que ves aquí es siempre la **privada**: la IP pública vive en la infraestructura de Azure y la VM no la conoce. Para comprobar la pública desde dentro, `curl -s ifconfig.me`.
+
+Si una NIC secundaria aparece sin IP, revisa que la configuración IP exista en Azure y que `cloud-init` o `NetworkManager` la hayan levantado.
