@@ -5,7 +5,14 @@ export interface TemplateSegment {
   value: string;
 }
 
-const TOKEN_REGEX = /<([^<>]+)>/g;
+/**
+ * A placeholder name is an identifier: no spaces, quotes or line breaks. The
+ * stricter shape keeps bash redirections and process substitutions
+ * (`< <(az vm list ...)`, heredocs) from being read as tokens.
+ */
+export const PLACEHOLDER_PATTERN = "<([A-Za-z_][A-Za-z0-9_.-]*)>";
+
+const TOKEN_REGEX = new RegExp(PLACEHOLDER_PATTERN, "g");
 
 /** Splits a template into literal text and <token> segments, in order. */
 export function parseTemplateSegments(template: string): TemplateSegment[] {

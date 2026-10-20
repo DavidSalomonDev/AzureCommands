@@ -134,3 +134,68 @@
     --header-h: 3.5rem;
   }
 }
+
+@layer base {
+  /* Paleta de resaltado de sintaxis para los bloques de codigo (.code-hl). */
+  :root {
+    --syntax-comment: #6b7280;
+    --syntax-string: #15803d;
+    --syntax-variable: #c2410c;
+    --syntax-keyword: #9333ea;
+    --syntax-builtin: #2563eb;
+    --syntax-command: #0f766e;
+    --syntax-function: #db2777;
+    --syntax-number: #0369a1;
+    --syntax-flag: #475569;
+    --syntax-operator: #64748b;
+  }
+
+  .dark {
+    --syntax-comment: #8b949e;
+    --syntax-string: #7ee787;
+    --syntax-variable: #ffa657;
+    --syntax-keyword: #d2a8ff;
+    --syntax-builtin: #79c0ff;
+    --syntax-command: #5eead4;
+    --syntax-function: #f9a8d4;
+    --syntax-number: #7dd3fc;
+    --syntax-flag: #9ca3af;
+    --syntax-operator: #7d8590;
+  }
+}
+
+@layer components {
+  .code-hl .tok-comment {
+    color: var(--syntax-comment);
+    font-style: italic;
+  }
+  .code-hl .tok-string {
+    color: var(--syntax-string);
+  }
+  .code-hl .tok-variable {
+    color: var(--syntax-variable);
+  }
+  .code-hl .tok-keyword {
+    color: var(--syntax-keyword);
+    font-weight: 500;
+  }
+  .code-hl .tok-builtin {
+    color: var(--syntax-builtin);
+  }
+  .code-hl .tok-command {
+    color: var(--syntax-command);
+  }
+  .code-hl .tok-function {
+    color: var(--syntax-function);
+    font-weight: 500;
+  }
+  .code-hl .tok-number {
+    color: var(--syntax-number);
+  }
+  .code-hl .tok-flag {
+    color: var(--syntax-flag);
+  }
+  .code-hl .tok-operator {
+    color: var(--syntax-operator);
+  }
+}

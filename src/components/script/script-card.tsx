@@ -5,6 +5,7 @@ import { Check, ChevronDown, ChevronUp, Copy, Download } from "lucide-react";
 import { toast } from "sonner";
 
 import { FavoriteButton } from "@/components/favorite-button";
+import { CodeHighlight } from "@/components/script/code-highlight";
 import { ParamInput } from "@/components/command/param-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,11 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  buildDefaultValues,
-  parseTemplateSegments,
-  renderTemplate,
-} from "@/lib/params/template-engine";
+import { buildDefaultValues, renderTemplate } from "@/lib/params/template-engine";
 import {
   OPERATION_BADGE_CLASSES,
   OPERATION_LABELS,
@@ -61,20 +58,15 @@ export function ScriptCard({ script }: { script: Script }) {
 
   // The preview is truncated on the template so the <token> highlighting still
   // works; copy and download always use the full, substituted script.
-  const visibleSegments = useMemo(() => {
-    const source =
-      expanded || !truncated ? script.code : lines.slice(0, PREVIEW_LINES).join("\n");
-    return parseTemplateSegments(source);
-  }, [script.code, lines, expanded, truncated]);
+  const visibleCode = useMemo(
+    () =>
+      expanded || !truncated ? script.code : lines.slice(0, PREVIEW_LINES).join("\n"),
+    [script.code, lines, expanded, truncated]
+  );
 
   const renderedCode = useMemo(
     () => renderTemplate(script.code, values),
     [script.code, values]
-  );
-
-  const renderedUsage = useMemo(
-    () => (script.usage ? renderTemplate(script.usage, values) : null),
-    [script.usage, values]
   );
 
   function handleChange(name: string, value: string) {
@@ -162,13 +154,17 @@ export function ScriptCard({ script }: { script: Script }) {
           </div>
         )}
 
-        {renderedUsage && (
+        {script.usage && (
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
               Uso
             </span>
             <pre className="overflow-x-auto rounded-lg border bg-muted/40 p-2.5 text-sm dark:bg-muted/20">
-              <code className="font-mono">{renderedUsage}</code>
+              <CodeHighlight
+                code={script.usage}
+                language={script.language}
+                values={values}
+              />
             </pre>
           </div>
         )}
@@ -190,26 +186,11 @@ export function ScriptCard({ script }: { script: Script }) {
 
         <div className="relative rounded-lg border bg-muted/40 dark:bg-muted/20">
           <pre className="overflow-x-auto p-3 text-xs leading-relaxed">
-            <code className="font-mono whitespace-pre">
-              {visibleSegments.map((seg, i) => {
-                if (seg.type === "text") return <span key={i}>{seg.value}</span>;
-                const filled = (values[seg.value] ?? "").trim().length > 0;
-                return (
-                  <span
-                    key={i}
-                    className={cn(
-                      "rounded px-0.5",
-                      filled
-                        ? "text-primary font-medium"
-                        : "text-amber-600 underline decoration-dashed decoration-amber-500/60 underline-offset-4 dark:text-amber-400"
-                    )}
-                    title={filled ? undefined : "Falta el parámetro: " + seg.value}
-                  >
-                    {filled ? values[seg.value] : "<" + seg.value + ">"}
-                  </span>
-                );
-              })}
-            </code>
+            <CodeHighlight
+              code={visibleCode}
+              language={script.language}
+              values={values}
+            />
           </pre>
           {truncated && (
             <Button
