@@ -107,15 +107,19 @@ El cuerpo Markdown se renderiza como **notas** debajo del comando (admite `códi
 enlaces y listas).
 ```
 
-Reglas:
+Reglas (todas se comprueban al cargar el catálogo, así que un error hace fallar
+`npm run build` indicando el archivo):
 
-- Cada `<token>` de `template` debe tener un `parameters[].name` que coincida.
+- Cada `<token>` de `template` debe tener un `parameters[].name` que coincida, y al revés:
+  un parámetro declarado que no aparezca en la plantilla también es error. Un token sin
+  declarar se mostraría como un hueco que nadie puede rellenar, y al copiar saldría tal cual.
+- El `id` de cada comando (`lib-<shell>-<slug>`) tiene que ser único. Como el slug sale del
+  nombre del archivo, dos archivos con el mismo nombre bajo el mismo shell chocan: renombra
+  uno o fija un `slug` distinto en su frontmatter.
 - `operation` solo hace falta cuando la deducción falla (por ejemplo
   `az aks get-credentials`, que parece lectura y también escribe el kubeconfig).
 - Los valores numéricos de `default` van entre comillas (`default: "2"`), ya que el
   frontmatter se valida con Zod.
-- El frontmatter se valida al cargar; un archivo mal formado hace fallar el build con un
-  mensaje indicando el problema.
 
 ## Cómo añadir un script
 
@@ -152,7 +156,10 @@ Notas en Markdown: qué hace, parámetros, advertencias…
 
 Los `<token>` del script se convierten en inputs sobre el bloque de código y se
 sustituyen en vivo; copiar y descargar usan siempre el script ya rellenado. Evita usar
-`<` y `>` en el código para otra cosa que no sean parámetros.
+`<` y `>` en el código para otra cosa que no sean parámetros —incluso dentro de un
+comentario—: el build falla si encuentra un `<token>` sin su parámetro declarado. Si
+necesitas documentar un formato de Azure que lleva marcadores, escríbelo sin los signos
+(`VM;iaasvmcontainerv2;GRUPO_RECURSOS;NOMBRE_VM`).
 
 Sin sidecar el script igual aparece: toma el nombre del archivo como título y la carpeta
 que lo contiene como categoría (`content/scripts/<categoría>/<script>.ps1`).
@@ -190,7 +197,7 @@ src/
     ui/                      # Componentes shadcn/ui
   lib/
     operations.ts            # Subcategorías CRUD: orden, etiquetas y deducción
-    content/                 # Loaders + esquemas de frontmatter (server-only)
+    content/                 # Loaders + esquemas de frontmatter + validaciones (server-only)
     repositories/            # Repositorio de "Mis comandos" (localStorage)
     params/                  # Motor de plantillas (<token> → valores)
     store/                   # Hooks useUserCommands y useFavorites

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   AlertDialog,
@@ -23,6 +24,7 @@ import {
 import { CommandFormDialog } from "@/components/command/command-form-dialog";
 import { CommandList } from "@/components/command/command-list";
 import { ImportExportMenu } from "@/components/command/import-export-menu";
+import { StorageWriteError } from "@/lib/repositories/local-storage-repo";
 import type { NewCommandInput } from "@/lib/repositories/types";
 import { useUserCommands } from "@/lib/store/use-user-commands";
 import type { Command } from "@/lib/types";
@@ -50,18 +52,33 @@ export default function MisComandosPage() {
     setFormOpen(true);
   }
 
-  function handleSubmit(input: NewCommandInput) {
-    if (editingCommand) {
-      update(editingCommand.id, input);
-    } else {
-      create(input);
+  /**
+   * The browser can refuse to persist (private mode, quota): report it
+   * instead of letting the error escape the event handler.
+   */
+  function runSaving(action: () => void): boolean {
+    try {
+      action();
+      return true;
+    } catch (error) {
+      if (error instanceof StorageWriteError) {
+        toast.error(error.message);
+        return false;
+      }
+      throw error;
     }
-    setFormOpen(false);
+  }
+
+  function handleSubmit(input: NewCommandInput) {
+    const saved = runSaving(() =>
+      editingCommand ? update(editingCommand.id, input) : create(input)
+    );
+    if (saved) setFormOpen(false);
   }
 
   function confirmDelete() {
     if (!deleteTarget) return;
-    remove(deleteTarget.id);
+    runSaving(() => remove(deleteTarget.id));
     setDeleteTarget(null);
   }
 

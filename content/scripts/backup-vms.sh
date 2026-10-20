@@ -59,7 +59,7 @@ for VM in "${VMS[@]}"; do
   while IFS=$'\t' read -r VAULT_NAME VAULT_RG; do
     [ -z "$VAULT_NAME" ] && continue
 
-    # Nombre completo del elemento protegido: VM;iaasvmcontainerv2;<rg>;<vm>
+    # Nombre completo del elemento protegido: VM;iaasvmcontainerv2;GRUPO_RECURSOS;NOMBRE_VM
     ITEM_NAME=$(az backup item list \
       --vault-name "$VAULT_NAME" \
       --resource-group "$VAULT_RG" \
@@ -72,7 +72,7 @@ for VM in "${VMS[@]}"; do
     PROTECTED=1
 
     # El contenedor debe ir con su nombre completo
-    # (IaasVMContainer;iaasvmcontainerv2;<rg>;<vm>). No sirve
+    # (IaasVMContainer;iaasvmcontainerv2;GRUPO_RECURSOS;NOMBRE_VM). No sirve
     # properties.containerName del elemento: llega sin el prefijo
     # "IaasVMContainer;" y la API responde con
     # BMSUserErrorContainerNameIncorrectFormat. Tampoco conviene armarlo a mano,

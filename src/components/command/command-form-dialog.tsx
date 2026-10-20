@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -89,6 +89,12 @@ interface CommandFormDialogProps {
   onSubmit: (input: NewCommandInput) => void;
 }
 
+/**
+ * The body lives in its own component so that the draft is seeded by
+ * `useState` on mount: the dialog only renders it while open, and the `key`
+ * remounts it when switching to a different command. That keeps the reset out
+ * of an effect.
+ */
 export function CommandFormDialog({
   open,
   onOpenChange,
@@ -96,13 +102,37 @@ export function CommandFormDialog({
   existingCategories,
   onSubmit,
 }: CommandFormDialogProps) {
-  const [draft, setDraft] = useState<DraftState>(blankDraft);
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto sm:max-w-2xl">
+        {open && (
+          <CommandForm
+            key={initialCommand?.id ?? "new"}
+            initialCommand={initialCommand}
+            existingCategories={existingCategories}
+            onSubmit={onSubmit}
+            onCancel={() => onOpenChange(false)}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
 
-  useEffect(() => {
-    if (open) {
-      setDraft(initialCommand ? draftFromCommand(initialCommand) : blankDraft());
-    }
-  }, [open, initialCommand]);
+function CommandForm({
+  initialCommand,
+  existingCategories,
+  onSubmit,
+  onCancel,
+}: {
+  initialCommand?: Command | null;
+  existingCategories: string[];
+  onSubmit: (input: NewCommandInput) => void;
+  onCancel: () => void;
+}) {
+  const [draft, setDraft] = useState<DraftState>(() =>
+    initialCommand ? draftFromCommand(initialCommand) : blankDraft()
+  );
 
   function handleTemplateChange(value: string) {
     setDraft((prev) => ({
@@ -167,139 +197,137 @@ export function CommandFormDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{initialCommand ? "Editar comando" : "Nuevo comando"}</DialogTitle>
-          <DialogDescription>
-            Usa <code className="font-mono">&lt;nombre&gt;</code> dentro del comando para crear
-            parámetros automáticamente. Funciona con cualquier línea de Linux o Windows.
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <DialogHeader>
+        <DialogTitle>{initialCommand ? "Editar comando" : "Nuevo comando"}</DialogTitle>
+        <DialogDescription>
+          Usa <code className="font-mono">&lt;nombre&gt;</code> dentro del comando para crear
+          parámetros automáticamente. Funciona con cualquier línea de Linux o Windows.
+        </DialogDescription>
+      </DialogHeader>
 
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <Label htmlFor="cmd-title">Título</Label>
-              <Input
-                id="cmd-title"
-                value={draft.title}
-                onChange={(e) => setDraft((prev) => ({ ...prev, title: e.target.value }))}
-                placeholder="Reiniciar el servicio nginx"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <Label htmlFor="cmd-description">Descripción</Label>
-              <Textarea
-                id="cmd-description"
-                value={draft.description}
-                onChange={(e) =>
-                  setDraft((prev) => ({ ...prev, description: e.target.value }))
-                }
-                placeholder="Qué hace este comando y cuándo usarlo."
-                className="min-h-16"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="cmd-category">Categoría</Label>
-              <Input
-                id="cmd-category"
-                list="user-command-categories"
-                value={draft.category}
-                onChange={(e) => setDraft((prev) => ({ ...prev, category: e.target.value }))}
-                placeholder="Redes, servidores…"
-              />
-              <datalist id="user-command-categories">
-                {existingCategories.map((c) => (
-                  <option key={c} value={c} />
-                ))}
-              </datalist>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="cmd-shell">Tipo</Label>
-              <Select
-                value={draft.shell}
-                onValueChange={(v) => setDraft((prev) => ({ ...prev, shell: v as Shell }))}
-              >
-                <SelectTrigger id="cmd-shell" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {USER_SHELL_OPTIONS.map((shell) => (
-                    <SelectItem key={shell} value={shell}>
-                      {SHELL_LABELS[shell]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <Label htmlFor="cmd-tags">Etiquetas (separadas por coma)</Label>
-              <Input
-                id="cmd-tags"
-                value={draft.tagsText}
-                onChange={(e) => setDraft((prev) => ({ ...prev, tagsText: e.target.value }))}
-                placeholder="backup, produccion"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <Label htmlFor="cmd-template">Comando</Label>
-              <Textarea
-                id="cmd-template"
-                value={draft.template}
-                onChange={(e) => handleTemplateChange(e.target.value)}
-                placeholder="systemctl restart <servicio>"
-                className="min-h-20 font-mono text-sm"
-              />
-            </div>
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <Label htmlFor="cmd-title">Título</Label>
+            <Input
+              id="cmd-title"
+              value={draft.title}
+              onChange={(e) => setDraft((prev) => ({ ...prev, title: e.target.value }))}
+              placeholder="Reiniciar el servicio nginx"
+            />
           </div>
 
-          {draft.parameters.length > 0 && (
-            <div className="flex flex-col gap-2">
-              <Label className="text-xs text-muted-foreground">Parámetros detectados</Label>
-              <div className="flex flex-col gap-2">
-                {draft.parameters.map((param) => (
-                  <ParamEditorRow
-                    key={param.name}
-                    parameter={param}
-                    onChange={(patch) => updateParameter(param.name, patch)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cmd-notes">Notas (opcional)</Label>
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <Label htmlFor="cmd-description">Descripción</Label>
             <Textarea
-              id="cmd-notes"
-              value={draft.notes}
-              onChange={(e) => setDraft((prev) => ({ ...prev, notes: e.target.value }))}
-              placeholder="Advertencias, enlaces, contexto adicional…"
+              id="cmd-description"
+              value={draft.description}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, description: e.target.value }))
+              }
+              placeholder="Qué hace este comando y cuándo usarlo."
               className="min-h-16"
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label className="text-xs text-muted-foreground">Vista previa</Label>
-            <CommandCard key={previewKey} command={previewCommand} />
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="cmd-category">Categoría</Label>
+            <Input
+              id="cmd-category"
+              list="user-command-categories"
+              value={draft.category}
+              onChange={(e) => setDraft((prev) => ({ ...prev, category: e.target.value }))}
+              placeholder="Redes, servidores…"
+            />
+            <datalist id="user-command-categories">
+              {existingCategories.map((c) => (
+                <option key={c} value={c} />
+              ))}
+            </datalist>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="cmd-shell">Tipo</Label>
+            <Select
+              value={draft.shell}
+              onValueChange={(v) => setDraft((prev) => ({ ...prev, shell: v as Shell }))}
+            >
+              <SelectTrigger id="cmd-shell" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {USER_SHELL_OPTIONS.map((shell) => (
+                  <SelectItem key={shell} value={shell}>
+                    {SHELL_LABELS[shell]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <Label htmlFor="cmd-tags">Etiquetas (separadas por coma)</Label>
+            <Input
+              id="cmd-tags"
+              value={draft.tagsText}
+              onChange={(e) => setDraft((prev) => ({ ...prev, tagsText: e.target.value }))}
+              placeholder="backup, produccion"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <Label htmlFor="cmd-template">Comando</Label>
+            <Textarea
+              id="cmd-template"
+              value={draft.template}
+              onChange={(e) => handleTemplateChange(e.target.value)}
+              placeholder="systemctl restart <servicio>"
+              className="min-h-20 font-mono text-sm"
+            />
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancelar
-          </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit}>
-            {initialCommand ? "Guardar cambios" : "Crear comando"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        {draft.parameters.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <Label className="text-xs text-muted-foreground">Parámetros detectados</Label>
+            <div className="flex flex-col gap-2">
+              {draft.parameters.map((param) => (
+                <ParamEditorRow
+                  key={param.name}
+                  parameter={param}
+                  onChange={(patch) => updateParameter(param.name, patch)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="cmd-notes">Notas (opcional)</Label>
+          <Textarea
+            id="cmd-notes"
+            value={draft.notes}
+            onChange={(e) => setDraft((prev) => ({ ...prev, notes: e.target.value }))}
+            placeholder="Advertencias, enlaces, contexto adicional…"
+            className="min-h-16"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label className="text-xs text-muted-foreground">Vista previa</Label>
+          <CommandCard key={previewKey} command={previewCommand} />
+        </div>
+      </div>
+
+      <DialogFooter>
+        <Button variant="outline" onClick={onCancel}>
+          Cancelar
+        </Button>
+        <Button onClick={handleSubmit} disabled={!canSubmit}>
+          {initialCommand ? "Guardar cambios" : "Crear comando"}
+        </Button>
+      </DialogFooter>
+    </>
   );
 }

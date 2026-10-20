@@ -1,3 +1,4 @@
+import { crudOperationSchema } from "@/lib/schema";
 import type { Command, CrudOperation, Script, Shell } from "@/lib/types";
 
 /**
@@ -34,6 +35,16 @@ export const OPERATION_BADGE_CLASSES: Record<CrudOperation, string> = {
 
 export function compareOperations(a: CrudOperation, b: CrudOperation): number {
   return OPERATION_ORDER.indexOf(a) - OPERATION_ORDER.indexOf(b);
+}
+
+/**
+ * Reads an operation out of the `?op=` query param. Anything that is not a
+ * known operation is treated as no filter, so a hand-edited URL cannot leave
+ * the list showing an empty filter chip.
+ */
+export function parseOperationParam(value: string | null): CrudOperation | null {
+  const parsed = crudOperationSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
 }
 
 // --- Inference -------------------------------------------------------------

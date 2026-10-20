@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm";
 import remarkHtml from "remark-html";
 
 import { frontmatterSchema } from "@/lib/content/frontmatter-schema";
+import { assertParametersMatchTemplate, assertUniqueIds } from "@/lib/content/validate";
 import { inferOperation } from "@/lib/operations";
 import { slugify } from "@/lib/slugify";
 import type { Command, Shell } from "@/lib/types";
@@ -53,16 +54,18 @@ async function markdownToHtml(markdown: string): Promise<string> {
 async function loadFile(file: string): Promise<Command> {
   const raw = await fs.readFile(file, "utf8");
   const { data, content } = matter(raw);
+  const origin = `content/${path.relative(CONTENT_DIR, file).split(path.sep).join("/")}`;
 
   const parsed = frontmatterSchema.safeParse(data);
   if (!parsed.success) {
-    const rel = path.relative(CONTENT_DIR, file);
     throw new Error(
-      `Frontmatter inválido en content/${rel}:\n${JSON.stringify(parsed.error.format(), null, 2)}`
+      `Frontmatter inválido en ${origin}:\n${JSON.stringify(parsed.error.format(), null, 2)}`
     );
   }
 
   const fm = parsed.data;
+  assertParametersMatchTemplate(fm.template, fm.parameters, origin);
+
   const slug = fm.slug ?? slugify(path.basename(file).replace(/\.mdx?$/, ""));
   const notesHtml = await markdownToHtml(content);
 
@@ -88,6 +91,8 @@ export async function getLibraryCommands(): Promise<Command[]> {
 
   const files = await walkMdxFiles(CONTENT_DIR);
   const commands = await Promise.all(files.map(loadFile));
+
+  assertUniqueIds(commands, "Catálogo de comandos (content/)");
 
   commands.sort(
     (a, b) =>

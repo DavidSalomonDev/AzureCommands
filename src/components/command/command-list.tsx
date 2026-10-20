@@ -20,8 +20,12 @@ import {
   groupByCategoryAndOperation,
 } from "@/components/grouped-section";
 import { CommandCard } from "@/components/command/command-card";
-import { OPERATION_LABELS, resolveOperation } from "@/lib/operations";
-import type { Command, CrudOperation } from "@/lib/types";
+import {
+  OPERATION_LABELS,
+  parseOperationParam,
+  resolveOperation,
+} from "@/lib/operations";
+import type { Command } from "@/lib/types";
 
 interface CommandListProps {
   commands: Command[];
@@ -46,7 +50,7 @@ export function CommandList({
 }: CommandListProps) {
   const searchParams = useSearchParams();
   const urlCategory = searchParams.get(CATEGORY_PARAM);
-  const urlOperation = searchParams.get(OPERATION_PARAM) as CrudOperation | null;
+  const urlOperation = parseOperationParam(searchParams.get(OPERATION_PARAM));
 
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string>(ALL_CATEGORIES);

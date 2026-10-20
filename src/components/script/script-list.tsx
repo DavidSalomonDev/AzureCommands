@@ -13,13 +13,17 @@ import {
 import { ScriptCard } from "@/components/script/script-card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { OPERATION_LABELS, resolveScriptOperation } from "@/lib/operations";
-import type { CrudOperation, Script } from "@/lib/types";
+import {
+  OPERATION_LABELS,
+  parseOperationParam,
+  resolveScriptOperation,
+} from "@/lib/operations";
+import type { Script } from "@/lib/types";
 
 export function ScriptList({ scripts }: { scripts: Script[] }) {
   const searchParams = useSearchParams();
   const category = searchParams.get(CATEGORY_PARAM);
-  const operation = searchParams.get(OPERATION_PARAM) as CrudOperation | null;
+  const operation = parseOperationParam(searchParams.get(OPERATION_PARAM));
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {

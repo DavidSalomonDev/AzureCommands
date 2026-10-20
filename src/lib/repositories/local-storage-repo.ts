@@ -11,6 +11,11 @@ import type {
 
 const STORAGE_KEY = "azure-commands:user-commands:v1";
 
+/** Thrown when the browser refuses to persist the command library. */
+export class StorageWriteError extends Error {
+  readonly name = "StorageWriteError";
+}
+
 function generateId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
@@ -59,9 +64,23 @@ export class LocalStorageUserCommandsRepository implements UserCommandsRepositor
     }
   }
 
+  /**
+   * localStorage can refuse a write: private browsing, a browser policy, or
+   * the quota being exhausted by a large import. Those throw, so the error is
+   * turned into a `StorageWriteError` the UI can report instead of letting it
+   * escape a React event handler.
+   */
   private write(commands: Command[]): void {
     if (typeof window === "undefined") return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(commands));
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(commands));
+    } catch (cause) {
+      throw new StorageWriteError(
+        "No se pudieron guardar los comandos en este navegador. " +
+          "Puede que el almacenamiento esté lleno o bloqueado (modo privado).",
+        { cause }
+      );
+    }
   }
 
   list(): Command[] {
@@ -112,6 +131,8 @@ export class LocalStorageUserCommandsRepository implements UserCommandsRepositor
     };
   }
 
+  // `importAll` already reports problems through `ImportResult.errors`, so a
+  // refused write is returned the same way instead of thrown.
   importAll(bundle: unknown, mode: ImportMode): ImportResult {
     const incoming = extractCommandsFromPayload(bundle);
     if (!incoming) {
@@ -120,23 +141,28 @@ export class LocalStorageUserCommandsRepository implements UserCommandsRepositor
 
     const sanitized = incoming.map((c) => ({ ...c, source: "user" as const }));
 
-    if (mode === "replace") {
-      const withFreshIds = sanitized.map((c) => ({ ...c, id: c.id || generateId() }));
-      this.write(withFreshIds);
-      return { imported: withFreshIds.length, errors: [] };
+    const existing = mode === "replace" ? [] : this.read();
+    const next = this.appendTo(existing, sanitized);
+
+    try {
+      this.write(next);
+    } catch (error) {
+      if (error instanceof StorageWriteError) {
+        return { imported: 0, errors: [error.message] };
+      }
+      throw error;
     }
+    return { imported: sanitized.length, errors: [] };
+  }
 
-    const existing = this.read();
-    const existingIds = new Set(existing.map((c) => c.id));
-    const toAdd: Command[] = [];
-
-    for (const c of sanitized) {
-      const id = c.id && !existingIds.has(c.id) ? c.id : generateId();
-      existingIds.add(id);
-      toAdd.push({ ...c, id });
-    }
-
-    this.write([...existing, ...toAdd]);
-    return { imported: toAdd.length, errors: [] };
+  /** Adds `incoming` after `existing`, giving a fresh id to every collision. */
+  private appendTo(existing: Command[], incoming: Command[]): Command[] {
+    const takenIds = new Set(existing.map((c) => c.id));
+    const added = incoming.map((c) => {
+      const id = c.id && !takenIds.has(c.id) ? c.id : generateId();
+      takenIds.add(id);
+      return { ...c, id };
+    });
+    return [...existing, ...added];
   }
 }

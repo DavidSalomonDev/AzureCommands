@@ -13,6 +13,7 @@ import remarkGfm from "remark-gfm";
 import remarkHtml from "remark-html";
 
 import { scriptFrontmatterSchema } from "@/lib/content/script-schema";
+import { assertParametersMatchTemplate, assertUniqueIds } from "@/lib/content/validate";
 import { slugify } from "@/lib/slugify";
 import type { Script, ScriptLanguage } from "@/lib/types";
 
@@ -96,6 +97,10 @@ async function loadScript(file: string): Promise<Script> {
   const fallbackCategory = parentDir === "scripts" ? DEFAULT_CATEGORY : parentDir;
 
   const slug = fm?.slug ?? slugify(baseName);
+  const parameters = fm?.parameters ?? [];
+
+  const origin = path.relative(process.cwd(), file).split(path.sep).join("/");
+  assertParametersMatchTemplate(code, parameters, origin);
 
   return {
     id: `script-${slug}`,
@@ -109,7 +114,7 @@ async function loadScript(file: string): Promise<Script> {
     code,
     usage: fm?.usage,
     operation: fm?.operation ?? "other",
-    parameters: fm?.parameters ?? [],
+    parameters,
     requirements: fm?.requirements,
     notesHtml: sidecar ? (await markdownToHtml(sidecar.body)) || undefined : undefined,
   };
@@ -121,6 +126,8 @@ export async function getScripts(): Promise<Script[]> {
 
   const files = await walkScriptFiles(SCRIPTS_DIR);
   const scripts = await Promise.all(files.map(loadScript));
+
+  assertUniqueIds(scripts, "Catálogo de scripts (content/scripts/)");
 
   scripts.sort(
     (a, b) =>
