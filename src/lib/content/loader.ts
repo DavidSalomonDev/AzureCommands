@@ -17,7 +17,11 @@ import {
   relativeToProject,
   walkFiles,
 } from "@/lib/content/fs-utils";
-import { assertParametersMatchTemplate, assertUniqueIds } from "@/lib/content/validate";
+import {
+  assertOperationIsResolvable,
+  assertParametersMatchTemplate,
+  assertUniqueIds,
+} from "@/lib/content/validate";
 import { inferOperation } from "@/lib/operations";
 import { slugify } from "@/lib/slugify";
 import type { Command, Shell } from "@/lib/types";
@@ -46,6 +50,7 @@ async function loadFile(file: string): Promise<Command> {
 
   const fm = parsed.data;
   assertParametersMatchTemplate(fm.template, fm.parameters, origin);
+  assertOperationIsResolvable(fm, origin);
 
   const slug = fm.slug ?? slugify(path.basename(file).replace(/\.mdx?$/, ""));
   const notesHtml = await markdownToHtml(content);

@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  autoDetectParameters,
   buildDefaultValues,
   extractPlaceholders,
-  isTemplateFullyFilled,
   parseTemplateSegments,
   renderTemplate,
 } from "@/lib/params/template-engine";
@@ -87,21 +85,6 @@ describe("renderTemplate", () => {
   });
 });
 
-describe("isTemplateFullyFilled", () => {
-  const parameters = [param("obligatorio", { required: true }), param("opcional")];
-
-  it("sólo exige los parámetros obligatorios", () => {
-    expect(isTemplateFullyFilled(parameters, { obligatorio: "x" })).toBe(true);
-  });
-
-  it("no da por relleno un valor en blanco", () => {
-    expect(isTemplateFullyFilled(parameters, { obligatorio: "  " })).toBe(false);
-  });
-
-  it("es cierto cuando no hay parámetros obligatorios", () => {
-    expect(isTemplateFullyFilled([param("a")], {})).toBe(true);
-  });
-});
 
 describe("buildDefaultValues", () => {
   it("siembra sólo los parámetros que declaran un valor por defecto", () => {
@@ -114,14 +97,3 @@ describe("buildDefaultValues", () => {
   });
 });
 
-describe("autoDetectParameters", () => {
-  it("convierte cada token en un parámetro de texto opcional", () => {
-    expect(autoDetectParameters("systemctl restart <servicio>")).toEqual([
-      { name: "servicio", label: "servicio", type: "string", required: false },
-    ]);
-  });
-
-  it("no duplica un token repetido", () => {
-    expect(autoDetectParameters("<x> <x>")).toHaveLength(1);
-  });
-});

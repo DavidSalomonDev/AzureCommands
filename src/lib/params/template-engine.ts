@@ -73,16 +73,6 @@ export function renderTemplate(
     .join("");
 }
 
-/** True when every declared parameter (required or not) has a non-empty value. */
-export function isTemplateFullyFilled(
-  parameters: CommandParameter[],
-  values: Record<string, string>
-): boolean {
-  return parameters
-    .filter((p) => p.required)
-    .every((p) => (values[p.name] ?? "").trim().length > 0);
-}
-
 /** Seeds a values map from each parameter's declared default. */
 export function buildDefaultValues(parameters: CommandParameter[]): Record<string, string> {
   const values: Record<string, string> = {};
@@ -90,17 +80,4 @@ export function buildDefaultValues(parameters: CommandParameter[]): Record<strin
     if (p.default !== undefined) values[p.name] = p.default;
   }
   return values;
-}
-
-/**
- * Auto-detects <token> placeholders in a user-authored command and turns
- * them into plain string parameters (the "hybrid" model for "Mis comandos").
- */
-export function autoDetectParameters(template: string): CommandParameter[] {
-  return extractPlaceholders(template).map((name) => ({
-    name,
-    label: name,
-    type: "string",
-    required: false,
-  }));
 }

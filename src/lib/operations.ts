@@ -184,6 +184,19 @@ export function inferOperation(template: string, shell: Shell): CrudOperation {
   return inferFromCli(template);
 }
 
+/**
+ * Whether the template itself says what it does.
+ *
+ * `inferOperation` returns "other" both when it recognises an action that has
+ * no CRUD bucket and when it recognises nothing at all, and the two cannot be
+ * told apart afterwards. Only `az …` commands and `Verb-Az…` cmdlets are
+ * understood, so everything in the Linux and Windows sections lands in the
+ * second case: there, `operation` has to be declared in the frontmatter.
+ */
+export function canInferOperation(template: string, shell: Shell): boolean {
+  return inferOperation(template, shell) !== "other";
+}
+
 /** The command's declared operation, falling back to inference. */
 export function resolveOperation(command: Command): CrudOperation {
   return command.operation ?? inferOperation(command.template, command.shell);

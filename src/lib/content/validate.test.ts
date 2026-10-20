@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  assertOperationIsResolvable,
   assertParametersMatchTemplate,
   assertUniqueIds,
 } from "@/lib/content/validate";
@@ -55,6 +56,71 @@ describe("assertParametersMatchTemplate", () => {
 
   it("sugiere evitar los signos cuando sobran tokens", () => {
     expect(() => assertParametersMatchTemplate("<x>", [], "f")).toThrow(/< >/);
+  });
+});
+
+describe("assertOperationIsResolvable", () => {
+  it("acepta un comando az cuya acción se deduce", () => {
+    expect(() =>
+      assertOperationIsResolvable(
+        { template: "az vm list --output table", shell: "azurecli" },
+        "content/x.mdx"
+      )
+    ).not.toThrow();
+  });
+
+  it("acepta un cmdlet Verbo-Az", () => {
+    expect(() =>
+      assertOperationIsResolvable(
+        { template: "Get-AzVM -ResourceGroupName <rg>", shell: "powershell" },
+        "content/x.mdx"
+      )
+    ).not.toThrow();
+  });
+
+  it("acepta cualquier plantilla si la operación va declarada", () => {
+    for (const shell of ["bash", "cmd"] as const) {
+      expect(() =>
+        assertOperationIsResolvable(
+          { operation: "read", template: "df -h", shell },
+          "content/x.mdx"
+        )
+      ).not.toThrow();
+    }
+  });
+
+  it("acepta 'other' declarado a propósito", () => {
+    expect(() =>
+      assertOperationIsResolvable(
+        { operation: "other", template: "az login", shell: "azurecli" },
+        "content/x.mdx"
+      )
+    ).not.toThrow();
+  });
+
+  // Es lo que motivó la comprobación: en Linux y Windows la deducción nunca
+  // acierta, así que sin declararla todo caería en "Otras acciones".
+  it.each([
+    ["bash", "df -h"],
+    ["bash", "systemctl status <servicio>"],
+    ["cmd", "Get-HotFix | Sort-Object InstalledOn"],
+    ["cmd", "Remove-Item <ruta>"],
+  ])("falla sin declarar: %s | %s", (shell, template) => {
+    expect(() =>
+      assertOperationIsResolvable(
+        { template, shell: shell as "bash" | "cmd" },
+        "content/linux/x.mdx"
+      )
+    ).toThrow(/content\/linux\/x\.mdx[\s\S]*operation/);
+  });
+
+  it("falla también con un comando az cuya acción no reconoce", () => {
+    expect(() =>
+      assertOperationIsResolvable(
+        { template: "az vm inventar-cosas", shell: "azurecli" },
+        "content/x.mdx"
+      )
+    ).toThrow(/operation/);
   });
 });
 

@@ -1,8 +1,9 @@
 // Server-only checks that the catalog honours the rules the README states for
 // authors. They run while loading, so a mistake fails `next build` with the
 // offending file named, exactly like an invalid frontmatter does.
+import { canInferOperation } from "@/lib/operations";
 import { extractPlaceholders } from "@/lib/params/template-engine";
-import type { CommandParameter } from "@/lib/types";
+import type { CommandParameter, CrudOperation, Shell } from "@/lib/types";
 
 /**
  * Every `<token>` in the code must have a declared parameter, and every
@@ -39,6 +40,27 @@ export function assertParametersMatchTemplate(
   if (problems.length > 0) {
     throw new Error(`Parámetros inconsistentes en ${origin}:\n${problems.join("\n")}`);
   }
+}
+
+/**
+ * A command has to end up in the right CRUD bucket. When the template is not
+ * one the inference understands, leaving `operation` out silently drops the
+ * command into "Otras acciones" — so it has to be declared, even if what it
+ * says is `other`.
+ */
+export function assertOperationIsResolvable(
+  command: { operation?: CrudOperation; template: string; shell: Shell },
+  origin: string
+): void {
+  if (command.operation) return;
+  if (canInferOperation(command.template, command.shell)) return;
+
+  throw new Error(
+    `No se puede deducir la operación de ${origin}:\n` +
+      `- Declara "operation" en el frontmatter: read, create, update, delete u other.\n` +
+      `  Sólo se deducen los comandos "az …" y los cmdlets "Verbo-Az…", así que en las\n` +
+      `  secciones de Linux y Windows hay que declararla siempre.`
+  );
 }
 
 /**

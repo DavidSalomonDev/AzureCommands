@@ -109,7 +109,7 @@ description: Muestra todas las VMs de un grupo de recursos.
 shell: azurecli            # powershell | azurecli | arm | bicep | terraform | bash | cmd | other
 category: Máquinas virtuales
 tags: [vm, listar, consulta]
-operation: read            # opcional; si falta se deduce del comando
+operation: read            # read | create | update | delete | other (ver reglas)
 template: "az vm list --resource-group <resourceGroup> --output <output>"
 parameters:
   - name: resourceGroup     # debe coincidir con el <token> de la plantilla
@@ -120,7 +120,7 @@ parameters:
   - name: output
     label: Formato de salida
     type: enum
-    required: false
+    required: false         # opcional: si se deja vacío, el token desaparece
     default: table
     options: [table, json, jsonc, tsv, yaml]
 ---
@@ -138,8 +138,21 @@ Reglas (todas se comprueban al cargar el catálogo, así que un error hace falla
 - El `id` de cada comando (`lib-<shell>-<slug>`) tiene que ser único. Como el slug sale del
   nombre del archivo, dos archivos con el mismo nombre bajo el mismo shell chocan: renombra
   uno o fija un `slug` distinto en su frontmatter.
-- `operation` solo hace falta cuando la deducción falla (por ejemplo
-  `az aks get-credentials`, que parece lectura y también escribe el kubeconfig).
+- `operation` tiene que poder resolverse. Sólo se deduce de comandos `az …` y de
+  cmdlets `Verbo-Az…`, así que:
+  - En **Linux en la VM** y **Windows en la VM** hay que declararla **siempre**: ahí la
+    deducción nunca acierta y, sin declararla, el comando caería en silencio en "Otras
+    acciones".
+  - En Azure CLI y PowerShell puedes omitirla y dejar que se deduzca. Declárala cuando
+    la deducción se equivoque (`az aks get-credentials` parece lectura y también escribe
+    el kubeconfig) o cuando no reconozca la acción (`az login`, `Connect-AzAccount`:
+    llevan `operation: other` explícito).
+- Un parámetro con `required: false` que se deje en blanco **desaparece** del comando al
+  copiarlo, en vez de dejar el `<token>` a la vista. Eso hace que un script se pueda
+  pegar y ejecutar tal cual, pero obliga a escribir la plantilla de forma que el hueco
+  vacío siga siendo válido: `VAR="<opcional>"` queda en `VAR=""`, mientras que
+  `--query <opcional>` dejaría un flag colgando. Si el valor no puede faltar, márcalo
+  como `required: true`.
 - Los valores numéricos de `default` van entre comillas (`default: "2"`), ya que el
   frontmatter se valida con Zod.
 
@@ -177,7 +190,11 @@ Notas en Markdown: qué hace, parámetros, advertencias…
 ```
 
 Los `<token>` del script se convierten en inputs sobre el bloque de código y se
-sustituyen en vivo; copiar y descargar usan siempre el script ya rellenado. Evita usar
+sustituyen en vivo; copiar y descargar usan siempre el script ya rellenado. Los
+parámetros con `required: false` que se dejen vacíos **desaparecen** del código, de modo
+que el script se pueda ejecutar sin editarlo: por eso los tokens opcionales van siempre
+entre comillas (`VM_NAMES="<vmNames>"` queda en `VM_NAMES=""`, que es justo lo que el
+script interpreta como "todas"). Evita usar
 `<` y `>` en el código para otra cosa que no sean parámetros —incluso dentro de un
 comentario—: el build falla si encuentra un `<token>` sin su parámetro declarado. Si
 necesitas documentar un formato de Azure que lleva marcadores, escríbelo sin los signos
