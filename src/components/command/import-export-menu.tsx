@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { downloadFile } from "@/lib/download";
 import type { ExportBundle, ImportMode, ImportResult } from "@/lib/repositories/types";
 
 interface ImportExportMenuProps {
@@ -54,13 +55,11 @@ export function ImportExportMenu({ commandCount, exportAll, importAll }: ImportE
 
   function handleExport() {
     const bundle = exportAll();
-    const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `azure-commands-mis-comandos-${new Date().toISOString().slice(0, 10)}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadFile(
+      JSON.stringify(bundle, null, 2),
+      `azure-commands-mis-comandos-${new Date().toISOString().slice(0, 10)}.json`,
+      "application/json"
+    );
     toast.success(`Se exportaron ${bundle.commands.length} comando(s).`);
   }
 

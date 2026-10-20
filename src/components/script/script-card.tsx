@@ -5,7 +5,9 @@ import { Check, ChevronDown, ChevronUp, Copy, Download } from "lucide-react";
 import { toast } from "sonner";
 
 import { FavoriteButton } from "@/components/favorite-button";
-import { CodeHighlight } from "@/components/script/code-highlight";
+import { MarkdownNotes } from "@/components/markdown-notes";
+import { CodeBlock } from "@/components/code/code-block";
+import { CodeView } from "@/components/code/code-view";
 import { ParamInput } from "@/components/command/param-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { downloadFile } from "@/lib/download";
+import { highlightLanguageForScript } from "@/lib/highlight/language";
 import { buildDefaultValues, renderTemplate } from "@/lib/params/template-engine";
 import {
   OPERATION_BADGE_CLASSES,
@@ -53,6 +57,7 @@ export function ScriptCard({ script }: { script: Script }) {
   );
 
   const operation = resolveScriptOperation(script);
+  const language = highlightLanguageForScript(script.language);
   const lines = useMemo(() => script.code.split("\n"), [script.code]);
   const truncated = lines.length > PREVIEW_LINES;
 
@@ -85,13 +90,7 @@ export function ScriptCard({ script }: { script: Script }) {
   }
 
   function handleDownload() {
-    const blob = new Blob([renderedCode + "\n"], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = script.fileName;
-    anchor.click();
-    URL.revokeObjectURL(url);
+    downloadFile(renderedCode + "\n", script.fileName, "text/plain;charset=utf-8");
   }
 
   return (
@@ -160,11 +159,7 @@ export function ScriptCard({ script }: { script: Script }) {
               Uso
             </span>
             <pre className="overflow-x-auto rounded-lg border bg-muted/40 p-2.5 text-sm dark:bg-muted/20">
-              <CodeHighlight
-                code={script.usage}
-                language={script.language}
-                values={values}
-              />
+              <CodeView code={script.usage} language={language} values={values} />
             </pre>
           </div>
         )}
@@ -184,15 +179,13 @@ export function ScriptCard({ script }: { script: Script }) {
           </div>
         )}
 
-        <div className="relative rounded-lg border bg-muted/40 dark:bg-muted/20">
-          <pre className="overflow-x-auto p-3 text-xs leading-relaxed">
-            <CodeHighlight
-              code={visibleCode}
-              language={script.language}
-              values={values}
-            />
-          </pre>
-          {truncated && (
+        <CodeBlock
+          code={visibleCode}
+          language={language}
+          values={values}
+          codeClassName="text-xs"
+          footer={
+            truncated && (
             <Button
               variant="ghost"
               size="sm"
@@ -208,16 +201,12 @@ export function ScriptCard({ script }: { script: Script }) {
                   <ChevronDown /> Ver script completo ({lines.length} líneas)
                 </>
               )}
-            </Button>
-          )}
-        </div>
+              </Button>
+            )
+          }
+        />
 
-        {script.notesHtml && (
-          <div
-            className="command-notes text-xs text-muted-foreground [&_a]:font-medium [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_p]:mt-1 [&_p:first-child]:mt-0 [&_strong]:font-semibold [&_strong]:text-foreground [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:bg-muted/40 [&_pre]:p-2.5 [&_pre_code]:bg-transparent [&_pre_code]:p-0"
-            dangerouslySetInnerHTML={{ __html: script.notesHtml }}
-          />
-        )}
+        {script.notesHtml && <MarkdownNotes html={script.notesHtml} />}
       </CardContent>
     </Card>
   );

@@ -10,18 +10,21 @@ import path from "node:path";
 import { cache as reactCache } from "react";
 
 import matter from "gray-matter";
-import { remark } from "remark";
-import remarkGfm from "remark-gfm";
-import remarkHtml from "remark-html";
 
 import { scriptId } from "@/lib/catalog";
+import {
+  CONTENT_DIR,
+  USE_CACHE,
+  markdownToHtml,
+  relativeToProject,
+  walkFiles,
+} from "@/lib/content/fs-utils";
 import { scriptFrontmatterSchema } from "@/lib/content/script-schema";
 import { assertParametersMatchTemplate, assertUniqueIds } from "@/lib/content/validate";
 import { slugify } from "@/lib/slugify";
 import type { Script, ScriptLanguage } from "@/lib/types";
 
-export const SCRIPTS_DIR = path.join(process.cwd(), "content", "scripts");
-const USE_CACHE = process.env.NODE_ENV === "production";
+export const SCRIPTS_DIR = path.join(CONTENT_DIR, "scripts");
 
 const LANGUAGE_BY_EXTENSION: Record<string, ScriptLanguage> = {
   ".ps1": "powershell",
@@ -35,34 +38,8 @@ const DEFAULT_CATEGORY = "Sin categoría";
 
 let cache: Script[] | null = null;
 
-async function walkScriptFiles(dir: string): Promise<string[]> {
-  let entries;
-  try {
-    entries = await fs.readdir(dir, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-  const nested = await Promise.all(
-    entries.map((entry) => {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) return walkScriptFiles(full);
-      const ext = path.extname(entry.name).toLowerCase();
-      return ext in LANGUAGE_BY_EXTENSION
-        ? Promise.resolve([full])
-        : Promise.resolve([]);
-    })
-  );
-  return nested.flat();
-}
-
-async function markdownToHtml(markdown: string): Promise<string> {
-  if (!markdown.trim()) return "";
-  const processed = await remark()
-    .use(remarkGfm)
-    .use(remarkHtml, { sanitize: false })
-    .process(markdown);
-  return String(processed).trim();
-}
+const isScript = (fileName: string) =>
+  path.extname(fileName).toLowerCase() in LANGUAGE_BY_EXTENSION;
 
 /** Reads `<script>.md` next to the script, when it exists. */
 async function readSidecar(scriptFile: string) {
@@ -77,9 +54,9 @@ async function readSidecar(scriptFile: string) {
   const { data, content } = matter(raw);
   const parsed = scriptFrontmatterSchema.safeParse(data);
   if (!parsed.success) {
-    const rel = path.relative(process.cwd(), sidecar).split(path.sep).join("/");
     throw new Error(
-      `Frontmatter inválido en ${rel}:\n${JSON.stringify(parsed.error.format(), null, 2)}`
+      `Frontmatter inválido en ${relativeToProject(sidecar)}:\n` +
+        JSON.stringify(parsed.error.format(), null, 2)
     );
   }
   return { frontmatter: parsed.data, body: content };
@@ -102,8 +79,7 @@ async function loadScript(file: string): Promise<Script> {
   const slug = fm?.slug ?? slugify(baseName);
   const parameters = fm?.parameters ?? [];
 
-  const origin = path.relative(process.cwd(), file).split(path.sep).join("/");
-  assertParametersMatchTemplate(code, parameters, origin);
+  assertParametersMatchTemplate(code, parameters, relativeToProject(file));
 
   return {
     id: scriptId(slug),
@@ -127,7 +103,7 @@ async function loadScript(file: string): Promise<Script> {
 export const getScripts = reactCache(async (): Promise<Script[]> => {
   if (USE_CACHE && cache) return cache;
 
-  const files = await walkScriptFiles(SCRIPTS_DIR);
+  const files = await walkFiles(SCRIPTS_DIR, isScript);
   const scripts = await Promise.all(files.map(loadScript));
 
   assertUniqueIds(scripts, "Catálogo de scripts (content/scripts/)");

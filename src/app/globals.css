@@ -165,6 +165,51 @@
 }
 
 @layer components {
+  /* Notas en Markdown de comandos y scripts (el HTML lo generan los loaders). */
+  .command-notes a {
+    font-weight: 500;
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .command-notes code {
+    border-radius: var(--radius-sm);
+    background-color: var(--muted);
+    padding: 0.125rem 0.25rem;
+    font-family: var(--font-mono);
+  }
+  .command-notes ul,
+  .command-notes ol {
+    padding-left: 1rem;
+  }
+  .command-notes ul {
+    list-style-type: disc;
+  }
+  .command-notes ol {
+    list-style-type: decimal;
+  }
+  .command-notes p {
+    margin-top: 0.25rem;
+  }
+  .command-notes p:first-child {
+    margin-top: 0;
+  }
+  .command-notes strong {
+    font-weight: 600;
+    color: var(--foreground);
+  }
+  .command-notes pre {
+    overflow-x: auto;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    background-color: color-mix(in oklab, var(--muted) 40%, transparent);
+    padding: 0.625rem;
+  }
+  .command-notes pre code {
+    background-color: transparent;
+    padding: 0;
+  }
+
   .code-hl .tok-comment {
     color: var(--syntax-comment);
     font-style: italic;

@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FavoriteButton } from "@/components/favorite-button";
+import { MarkdownNotes } from "@/components/markdown-notes";
 import { ParamInput } from "@/components/command/param-input";
-import { CodeBlock } from "@/components/command/code-block";
+import { CodeBlock } from "@/components/code/code-block";
 import {
   OPERATION_BADGE_CLASSES,
   OPERATION_LABELS,
@@ -20,11 +21,8 @@ import {
 } from "@/lib/operations";
 import { SHELL_LABELS, type Command } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import {
-  buildDefaultValues,
-  parseTemplateSegments,
-  renderTemplate,
-} from "@/lib/params/template-engine";
+import { highlightLanguageForShell } from "@/lib/highlight/language";
+import { buildDefaultValues, renderTemplate } from "@/lib/params/template-engine";
 
 interface CommandCardProps {
   command: Command;
@@ -37,11 +35,8 @@ export function CommandCard({ command, actions }: CommandCardProps) {
   );
 
   const operation = resolveOperation(command);
+  const language = highlightLanguageForShell(command.shell);
 
-  const segments = useMemo(
-    () => parseTemplateSegments(command.template),
-    [command.template]
-  );
   const renderedText = useMemo(
     () => renderTemplate(command.template, values),
     [command.template, values]
@@ -91,12 +86,18 @@ export function CommandCard({ command, actions }: CommandCardProps) {
             ))}
           </div>
         )}
-        <CodeBlock segments={segments} values={values} renderedText={renderedText} />
+        <CodeBlock
+          code={command.template}
+          language={language}
+          values={values}
+          copy={{
+            text: renderedText,
+            label: "Copiar comando",
+            successMessage: "Comando copiado al portapapeles",
+          }}
+        />
         {command.notesHtml ? (
-          <div
-            className="command-notes text-xs text-muted-foreground [&_a]:font-medium [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_p]:mt-1 [&_p:first-child]:mt-0 [&_strong]:font-semibold [&_strong]:text-foreground"
-            dangerouslySetInnerHTML={{ __html: command.notesHtml }}
-          />
+          <MarkdownNotes html={command.notesHtml} />
         ) : (
           command.notes && (
             <p className="text-xs text-muted-foreground">{command.notes}</p>

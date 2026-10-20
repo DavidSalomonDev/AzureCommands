@@ -30,6 +30,9 @@ importación para llevártelas entre equipos.
 - **Scripts** de varias líneas, todos en Azure CLI (Bash): con los mismos inputs
   dinámicos que los comandos —los valores se sustituyen en vivo dentro del código— y
   botones para copiar el script completo o descargarlo ya rellenado.
+- **Resaltado de sintaxis** de Bash (comandos `az` y scripts) con un tokenizador propio,
+  necesario porque los `<token>` se sustituyen en vivo en el navegador. PowerShell se
+  muestra sin colores por ahora, con sus placeholders igualmente resaltados.
 - **Mis comandos:** guarda tus propias líneas (Linux o Windows) en `localStorage`, con
   autodetección de parámetros `<token>`, y **exporta/importa** en JSON para migrar entre
   equipos.
@@ -198,8 +201,11 @@ src/
   components/
     app-shell.tsx            # Cabecera + menú lateral colapsable (estado del sidebar)
     app-sidebar.tsx          # Secciones, productos y operaciones del menú lateral
+    catalog-list.tsx         # Buscador + filtros + agrupado, compartido por ambas secciones
     favorite-button.tsx      # Estrella de favoritos (comandos y scripts)
-    command/                 # CommandCard, CommandList, CodeBlock, formulario, import/export
+    markdown-notes.tsx       # Notas en Markdown ya convertidas a HTML
+    code/                    # CodeBlock (marco + copiar) y CodeView (resaltado)
+    command/                 # CommandCard, CommandList, formulario, import/export
     script/                  # ScriptCard, ScriptList
     ui/                      # Componentes shadcn/ui
   lib/
@@ -208,6 +214,8 @@ src/
     repositories/            # Repositorio de "Mis comandos" (localStorage)
     params/                  # Motor de plantillas (<token> → valores)
     catalog.ts               # Secciones del catálogo y construcción de ids
+    highlight/               # Tokenizador de Bash y lenguajes resaltables
+    download.ts              # Descarga de archivos generados en el navegador
     store/                   # Hooks useUserCommands, useFavorites y useFavoriteCatalog
     types.ts, schema.ts, ...
 ```

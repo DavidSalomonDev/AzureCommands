@@ -7,57 +7,35 @@ import path from "node:path";
 import { cache as reactCache } from "react";
 
 import matter from "gray-matter";
-import { remark } from "remark";
-import remarkGfm from "remark-gfm";
-import remarkHtml from "remark-html";
 
 import { commandId } from "@/lib/catalog";
 import { frontmatterSchema } from "@/lib/content/frontmatter-schema";
+import {
+  CONTENT_DIR,
+  USE_CACHE,
+  markdownToHtml,
+  relativeToProject,
+  walkFiles,
+} from "@/lib/content/fs-utils";
 import { assertParametersMatchTemplate, assertUniqueIds } from "@/lib/content/validate";
 import { inferOperation } from "@/lib/operations";
 import { slugify } from "@/lib/slugify";
 import type { Command, Shell } from "@/lib/types";
 
-const CONTENT_DIR = path.join(process.cwd(), "content");
 /** Folders under `content/` that hold something other than command MDX files. */
 const IGNORED_DIRS = new Set(["scripts"]);
-const USE_CACHE = process.env.NODE_ENV === "production";
 
 let cache: Command[] | null = null;
 
-async function walkMdxFiles(dir: string): Promise<string[]> {
-  let entries;
-  try {
-    entries = await fs.readdir(dir, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-  const nested = await Promise.all(
-    entries.map((entry) => {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        if (IGNORED_DIRS.has(entry.name)) return Promise.resolve([]);
-        return walkMdxFiles(full);
-      }
-      return /\.mdx?$/.test(entry.name) ? Promise.resolve([full]) : Promise.resolve([]);
-    })
-  );
-  return nested.flat();
-}
-
-async function markdownToHtml(markdown: string): Promise<string> {
-  if (!markdown.trim()) return "";
-  const processed = await remark()
-    .use(remarkGfm)
-    .use(remarkHtml, { sanitize: false })
-    .process(markdown);
-  return String(processed).trim();
-}
+const isMdx = (fileName: string) => /\.mdx?$/.test(fileName);
+/** `_powershell-originales` and friends: kept in the repo, out of the catalog. */
+const isIgnoredDir = (dirName: string) =>
+  IGNORED_DIRS.has(dirName) || dirName.startsWith("_");
 
 async function loadFile(file: string): Promise<Command> {
   const raw = await fs.readFile(file, "utf8");
   const { data, content } = matter(raw);
-  const origin = `content/${path.relative(CONTENT_DIR, file).split(path.sep).join("/")}`;
+  const origin = relativeToProject(file);
 
   const parsed = frontmatterSchema.safeParse(data);
   if (!parsed.success) {
@@ -93,13 +71,13 @@ async function loadFile(file: string): Promise<Command> {
  *
  * `cache()` deduplicates the work within a single render: the sidebar (built
  * in the root layout) and the page itself both ask for the catalog, and in
- * dev —where the module cache below is off so that editing an `.mdx` shows up
+ * dev —where the module cache is off so that editing an `.mdx` shows up
  * without a restart— that would otherwise mean reading every file twice.
  */
 export const getLibraryCommands = reactCache(async (): Promise<Command[]> => {
   if (USE_CACHE && cache) return cache;
 
-  const files = await walkMdxFiles(CONTENT_DIR);
+  const files = await walkFiles(CONTENT_DIR, isMdx, isIgnoredDir);
   const commands = await Promise.all(files.map(loadFile));
 
   assertUniqueIds(commands, "Catálogo de comandos (content/)");
