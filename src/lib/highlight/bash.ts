@@ -49,7 +49,13 @@ const BUILTINS = new Set([
 const COMMAND_OPENERS = new Set([";", ";;", "|", "||", "&", "&&", "(", "{", "!", "`"]);
 
 /** Keywords tras las que empieza un comando nuevo. */
-const KEYWORD_OPENERS = new Set(["then", "else", "elif", "do", "in", "function"]);
+const KEYWORD_OPENERS = new Set([
+  "if", "then", "else", "elif", "while", "until", "do", "in", "function",
+  "time",
+]);
+
+/** Builtins que declaran variables: `local X=1`, `export Y=2`. */
+const DECLARATIONS = new Set(["local", "declare", "export", "readonly", "typeset"]);
 
 // Expresiones adheridas (y): sólo casan si empiezan exactamente en lastIndex.
 const RE_PARAM = new RegExp(PLACEHOLDER_PATTERN, "y");
@@ -65,7 +71,7 @@ const RE_ASSIGN = /(?:\[[^\]]*\])?\+?=(?!=)/y;
 const RE_NUMBER = /\d+(?:\.\d+)?/y;
 const RE_PATH = /[.~/][A-Za-z0-9_.@/-]*/y;
 const RE_OPERATOR = /\|\||&&|>>|<<<|;;|[|&;<>=!(){}[\]:,?~^*/%+\\-]/y;
-const RE_FUNC_DEF = /^[ \t]*(?:function[ \t]+)?([A-Za-z_][A-Za-z0-9_]*)[ \t]*\([ \t]*\)/gm;
+const RE_FUNC_DEF = /^[ \t]*(?:function[ \t]+)?([A-Za-z_][A-Za-z0-9_-]*)[ \t]*\([ \t]*\)/gm;
 
 function matchAt(re: RegExp, code: string, index: number): RegExpExecArray | null {
   re.lastIndex = index;
@@ -275,6 +281,8 @@ export function tokenizeBash(code: string): CodeToken[] {
   let commandStart = true;
   /** `VAR=valor comando ...`: el comando sigue tras la asignación. */
   let assignmentPrefix = false;
+  /** Última palabra vista, para distinguir `local X=1` de `alias x=1`. */
+  let lastWord = "";
 
   while (i < code.length) {
     const ch = code[i];
@@ -406,9 +414,13 @@ export function tokenizeBash(code: string): CodeToken[] {
       // Nombre de archivo o ruta (`mana-vms.sh`): una sola pieza, sin trocear.
       const value = matchAt(RE_BAREWORD, code, i)![0];
       const after = i + value.length;
-      const isIdentifier = value === word[0];
-      const isDefinition = isIdentifier && matchAt(RE_FUNC_PARENS, code, after) !== null;
-      const isAssignment = isIdentifier && matchAt(RE_ASSIGN, code, after) !== null;
+      // `nombre()` declara una función; `NOMBRE=` o `NOMBRE[i]=` asignan.
+      // Un `nombre=` que es argumento de otro comando (`alias ls=...`) no.
+      const isDefinition = matchAt(RE_FUNC_PARENS, code, after) !== null;
+      const isAssignment =
+        value === word[0] &&
+        (commandStart || DECLARATIONS.has(lastWord)) &&
+        matchAt(RE_ASSIGN, code, after) !== null;
 
       let type: CodeTokenType;
       if (isDefinition || functions.has(value)) type = "function";
@@ -420,6 +432,7 @@ export function tokenizeBash(code: string): CodeToken[] {
 
       push(type, value);
       i = after;
+      lastWord = value;
       assignmentPrefix = type === "variable" && commandStart;
       commandStart = type === "keyword" && KEYWORD_OPENERS.has(value);
       continue;
