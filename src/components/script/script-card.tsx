@@ -70,8 +70,8 @@ export function ScriptCard({ script }: { script: Script }) {
   );
 
   const renderedCode = useMemo(
-    () => renderTemplate(script.code, values),
-    [script.code, values]
+    () => renderTemplate(script.code, values, script.parameters),
+    [script.code, values, script.parameters]
   );
 
   function handleChange(name: string, value: string) {
@@ -159,7 +159,12 @@ export function ScriptCard({ script }: { script: Script }) {
               Uso
             </span>
             <pre className="overflow-x-auto rounded-lg border bg-muted/40 p-2.5 text-sm dark:bg-muted/20">
-              <CodeView code={script.usage} language={language} values={values} />
+              <CodeView
+                code={script.usage}
+                language={language}
+                values={values}
+                parameters={script.parameters}
+              />
             </pre>
           </div>
         )}
@@ -183,6 +188,7 @@ export function ScriptCard({ script }: { script: Script }) {
           code={visibleCode}
           language={language}
           values={values}
+          parameters={script.parameters}
           codeClassName="text-xs"
           footer={
             truncated && (

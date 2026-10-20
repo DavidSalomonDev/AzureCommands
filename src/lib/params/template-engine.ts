@@ -50,13 +50,25 @@ export function extractPlaceholders(template: string): string[] {
 /**
  * Renders the template substituting known values. Unfilled tokens are kept
  * as `<token>` so the user can see what's still missing.
+ *
+ * Optional parameters are the exception: leaving one blank is a choice, not an
+ * omission, so they render as an empty string. Otherwise the literal `<token>`
+ * leaks into the script and a branch like `if [ -n "$VM_NAMES" ]` reads it as
+ * a real value. Pass `parameters` to get that behaviour.
  */
-export function renderTemplate(template: string, values: Record<string, string>): string {
+export function renderTemplate(
+  template: string,
+  values: Record<string, string>,
+  parameters: CommandParameter[] = []
+): string {
+  const optional = new Set(parameters.filter((p) => !p.required).map((p) => p.name));
+
   return parseTemplateSegments(template)
     .map((seg) => {
       if (seg.type === "text") return seg.value;
       const val = values[seg.value];
-      return val && val.trim().length > 0 ? val : `<${seg.value}>`;
+      if (val && val.trim().length > 0) return val;
+      return optional.has(seg.value) ? "" : `<${seg.value}>`;
     })
     .join("");
 }

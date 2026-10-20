@@ -44,8 +44,8 @@ export function CommandCard({ command, actions, preview = false }: CommandCardPr
   const language = highlightLanguageForShell(command.shell);
 
   const renderedText = useMemo(
-    () => renderTemplate(command.template, values),
-    [command.template, values]
+    () => renderTemplate(command.template, values, command.parameters),
+    [command.template, values, command.parameters]
   );
 
   function handleChange(name: string, value: string) {
@@ -96,6 +96,7 @@ export function CommandCard({ command, actions, preview = false }: CommandCardPr
           code={command.template}
           language={language}
           values={values}
+          parameters={command.parameters}
           copy={{
             text: renderedText,
             label: "Copiar comando",

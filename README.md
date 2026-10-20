@@ -56,7 +56,7 @@ CLI, después Scripts y luego PowerShell.
 
 ## Requisitos
 
-- Node.js 18.18+ (recomendado 20+)
+- Node.js 20+ 
 - npm
 
 ## Puesta en marcha

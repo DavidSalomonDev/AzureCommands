@@ -73,6 +73,18 @@ describe("renderTemplate", () => {
   it("no reinterpreta un valor que contiene otro token", () => {
     expect(renderTemplate("<a>", { a: "<b>" })).toBe("<b>");
   });
+
+  it("vacia los parametros opcionales sin valor, en vez de dejar el token", () => {
+    const parameters = [param("obligatorio", { required: true }), param("opcional")];
+    expect(renderTemplate('A="<obligatorio>" B="<opcional>"', {}, parameters)).toBe(
+      'A="<obligatorio>" B=""'
+    );
+    expect(renderTemplate('B="<opcional>"', { opcional: "   " }, parameters)).toBe('B=""');
+  });
+
+  it("sigue mostrando el token de un opcional si no se pasan los parametros", () => {
+    expect(renderTemplate('B="<opcional>"', {})).toBe('B="<opcional>"');
+  });
 });
 
 describe("isTemplateFullyFilled", () => {

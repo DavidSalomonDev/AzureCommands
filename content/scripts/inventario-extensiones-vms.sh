@@ -9,6 +9,7 @@ SUBSCRIPTION_ID="<subscriptionId>"    # ID o nombre de la suscripción de trabaj
 VM_NAMES="<vmNames>"                  # VMs separadas por coma; vacío = todas
 RESOURCE_GROUP="<resourceGroup>"      # Limita el barrido a un grupo de recursos
 FILTRO="<filtro>"                     # Texto a buscar en nombre/publicador; vacío = todo
+RESUMEN_CONSOLA="<resumenConsola>"    # true = tabla consolidada al terminar
 CSV_PATH="<csvPath>"                  # Archivo de salida; vacío = no exportar
 
 # ---------------------------------------------------------------------------
@@ -74,6 +75,7 @@ TOTAL_EXT=0
 SIN_EXT=""
 CON_ERROR=""
 ERR_FILE=$(mktemp)
+ROWS=$(mktemp)   # acumula el detalle para el resumen final en consola
 
 while IFS=$'\t' read -r VM RG; do
   [ -z "${VM:-}" ] && continue
@@ -108,21 +110,39 @@ while IFS=$'\t' read -r VM RG; do
     [ -z "${NAME:-}" ] && continue
     printf '    %-42s %-10s %-12s %s\n' "$NAME" "${VERSION:-n/d}" "${STATE:-n/d}" "${PUB:-n/d}"
     TOTAL_EXT=$((TOTAL_EXT + 1))
-    [ -n "$CSV_PATH" ] && \
+    printf '%s\t%s\t%s\t%s\t%s\n' \
+      "$VM" "$NAME" "${VERSION:-n/d}" "${STATE:-n/d}" "${PUB:-n/d}" >> "$ROWS"
+    if [ -n "$CSV_PATH" ]; then
       echo "${VM};${RG};${NAME};${PUB};${TYPE};${VERSION};${STATE};${AUTOUP}" >> "$CSV_PATH"
+    fi
   done <<< "$EXTS"
 done < "$TARGETS"
 
 rm -f "$TARGETS" "$ERR_FILE"
 
 # ---------------------------------------------------------------------------
-# 3. Resumen
+# 3. Resumen final
 # ---------------------------------------------------------------------------
+if [ "$RESUMEN_CONSOLA" = "true" ] && [ "$TOTAL_EXT" -gt 0 ]; then
+  echo ""
+  echo "=== Detalle consolidado ==="
+  printf '%-22s %-43s %-11s %-12s %s\n' "VM" "EXTENSIÓN" "VERSIÓN" "ESTADO" "PUBLICADOR"
+  while IFS=$'\t' read -r R_VM R_NAME R_VER R_STATE R_PUB; do
+    [ -z "${R_VM:-}" ] && continue
+    printf '%-22s %-42s %-10s %-12s %s\n' "$R_VM" "$R_NAME" "$R_VER" "$R_STATE" "$R_PUB"
+  done < "$ROWS"
+fi
+
+rm -f "$ROWS"
+
 echo ""
 echo "Resumen: ${TOTAL_VMS} VMs | ${TOTAL_EXT} extensiones encontradas"
-[ -n "$SIN_EXT" ] && echo "Sin extensiones: ${SIN_EXT}"
-[ -n "$CON_ERROR" ] && echo "Con error de consulta: ${CON_ERROR}"
-[ -n "$CSV_PATH" ] && echo "Reporte: $CSV_PATH"
-
-# Un run correcto sin CSV no debe terminar con código de error
-exit 0
+if [ -n "$SIN_EXT" ]; then
+  echo "Sin extensiones: ${SIN_EXT}"
+fi
+if [ -n "$CON_ERROR" ]; then
+  echo "Con error de consulta: ${CON_ERROR}"
+fi
+if [ -n "$CSV_PATH" ]; then
+  echo "Reporte: $CSV_PATH"
+fi

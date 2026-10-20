@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { CodeView } from "@/components/code/code-view";
 import { Button } from "@/components/ui/button";
 import type { HighlightLanguage } from "@/lib/highlight/language";
+import type { CommandParameter } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 interface CodeBlockProps {
@@ -14,6 +15,8 @@ interface CodeBlockProps {
   code: string;
   language: HighlightLanguage;
   values: Record<string, string>;
+  /** Se pasa a CodeView para distinguir los tokens opcionales. */
+  parameters?: CommandParameter[];
   /** Con esto se muestra el botón de copiar; `text` ya va sustituido. */
   copy?: { text: string; label: string; successMessage: string };
   /** Debajo del código, dentro del marco (p. ej. "ver script completo"). */
@@ -30,6 +33,7 @@ export function CodeBlock({
   code,
   language,
   values,
+  parameters,
   copy,
   footer,
   className,
@@ -63,7 +67,12 @@ export function CodeBlock({
           codeClassName
         )}
       >
-        <CodeView code={code} language={language} values={values} />
+        <CodeView
+          code={code}
+          language={language}
+          values={values}
+          parameters={parameters}
+        />
       </pre>
 
       {copy && (

@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { tokenizeBash, type CodeToken, type CodeTokenType } from "@/lib/highlight/bash";
 import type { HighlightLanguage } from "@/lib/highlight/language";
 import { parseTemplateSegments } from "@/lib/params/template-engine";
+import type { CommandParameter } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /** Clase CSS por tipo de token; las de `globals.css` bajo `.code-hl`. */
@@ -34,18 +35,32 @@ interface CodeViewProps {
   code: string;
   language: HighlightLanguage;
   values: Record<string, string>;
+  /** Para saber qué tokens son opcionales; sin esto todos cuentan como obligatorios. */
+  parameters?: CommandParameter[];
   className?: string;
 }
 
 /**
  * Pinta el código con color por tipo de token y resuelve los placeholders
  * con los valores escritos en el formulario. Los que siguen vacíos se marcan
- * en ámbar para que se vea lo que falta.
+ * en ámbar para que se vea lo que falta, salvo los opcionales: dejarlos en
+ * blanco es una opción, así que desaparecen del código igual que al copiarlo.
  */
-export function CodeView({ code, language, values, className }: CodeViewProps) {
+export function CodeView({
+  code,
+  language,
+  values,
+  parameters,
+  className,
+}: CodeViewProps) {
   const tokens = useMemo(
     () => (language === "bash" ? tokenizeBash(code) : tokenizePlain(code)),
     [code, language]
+  );
+
+  const optional = useMemo(
+    () => new Set((parameters ?? []).filter((p) => !p.required).map((p) => p.name)),
+    [parameters]
   );
 
   return (
@@ -53,6 +68,7 @@ export function CodeView({ code, language, values, className }: CodeViewProps) {
       {tokens.map((token, index) => {
         if (token.type === "param") {
           const filled = (values[token.value] ?? "").trim().length > 0;
+          if (!filled && optional.has(token.value)) return null;
           return (
             <span
               key={index}

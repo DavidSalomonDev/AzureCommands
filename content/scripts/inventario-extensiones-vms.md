@@ -34,12 +34,19 @@ parameters:
     type: string
     required: false
     placeholder: monitor
+  - name: resumenConsola
+    label: Tabla consolidada al terminar
+    description: Imprime todas las VMs y sus extensiones juntas al final, sin necesidad de CSV.
+    type: enum
+    required: true
+    default: "true"
+    options: ["true", "false"]
   - name: csvPath
     label: Archivo de salida
     description: Déjalo vacío para no exportar.
     type: string
     required: false
-    default: inventario-extensiones.csv
+    placeholder: inventario-extensiones.csv
 ---
 
 Resuelve primero la lista de VMs a inspeccionar (las indicadas, las de un grupo, o todas
@@ -55,6 +62,11 @@ tiene activada la actualización automática de versiones menores.
 El filtro de texto es útil para auditorías puntuales: con `monitor` ves qué VMs tienen
 agentes de monitoreo y en qué versión; con el nombre de un publicador, qué VMs arrastran
 una extensión concreta.
+
+Con la tabla consolidada activada imprime al final todas las VMs y sus extensiones
+juntas, que es lo cómodo cuando no quieres un CSV: el recorrido VM por VM queda arriba y
+abajo tienes la vista completa para comparar versiones de un vistazo. El CSV es opcional y
+viene vacío por defecto.
 
 Al cerrar informa cuántas VMs se revisaron, cuántas extensiones se encontraron, qué VMs no
 tienen ninguna y cuáles fallaron al consultarse (por ejemplo, por falta de permisos).
