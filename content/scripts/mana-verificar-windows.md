@@ -11,6 +11,12 @@ requirements:
   - Agente de Azure en ejecución dentro de cada VM
   - Permisos para `az vm run-command invoke`
 parameters:
+  - name: subscriptionId
+    label: Suscripción
+    description: ID o nombre de la suscripción donde se ejecuta el script.
+    type: string
+    required: true
+    placeholder: 00000000-0000-0000-0000-000000000000
   - name: vmNames
     label: VMs Windows
     description: Nombres separados por coma.

@@ -1,5 +1,8 @@
 param(
     [Parameter(Mandatory=$true)]
+    [string]$SubscriptionId, # ID o nombre de la suscripción de trabajo
+
+    [Parameter(Mandatory=$true)]
     [string[]]$VMNames, # Lista de VMs (separadas por coma o como array)
 
     [Parameter(Mandatory=$true)]
@@ -8,6 +11,12 @@ param(
     [Parameter(Mandatory=$false)]
     [bool]$WaitForSnapshotOnly = $true # Por defecto monitorea el Snapshot hasta finalizar
 )
+
+# Seleccionar la suscripción de trabajo
+az account set --subscription $SubscriptionId
+if ($LASTEXITCODE -ne 0) {
+    throw "No se pudo seleccionar la suscripción '$SubscriptionId'."
+}
 
 # 0. Normalizar y parsear la lista de VMs
 $CleanVMNames = @()

@@ -5,8 +5,17 @@ set -uo pipefail
 # ---------------------------------------------------------------------------
 # PARÁMETROS
 # ---------------------------------------------------------------------------
-VM_NAMES="<vmNames>"      # VMs Linux separadas por coma
-CSV_PATH="<csvPath>"      # Archivo de salida (deja vacío para no exportar)
+SUBSCRIPTION_ID="<subscriptionId>"  # ID o nombre de la suscripción de trabajo
+VM_NAMES="<vmNames>"                # VMs Linux separadas por coma
+CSV_PATH="<csvPath>"                # Archivo de salida (deja vacío para no exportar)
+
+# ---------------------------------------------------------------------------
+# SUSCRIPCIÓN DE TRABAJO
+# ---------------------------------------------------------------------------
+az account set --subscription "$SUBSCRIPTION_ID" || {
+  echo "No se pudo seleccionar la suscripción '${SUBSCRIPTION_ID}'."
+  exit 1
+}
 
 # Comando que se ejecuta DENTRO de cada VM
 CHECK_COMMAND='grep /mana*.ko /lib/modules/$(uname -r)/modules.builtin || find /lib/modules/$(uname -r)/kernel -name mana*.ko*'

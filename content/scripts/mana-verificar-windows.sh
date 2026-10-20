@@ -5,8 +5,17 @@ set -uo pipefail
 # ---------------------------------------------------------------------------
 # PARÁMETROS
 # ---------------------------------------------------------------------------
-VM_NAMES="<vmNames>"      # VMs Windows separadas por coma
-CSV_PATH="<csvPath>"      # Archivo de salida (deja vacío para no exportar)
+SUBSCRIPTION_ID="<subscriptionId>"  # ID o nombre de la suscripción de trabajo
+VM_NAMES="<vmNames>"                # VMs Windows separadas por coma
+CSV_PATH="<csvPath>"                # Archivo de salida (deja vacío para no exportar)
+
+# ---------------------------------------------------------------------------
+# SUSCRIPCIÓN DE TRABAJO
+# ---------------------------------------------------------------------------
+az account set --subscription "$SUBSCRIPTION_ID" || {
+  echo "No se pudo seleccionar la suscripción '${SUBSCRIPTION_ID}'."
+  exit 1
+}
 
 # Comando PowerShell que se ejecuta DENTRO de cada VM Windows
 CHECK_COMMAND='Get-CimInstance Win32_PnPSignedDriver | Where-Object { $_.DeviceName -like "*Microsoft Azure Network Adapter*" -or $_.DeviceName -like "*MANA*" } | Select-Object DeviceName, DriverVersion | Format-List'

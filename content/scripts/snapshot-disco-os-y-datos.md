@@ -7,9 +7,15 @@ operation: create
 language: bash
 usage: "bash snapshot-disco-os-y-datos.sh"
 requirements:
-  - Azure CLI (`az`) con sesión iniciada y la suscripción correcta activa
+  - Azure CLI (`az`) con sesión iniciada (`az login`)
   - Permisos de *Contributor* sobre los discos y el grupo de recursos
 parameters:
+  - name: subscriptionId
+    label: Suscripción
+    description: ID o nombre de la suscripción donde se ejecuta el script.
+    type: string
+    required: true
+    placeholder: 00000000-0000-0000-0000-000000000000
   - name: vmNames
     label: VMs
     description: Nombres separados por coma.

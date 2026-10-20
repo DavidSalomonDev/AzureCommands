@@ -5,9 +5,18 @@ set -uo pipefail
 # ---------------------------------------------------------------------------
 # PARÁMETROS
 # ---------------------------------------------------------------------------
-VM_NAMES="<vmNames>"          # VMs separadas por coma
-IDENTIFICADOR="<identificador>"  # Sufijo del nombre del snapshot
-SKU="<sku>"                   # Tipo de almacenamiento del snapshot
+SUBSCRIPTION_ID="<subscriptionId>"  # ID o nombre de la suscripción de trabajo
+VM_NAMES="<vmNames>"                # VMs separadas por coma
+IDENTIFICADOR="<identificador>"     # Sufijo del nombre del snapshot
+SKU="<sku>"                         # Tipo de almacenamiento del snapshot
+
+# ---------------------------------------------------------------------------
+# SUSCRIPCIÓN DE TRABAJO
+# ---------------------------------------------------------------------------
+az account set --subscription "$SUBSCRIPTION_ID" || {
+  echo "No se pudo seleccionar la suscripción '${SUBSCRIPTION_ID}'."
+  exit 1
+}
 
 FECHA=$(date '+%Y%m%d')
 IFS=',' read -ra VMS <<< "${VM_NAMES// /}"

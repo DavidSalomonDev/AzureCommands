@@ -7,10 +7,16 @@ operation: create
 language: bash
 usage: "bash backup-vms.sh"
 requirements:
-  - Azure CLI (`az`) con sesión iniciada (`az login`) y la suscripción correcta activa
+  - Azure CLI (`az`) con sesión iniciada (`az login`)
   - Permisos de *Backup Operator* sobre los Recovery Services Vault
   - Las VMs ya deben estar protegidas en algún vault
 parameters:
+  - name: subscriptionId
+    label: Suscripción
+    description: ID o nombre de la suscripción donde se ejecuta el script.
+    type: string
+    required: true
+    placeholder: 00000000-0000-0000-0000-000000000000
   - name: vmNames
     label: VMs a respaldar
     description: Nombres separados por coma.

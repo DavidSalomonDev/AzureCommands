@@ -6,6 +6,14 @@
     Av2, Bsv2, Dv1-v5 (con d/s/l, SIN a), Dpsv6, Ev3-v5 (con d/s, SIN a), Epsv6, Ebsv5, F/Fs/Fsv2, G/Gs, Ls.
 #>
 
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$SubscriptionId # ID o nombre de la suscripción de trabajo
+)
+
+# Seleccionar la suscripción de trabajo (este script usa el módulo Az, no Azure CLI)
+Set-AzContext -Subscription $SubscriptionId -ErrorAction Stop | Out-Null
+
 # Expresión regular para validar versiones de SO compatibles OUT-OF-THE-BOX
 $compatibleOsPattern = '(?i)(2022|2025|20[\._]04|22[\._]04|24[\._]04|8[\._][6-9]|9[\._][0-9]|15-sp[3-7]|11|12|azure-linux|al2022)'
 

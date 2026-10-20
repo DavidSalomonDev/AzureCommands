@@ -5,10 +5,19 @@ set -uo pipefail
 # ---------------------------------------------------------------------------
 # PARÁMETROS
 # ---------------------------------------------------------------------------
+SUBSCRIPTION_ID="<subscriptionId>"   # ID o nombre de la suscripción de trabajo
 VM_NAMES="<vmNames>"                 # VMs separadas por coma
 RETENTION_DAYS="<retentionDays>"     # Días de retención del punto de recuperación
 WAIT_FOR_SNAPSHOT="<waitForSnapshot>"  # true = libera la VM al terminar el snapshot
 POLL_SECONDS="<pollSeconds>"         # Intervalo entre consultas de estado
+
+# ---------------------------------------------------------------------------
+# SUSCRIPCIÓN DE TRABAJO
+# ---------------------------------------------------------------------------
+az account set --subscription "$SUBSCRIPTION_ID" || {
+  echo "No se pudo seleccionar la suscripción '${SUBSCRIPTION_ID}'."
+  exit 1
+}
 
 # Minutos tras los cuales se asume el snapshot terminado si el job no lo reporta
 SNAPSHOT_TIMEOUT_MINUTES=12

@@ -1,3 +1,14 @@
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$SubscriptionId # ID o nombre de la suscripción de trabajo
+)
+
+# Seleccionar la suscripción de trabajo
+az account set --subscription $SubscriptionId
+if ($LASTEXITCODE -ne 0) {
+    throw "No se pudo seleccionar la suscripción '$SubscriptionId'."
+}
+
 Write-Host "Analizando VMs con Azure CLI..." -ForegroundColor Cyan
 
 $vmsJson = az vm list --show-details --output json | ConvertFrom-Json

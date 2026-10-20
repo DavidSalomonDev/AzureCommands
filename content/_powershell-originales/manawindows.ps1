@@ -3,6 +3,17 @@
     Validación remota de controladores MANA en VMs Windows desde máquina local usando Azure CLI.
 #>
 
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$SubscriptionId # ID o nombre de la suscripción de trabajo
+)
+
+# Seleccionar la suscripción de trabajo
+az account set --subscription $SubscriptionId
+if ($LASTEXITCODE -ne 0) {
+    throw "No se pudo seleccionar la suscripción '$SubscriptionId'."
+}
+
 # Lista de nombres de tus VMs Windows
 $vms = @("srvrds1", "srvad")
 

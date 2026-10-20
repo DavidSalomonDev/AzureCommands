@@ -1,8 +1,17 @@
 [CmdletBinding()]
 param(
+    [Parameter(Mandatory = $true)]
+    [string]$SubscriptionId, # ID o nombre de la suscripción de trabajo
+
     [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
     [string[]]$VMNames
 )
+
+# Seleccionar la suscripción de trabajo
+az account set --subscription $SubscriptionId
+if ($LASTEXITCODE -ne 0) {
+    throw "No se pudo seleccionar la suscripción '$SubscriptionId'."
+}
 
 # ==========================================
 # CONFIGURACIÓN GENERAL

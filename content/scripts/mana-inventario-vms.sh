@@ -7,9 +7,17 @@ set -uo pipefail
 # ---------------------------------------------------------------------------
 # PARÁMETROS
 # ---------------------------------------------------------------------------
-SUBSCRIPTION="<subscription>"   # ID o nombre; vacío = suscripción activa
-CSV_PATH="<csvPath>"            # Archivo de salida
-ONLY_AFFECTED="<onlyAffected>"  # true = exporta solo las que requieren revisión
+SUBSCRIPTION_ID="<subscriptionId>"  # ID o nombre de la suscripción de trabajo
+CSV_PATH="<csvPath>"                # Archivo de salida
+ONLY_AFFECTED="<onlyAffected>"      # true = exporta solo las que requieren revisión
+
+# ---------------------------------------------------------------------------
+# SUSCRIPCIÓN DE TRABAJO
+# ---------------------------------------------------------------------------
+az account set --subscription "$SUBSCRIPTION_ID" || {
+  echo "No se pudo seleccionar la suscripción '${SUBSCRIPTION_ID}'."
+  exit 1
+}
 
 # SO compatibles con MANA out-of-the-box
 COMPATIBLE_OS='(2022|2025|20[._]04|22[._]04|24[._]04|8[._][6-9]|9[._][0-9]|15-sp[3-7]|azure-linux|al2022)'
@@ -18,10 +26,6 @@ COMPATIBLE_OS='(2022|2025|20[._]04|22[._]04|24[._]04|8[._][6-9]|9[._][0-9]|15-sp
 AFFECTED_SIZES='^Standard_(A[0-9]+.*v2|B[0-9]+.*sv2|D.*_v[1-5]|Dp.*_v6|E.*_v[3-5]|Ep.*_v6|Eb.*_v5|F.*|G.*|L.*)$'
 # Las variantes AMD (D/E con "a" tras el número) no están afectadas
 AMD_SIZES='^Standard_[ED][0-9]+a(d)?s?_v[0-9]+$'
-
-if [ -n "$SUBSCRIPTION" ]; then
-  az account set --subscription "$SUBSCRIPTION"
-fi
 
 echo "Analizando VMs de la suscripción activa..."
 echo "VMName;ResourceGroup;PrivateIP;VMSize;IsAffectedSize;AcceleratedNet;OSImage;IsOSCompatible;RequiereRevision" > "$CSV_PATH"

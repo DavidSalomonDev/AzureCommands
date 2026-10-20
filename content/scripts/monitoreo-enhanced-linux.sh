@@ -5,6 +5,7 @@ set -uo pipefail
 # ---------------------------------------------------------------------------
 # PARÁMETROS
 # ---------------------------------------------------------------------------
+SUBSCRIPTION_ID="<subscriptionId>"    # ID o nombre de la suscripción de trabajo
 VM_NAMES="<vmNames>"                  # VMs Linux separadas por coma
 RESOURCE_GROUP="<resourceGroup>"      # Déjalo vacío para resolverlo automáticamente
 PUBLISHER="<publisher>"               # Publicador de la extensión
@@ -13,6 +14,15 @@ HANDLER_VERSION="<handlerVersion>"    # Versión major.minor, o "latest"
 AUTO_UPGRADE_MINOR="<autoUpgradeMinor>"
 API_VERSION="<apiVersion>"
 
+# ---------------------------------------------------------------------------
+# SUSCRIPCIÓN DE TRABAJO
+# ---------------------------------------------------------------------------
+az account set --subscription "$SUBSCRIPTION_ID" || {
+  echo "No se pudo seleccionar la suscripción '${SUBSCRIPTION_ID}'."
+  exit 1
+}
+
+# ID canónico, por si se indicó el nombre de la suscripción
 SUBSCRIPTION_ID=$(az account show --query id -o tsv) || exit 1
 echo "Suscripción: $(az account show --query name -o tsv) ($SUBSCRIPTION_ID)"
 echo "Extensión:   ${PUBLISHER}/${EXTENSION}"

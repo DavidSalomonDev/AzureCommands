@@ -10,11 +10,11 @@ requirements:
   - Azure CLI (`az`) con sesión iniciada
   - Permisos de lectura sobre las VMs y sus interfaces de red
 parameters:
-  - name: subscription
+  - name: subscriptionId
     label: Suscripción
-    description: ID o nombre. Déjalo vacío para usar la activa.
+    description: ID o nombre de la suscripción donde se ejecuta el script.
     type: string
-    required: false
+    required: true
     placeholder: 00000000-0000-0000-0000-000000000000
   - name: csvPath
     label: Archivo de salida
