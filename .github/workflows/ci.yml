@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Una serie de pushes seguidos sólo necesita que termine la última.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      # Además de compilar, el build carga todo el catálogo: es lo que valida
+      # el frontmatter, los <token> de cada plantilla y que no haya ids
+      # repetidos (ver "Cómo añadir un comando" en el README).
+      - run: npm run build

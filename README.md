@@ -70,12 +70,16 @@ Abre [http://localhost:3000](http://localhost:3000).
 
 ### Scripts
 
-| Script          | Descripción                              |
-| --------------- | ---------------------------------------- |
-| `npm run dev`   | Servidor de desarrollo (Turbopack)       |
-| `npm run build` | Build de producción                      |
-| `npm start`     | Sirve el build de producción             |
-| `npm run lint`  | Linter (ESLint)                          |
+| Script              | Descripción                                       |
+| ------------------- | ------------------------------------------------- |
+| `npm run dev`       | Servidor de desarrollo (Turbopack)                |
+| `npm run build`     | Build de producción (también valida el catálogo)  |
+| `npm start`         | Sirve el build de producción                      |
+| `npm run lint`      | Linter (ESLint)                                   |
+| `npm run typecheck` | Comprobación de tipos (`tsc --noEmit`)            |
+| `npm test`          | Tests unitarios (Vitest)                          |
+| `npm run test:watch`| Tests en modo watch                               |
+| `npm run check`     | lint + typecheck + test, lo mismo que corre la CI |
 
 ## Cómo añadir un comando a la biblioteca
 
@@ -219,6 +223,36 @@ src/
     store/                   # Hooks useUserCommands, useFavorites y useFavoriteCatalog
     types.ts, schema.ts, ...
 ```
+
+## Tests
+
+Los tests cubren la lógica pura, que es donde se concentra el riesgo: el
+tokenizador de Bash (`src/lib/highlight/bash.ts`), el motor de plantillas, la
+deducción CRUD, los slugs, la construcción de ids del catálogo, el repositorio
+de "Mis comandos" y las validaciones de contenido. Viven junto al código que
+prueban, como `<archivo>.test.ts`.
+
+```bash
+npm test
+```
+
+Corren en Node; el único que necesita navegador (el repositorio sobre
+`localStorage`) pide jsdom con un comentario `@vitest-environment` al principio
+del archivo. No hay tests de componentes todavía: harían falta
+`@testing-library/react` y `@vitejs/plugin-react`.
+
+Dos cosas que conviene no romper y que los tests fijan:
+
+- El tokenizador sólo pone color, así que **nunca** debe alterar el código:
+  rearmar sus tokens tiene que devolver la entrada exacta. Se comprueba contra
+  fragmentos difíciles (heredocs, comillas, `$(...)`) y contra cada script real
+  del catálogo.
+- Un archivo importado en "Mis comandos" **no puede traer `notesHtml`**, porque
+  las notas se pintan con `dangerouslySetInnerHTML`. Hoy lo impide Zod, que
+  descarta las claves que no declara; hay un test que avisa si eso cambia.
+
+La CI (`.github/workflows/ci.yml`) corre lint, typecheck, tests y build en cada
+push a `main` y en cada pull request.
 
 ## Notas de desarrollo
 

@@ -68,9 +68,11 @@ bloque `settings.cfg` vacío que espera el agente de Azure Enhanced Monitoring.
 Para cada VM de la lista:
 
 1. Resuelve grupo de recursos y región con `az vm list` (o usa el grupo indicado).
-2. Si la versión es `latest`, consulta las versiones publicadas del publicador en esa
-   región y toma la más alta, recortada a `major.minor` (lo único que acepta
-   `typeHandlerVersion`).
+2. Si la versión es `latest`, lista las versiones publicadas con
+   `az vm extension image list-versions` y toma la más alta por orden de versión (el
+   listado viene desordenado: `1.93.0.0` aparece después de `1.113.0.0`). La recorta a
+   `major.minor`, lo único que acepta `typeHandlerVersion`, y la reutiliza para el resto
+   de VMs de la misma región.
 3. Arma el cuerpo JSON en un archivo temporal y hace `PUT` sobre
    `.../extensions/<extension>`.
 4. Consulta el estado y lo muestra en tabla (`provisioningState`, versión instalada).

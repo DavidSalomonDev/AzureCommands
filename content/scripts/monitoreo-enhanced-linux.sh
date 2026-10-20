@@ -31,6 +31,10 @@ IFS=',' read -ra VMS <<< "${VM_NAMES// /}"
 OK=0
 FAIL=0
 
+# Memo para no repetir la consulta de versiones por cada VM de la misma región
+CACHED_LOCATION=""
+CACHED_VERSION=""
+
 for VM in "${VMS[@]}"; do
   [ -z "$VM" ] && continue
   echo ""
@@ -58,19 +62,34 @@ for VM in "${VMS[@]}"; do
 
   # 2. Resolver la versión del handler cuando se pide "latest"
   VERSION="$HANDLER_VERSION"
-  if [ -z "$VERSION" ] || [ "$(echo "$VERSION" | tr "[:upper:]" "[:lower:]")" = "latest" ]; then
-    IMAGES_URL="https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/providers/Microsoft.Compute/locations/${LOCATION}/publishers/${PUBLISHER}/artifacttypes/vmextension/types/${EXTENSION}/versions"
-    FULL_VERSION=$(az rest --method get --url "$IMAGES_URL" \
-      --query "[].name" -o tsv 2>/dev/null | sort -V | tail -n1)
+  if [ -z "$VERSION" ] || [ "$(echo "$VERSION" | tr '[:upper:]' '[:lower:]')" = "latest" ]; then
+    if [ "$LOCATION" = "$CACHED_LOCATION" ]; then
+      VERSION="$CACHED_VERSION"
+      echo "    -> Versión detectada: $VERSION"
+    else
+      # El listado devuelve versiones completas (1.113.0.0) y sin ordenar
+      VERSIONS=$(az vm extension image list-versions \
+        --location "$LOCATION" \
+        --publisher "$PUBLISHER" \
+        --name "$EXTENSION" \
+        --query "[].name" -o tsv 2>&1)
 
-    if [ -z "$FULL_VERSION" ]; then
-      echo "    [-] No se pudo listar versiones de la extensión en $LOCATION."
-      FAIL=$((FAIL + 1))
-      continue
+      FULL_VERSION=$(printf '%s\n' "$VERSIONS" | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -V | tail -n1)
+
+      if [ -z "$FULL_VERSION" ]; then
+        echo "    [-] No se pudo listar versiones de ${EXTENSION} en ${LOCATION}:"
+        printf '        %s\n' "$VERSIONS"
+        echo "        Indica una versión explícita (p. ej. 1.113) en lugar de \"latest\"."
+        FAIL=$((FAIL + 1))
+        continue
+      fi
+
+      # typeHandlerVersion sólo acepta major.minor
+      VERSION=$(echo "$FULL_VERSION" | cut -d. -f1,2)
+      CACHED_LOCATION="$LOCATION"
+      CACHED_VERSION="$VERSION"
+      echo "    -> Versión detectada: $VERSION (publicada: $FULL_VERSION)"
     fi
-    # typeHandlerVersion sólo acepta major.minor
-    VERSION=$(echo "$FULL_VERSION" | cut -d. -f1,2)
-    echo "    -> Versión detectada: $VERSION (publicada: $FULL_VERSION)"
   fi
 
   # 3. Construir el cuerpo de la petición
