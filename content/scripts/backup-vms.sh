@@ -54,22 +54,41 @@ JOB_RGS=()
 
 for VM in "${VMS[@]}"; do
   [ -z "$VM" ] && continue
-  FOUND=0
+  PROTECTED=0
 
   while IFS=$'\t' read -r VAULT_NAME VAULT_RG; do
     [ -z "$VAULT_NAME" ] && continue
 
-    ITEM=$(az backup item list \
+    # Nombre completo del elemento protegido: VM;iaasvmcontainerv2;<rg>;<vm>
+    ITEM_NAME=$(az backup item list \
       --vault-name "$VAULT_NAME" \
       --resource-group "$VAULT_RG" \
       --backup-management-type AzureIaasVM \
-      --query "[?properties.friendlyName=='${VM}'].{container:properties.containerName,item:name}" \
+      --workload-type VM \
+      --query "[?properties.friendlyName=='${VM}'].name | [0]" \
       -o tsv)
 
-    [ -z "$ITEM" ] && continue
+    [ -z "$ITEM_NAME" ] && continue
+    PROTECTED=1
 
-    CONTAINER=$(echo "$ITEM" | head -n1 | cut -f1)
-    ITEM_NAME=$(echo "$ITEM" | head -n1 | cut -f2)
+    # El contenedor debe ir con su nombre completo
+    # (IaasVMContainer;iaasvmcontainerv2;<rg>;<vm>). No sirve
+    # properties.containerName del elemento: llega sin el prefijo
+    # "IaasVMContainer;" y la API responde con
+    # BMSUserErrorContainerNameIncorrectFormat. Tampoco conviene armarlo a mano,
+    # porque incluye el grupo de recursos con la misma combinación de
+    # mayúsculas y minúsculas con que se registró la VM en el vault.
+    CONTAINER=$(az backup container list \
+      --vault-name "$VAULT_NAME" \
+      --resource-group "$VAULT_RG" \
+      --backup-management-type AzureIaasVM \
+      --query "[?properties.friendlyName=='${VM}'].name | [0]" \
+      -o tsv)
+
+    if [ -z "$CONTAINER" ]; then
+      echo "[$VM] No se pudo resolver el contenedor en el vault '$VAULT_NAME'."
+      break
+    fi
 
     echo "[$VM] Respaldando en el vault '$VAULT_NAME'..."
     JOB_ID=$(az backup protection backup-now \
@@ -86,12 +105,13 @@ for VM in "${VMS[@]}"; do
       JOB_VMS+=("$VM")
       JOB_VAULTS+=("$VAULT_NAME")
       JOB_RGS+=("$VAULT_RG")
-      FOUND=1
+    else
+      echo "[$VM] No se pudo iniciar el respaldo (revisa el error de Azure CLI)."
     fi
     break
   done <<< "$VAULTS"
 
-  [ "$FOUND" -eq 0 ] && echo "[$VM] No está protegida en ningún vault de la suscripción."
+  [ "$PROTECTED" -eq 0 ] && echo "[$VM] No está protegida en ningún vault de la suscripción."
 done
 
 if [ "${#JOB_IDS[@]}" -eq 0 ]; then

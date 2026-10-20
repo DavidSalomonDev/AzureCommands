@@ -46,6 +46,12 @@ Recorre todos los Recovery Services Vault de la suscripción activa, localiza el
 protegido de cada VM y dispara `az backup protection backup-now` con la fecha de
 expiración calculada a partir de los días de retención.
 
+El nombre del contenedor se toma de `az backup container list`, que lo devuelve
+completo (`IaasVMContainer;iaasvmcontainerv2;<rg>;<vm>`). El campo
+`properties.containerName` del elemento protegido no sirve: llega sin el prefijo
+`IaasVMContainer;` y la API rechaza el respaldo con
+`BMSUserErrorContainerNameIncorrectFormat`.
+
 Después consulta el job con `az backup job show` y revisa la subtarea **Take Snapshot**:
 en cuanto termina, la VM se marca como liberada y puedes continuar con el mantenimiento
 sin esperar a que suba todo el respaldo. Si el job no reporta esa subtarea, se asume
