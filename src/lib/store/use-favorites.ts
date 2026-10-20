@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useMemo, useSyncExternalStore } from "react";
 
 /**
  * Favorites are just a list of command/script ids kept in localStorage. They
@@ -60,13 +60,14 @@ function subscribe(onChange: () => void) {
 }
 
 function write(ids: readonly string[]) {
+  const raw = JSON.stringify(ids);
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+    window.localStorage.setItem(STORAGE_KEY, raw);
   } catch {
     // Ignorado: los favoritos simplemente no persisten.
   }
   // Invalida la caché aunque localStorage no esté disponible.
-  cachedRaw = JSON.stringify(ids);
+  cachedRaw = raw;
   cachedIds = ids;
   for (const listener of listeners) listener();
 }
@@ -74,19 +75,18 @@ function write(ids: readonly string[]) {
 export function useFavorites() {
   const ids = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  const isFavorite = useCallback((id: string) => ids.includes(id), [ids]);
+  // Every card on the page asks whether it is a favorite, so the lookup is
+  // O(1) instead of scanning the list once per card.
+  const idSet = useMemo(() => new Set(ids), [ids]);
 
-  const toggle = useCallback(
-    (id: string) => {
-      const current = getSnapshot();
-      const next = current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id];
-      write(next);
-      return !current.includes(id);
-    },
-    []
-  );
+  const isFavorite = useCallback((id: string) => idSet.has(id), [idSet]);
+
+  const toggle = useCallback((id: string) => {
+    const current = getSnapshot();
+    const wasFavorite = current.includes(id);
+    write(wasFavorite ? current.filter((item) => item !== id) : [...current, id]);
+    return !wasFavorite;
+  }, []);
 
   const remove = useCallback((id: string) => {
     write(getSnapshot().filter((item) => item !== id));

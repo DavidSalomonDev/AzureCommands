@@ -17,9 +17,16 @@ export function groupByCategoryAndOperation<T>(
   for (const item of items) {
     const category = getCategory(item);
     const operation = getOperation(item);
-    const operations = byCategory.get(category) ?? new Map<CrudOperation, T[]>();
-    operations.set(operation, [...(operations.get(operation) ?? []), item]);
-    byCategory.set(category, operations);
+
+    let operations = byCategory.get(category);
+    if (!operations) {
+      operations = new Map<CrudOperation, T[]>();
+      byCategory.set(category, operations);
+    }
+
+    const group = operations.get(operation);
+    if (group) group.push(item);
+    else operations.set(operation, [item]);
   }
 
   return Array.from(byCategory.entries()).map(([category, operations]) => ({

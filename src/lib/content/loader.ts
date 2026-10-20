@@ -4,11 +4,14 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
+import { cache as reactCache } from "react";
+
 import matter from "gray-matter";
 import { remark } from "remark";
 import remarkGfm from "remark-gfm";
 import remarkHtml from "remark-html";
 
+import { commandId } from "@/lib/catalog";
 import { frontmatterSchema } from "@/lib/content/frontmatter-schema";
 import { assertParametersMatchTemplate, assertUniqueIds } from "@/lib/content/validate";
 import { inferOperation } from "@/lib/operations";
@@ -70,7 +73,7 @@ async function loadFile(file: string): Promise<Command> {
   const notesHtml = await markdownToHtml(content);
 
   return {
-    id: `lib-${fm.shell}-${slug}`,
+    id: commandId(fm.shell, slug),
     slug,
     title: fm.title,
     description: fm.description,
@@ -85,8 +88,15 @@ async function loadFile(file: string): Promise<Command> {
   };
 }
 
-/** Loads and validates every command `.mdx` file under `content/`. */
-export async function getLibraryCommands(): Promise<Command[]> {
+/**
+ * Loads and validates every command `.mdx` file under `content/`.
+ *
+ * `cache()` deduplicates the work within a single render: the sidebar (built
+ * in the root layout) and the page itself both ask for the catalog, and in
+ * dev —where the module cache below is off so that editing an `.mdx` shows up
+ * without a restart— that would otherwise mean reading every file twice.
+ */
+export const getLibraryCommands = reactCache(async (): Promise<Command[]> => {
   if (USE_CACHE && cache) return cache;
 
   const files = await walkMdxFiles(CONTENT_DIR);
@@ -102,7 +112,7 @@ export async function getLibraryCommands(): Promise<Command[]> {
 
   if (USE_CACHE) cache = commands;
   return commands;
-}
+});
 
 export async function getLibraryCommandsByShell(shell: Shell): Promise<Command[]> {
   const all = await getLibraryCommands();

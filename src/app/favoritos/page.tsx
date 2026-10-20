@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 
 import { FavoritesView } from "@/components/favorites-view";
-import { getLibraryCommands } from "@/lib/content/loader";
-import { getScripts } from "@/lib/content/scripts-loader";
 
 export const metadata: Metadata = { title: "Favoritos · Azure Commands" };
 
-export default async function FavoritosPage() {
-  const [commands, scripts] = await Promise.all([getLibraryCommands(), getScripts()]);
-
+export default function FavoritosPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -18,7 +14,7 @@ export default async function FavoritosPage() {
           Se guardan en este navegador.
         </p>
       </div>
-      <FavoritesView commands={commands} scripts={scripts} />
+      <FavoritesView />
     </div>
   );
 }

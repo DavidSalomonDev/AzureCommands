@@ -176,6 +176,12 @@ que lo contiene como categoría (`content/scripts/<categoría>/<script>.ps1`).
 - **Mis comandos** usa un patrón de repositorio (`src/lib/repositories/`) con una
   implementación sobre `localStorage`, pensado para poder cambiar a un backend después sin
   tocar la UI.
+- **Favoritos** son ids en `localStorage`, así que el servidor no sabe cuáles son. En vez
+  de mandar el catálogo entero con la página, cada sección se publica como JSON estático
+  en `/catalog/<sección>` (`src/app/catalog/[section]/route.ts`, prerenderizado en el
+  build) y el navegador baja solo las secciones en las que hay favoritos —ninguna si no
+  hay. El id lleva su sección dentro y se construye en `src/lib/catalog.ts`, de modo que
+  loaders y cliente usan la misma definición.
 - **UI:** Tailwind CSS v4 + shadcn/ui (Base UI), `next-themes` (tema), `sonner` (toasts),
   `lucide-react` (iconos).
 
@@ -187,7 +193,8 @@ content/
   scripts/                   # Scripts .sh + sidecar .md con sus metadatos
   _powershell-originales/    # Versiones PowerShell previas, fuera del catálogo
 src/
-  app/                       # Rutas: /, /cli, /scripts, /powershell, /mis-comandos, (arm|bicep|terraform)
+  app/                       # Rutas: /, /cli, /scripts, /powershell, /favoritos, /mis-comandos, (arm|bicep|terraform)
+    catalog/[section]/       # JSON estático del catálogo, para la página de favoritos
   components/
     app-shell.tsx            # Cabecera + menú lateral colapsable (estado del sidebar)
     app-sidebar.tsx          # Secciones, productos y operaciones del menú lateral
@@ -200,7 +207,8 @@ src/
     content/                 # Loaders + esquemas de frontmatter + validaciones (server-only)
     repositories/            # Repositorio de "Mis comandos" (localStorage)
     params/                  # Motor de plantillas (<token> → valores)
-    store/                   # Hooks useUserCommands y useFavorites
+    catalog.ts               # Secciones del catálogo y construcción de ids
+    store/                   # Hooks useUserCommands, useFavorites y useFavoriteCatalog
     types.ts, schema.ts, ...
 ```
 

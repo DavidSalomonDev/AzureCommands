@@ -7,11 +7,14 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
+import { cache as reactCache } from "react";
+
 import matter from "gray-matter";
 import { remark } from "remark";
 import remarkGfm from "remark-gfm";
 import remarkHtml from "remark-html";
 
+import { scriptId } from "@/lib/catalog";
 import { scriptFrontmatterSchema } from "@/lib/content/script-schema";
 import { assertParametersMatchTemplate, assertUniqueIds } from "@/lib/content/validate";
 import { slugify } from "@/lib/slugify";
@@ -103,7 +106,7 @@ async function loadScript(file: string): Promise<Script> {
   assertParametersMatchTemplate(code, parameters, origin);
 
   return {
-    id: `script-${slug}`,
+    id: scriptId(slug),
     slug,
     title: fm?.title ?? baseName,
     description: fm?.description ?? "Script sin descripción.",
@@ -121,7 +124,7 @@ async function loadScript(file: string): Promise<Script> {
 }
 
 /** Loads every script under `content/scripts/`, sorted by category and title. */
-export async function getScripts(): Promise<Script[]> {
+export const getScripts = reactCache(async (): Promise<Script[]> => {
   if (USE_CACHE && cache) return cache;
 
   const files = await walkScriptFiles(SCRIPTS_DIR);
@@ -136,4 +139,4 @@ export async function getScripts(): Promise<Script[]> {
 
   if (USE_CACHE) cache = scripts;
   return scripts;
-}
+});
