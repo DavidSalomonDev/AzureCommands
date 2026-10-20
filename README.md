@@ -254,6 +254,29 @@ Dos cosas que conviene no romper y que los tests fijan:
 La CI (`.github/workflows/ci.yml`) corre lint, typecheck, tests y build en cada
 push a `main` y en cada pull request.
 
+## Seguridad
+
+La app es estática, no tiene backend y no manda nada fuera del navegador: lo
+que guardas en "Mis comandos" y en "Favoritos" vive en `localStorage` de tu
+equipo. Aun así:
+
+- Las notas en Markdown se **sanean** al convertirlas a HTML (el valor por
+  defecto de `remark-html`). Se pintan con `dangerouslySetInnerHTML`, así que
+  esto evita que tener commit en `content/` implique poder ejecutar scripts en
+  la app. Ningún archivo del catálogo usa HTML crudo, de modo que no cambia
+  nada de lo que ya se publica.
+- Un JSON importado **no puede traer `notesHtml`**: el esquema de Zod descarta
+  las claves que no declara, y hay un test que lo fija.
+- La importación tiene tope de tamaño (5 MB) y de número de comandos (5000),
+  para no congelar la pestaña con un archivo que no toca.
+- `next.config.ts` manda cabeceras de seguridad (CSP, `X-Content-Type-Options`,
+  `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`). Sólo se aplican
+  cuando sirve el servidor de Next (`npm start`); detrás de un CDN o de un
+  hosting de estáticos hay que configurarlas allí. La CSP necesita
+  `'unsafe-inline'` en `script-src` porque Next y `next-themes` inyectan
+  scripts en línea sin nonce, así que lo que de verdad aporta es
+  `frame-ancestors`, `object-src` y `base-uri`.
+
 ## Notas de desarrollo
 
 - El proyecto usa una versión de Next.js con cambios respecto a lo habitual; consulta

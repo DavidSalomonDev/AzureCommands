@@ -316,7 +316,7 @@ function CommandForm({
 
         <div className="flex flex-col gap-2">
           <Label className="text-xs text-muted-foreground">Vista previa</Label>
-          <CommandCard key={previewKey} command={previewCommand} />
+          <CommandCard key={previewKey} command={previewCommand} preview />
         </div>
       </div>
 

@@ -27,9 +27,15 @@ import { buildDefaultValues, renderTemplate } from "@/lib/params/template-engine
 interface CommandCardProps {
   command: Command;
   actions?: ReactNode;
+  /**
+   * The card is a preview of something not saved yet (the "Mis comandos"
+   * form). It has no real id, so the star is hidden: marking it would leave a
+   * favorite pointing at nothing.
+   */
+  preview?: boolean;
 }
 
-export function CommandCard({ command, actions }: CommandCardProps) {
+export function CommandCard({ command, actions, preview = false }: CommandCardProps) {
   const [values, setValues] = useState<Record<string, string>>(() =>
     buildDefaultValues(command.parameters)
   );
@@ -55,7 +61,7 @@ export function CommandCard({ command, actions }: CommandCardProps) {
             <CardDescription>{command.description}</CardDescription>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <FavoriteButton id={command.id} title={command.title} />
+            {!preview && <FavoriteButton id={command.id} title={command.title} />}
             {actions}
           </div>
         </div>

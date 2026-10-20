@@ -34,7 +34,7 @@ export const CATEGORY_PARAM = "cat";
 export const OPERATION_PARAM = "op";
 
 export function AppSidebar({ sections }: { sections: NavSection[] }) {
-  const { collapsed, mobileOpen, closeMobile } = useSidebar();
+  const { collapsed, mobileOpen, closeMobile, drawerRef } = useSidebar();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get(CATEGORY_PARAM);
@@ -54,6 +54,7 @@ export function AppSidebar({ sections }: { sections: NavSection[] }) {
       />
 
       <aside
+        ref={drawerRef}
         aria-label="Secciones y categorías"
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground transition-[transform,width] duration-200 ease-out",

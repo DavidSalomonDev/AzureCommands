@@ -43,16 +43,15 @@ export async function walkFiles(
 /**
  * Renders the Markdown body of a content file to HTML.
  *
- * `sanitize: false` keeps raw HTML in the notes: the input is the
- * repository's own content, authored by whoever can commit to `content/`,
- * never anything a visitor supplies.
+ * The result is injected with `dangerouslySetInnerHTML`, so the output is
+ * sanitized — `remark-html`'s default. The input is the repository's own
+ * content, so this is not what stands between a visitor and the page; it
+ * means that commit access to `content/` does not imply running scripts in
+ * the app, and it costs nothing: no note uses raw HTML today.
  */
 export async function markdownToHtml(markdown: string): Promise<string> {
   if (!markdown.trim()) return "";
-  const processed = await remark()
-    .use(remarkGfm)
-    .use(remarkHtml, { sanitize: false })
-    .process(markdown);
+  const processed = await remark().use(remarkGfm).use(remarkHtml).process(markdown);
   return String(processed).trim();
 }
 

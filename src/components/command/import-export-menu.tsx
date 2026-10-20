@@ -24,6 +24,14 @@ interface ImportExportMenuProps {
   importAll: (bundle: unknown, mode: ImportMode) => ImportResult;
 }
 
+/** Un archivo exportado real pesa unos pocos KB; 5 MB es ya un error. */
+const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+const MAX_IMPORT_COMMANDS = 5000;
+
+function formatSize(bytes: number): string {
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function countIncoming(payload: unknown): number {
   if (Array.isArray(payload)) return payload.length;
   if (
@@ -73,19 +81,37 @@ export function ImportExportMenu({ commandCount, exportAll, importAll }: ImportE
     event.target.value = "";
     if (!file) return;
 
+    // Parsing an arbitrary file would freeze the tab, and localStorage would
+    // refuse a payload this size anyway: a personal library is small.
+    if (file.size > MAX_IMPORT_BYTES) {
+      toast.error(
+        `El archivo pesa ${formatSize(file.size)} y el máximo son ${formatSize(MAX_IMPORT_BYTES)}.`
+      );
+      return;
+    }
+
+    let data: unknown;
     try {
-      const text = await file.text();
-      const data = JSON.parse(text);
-
-      if (modeRef.current === "replace") {
-        setPendingReplace({ data, count: countIncoming(data) });
-        return;
-      }
-
-      notifyResult(importAll(data, "merge"));
+      data = JSON.parse(await file.text());
     } catch {
       toast.error("El archivo no es un JSON válido.");
+      return;
     }
+
+    const count = countIncoming(data);
+    if (count > MAX_IMPORT_COMMANDS) {
+      toast.error(
+        `El archivo trae ${count} comandos y el máximo son ${MAX_IMPORT_COMMANDS}.`
+      );
+      return;
+    }
+
+    if (modeRef.current === "replace") {
+      setPendingReplace({ data, count });
+      return;
+    }
+
+    notifyResult(importAll(data, "merge"));
   }
 
   function confirmReplace() {
