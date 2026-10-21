@@ -1,0 +1,38 @@
+---
+title: Exportar una política WAF a archivo JSON
+description: Serializa la política WAF completa a un archivo JSON, con la profundidad necesaria para no perder lo anidado.
+shell: powershell
+category: WAF
+tags: [waf, application-gateway, exportar, json, respaldo, auditoria]
+template: "Get-AzApplicationGatewayFirewallPolicy -Name <policyName> -ResourceGroupName <resourceGroup> | ConvertTo-Json -Depth <depth> | Out-File -FilePath <archivo> -Encoding utf8"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: depth
+    label: Profundidad
+    description: Niveles que serializa ConvertTo-Json. Por debajo de 10 se pierden exclusiones y overrides.
+    type: number
+    required: true
+    default: "20"
+    placeholder: "20"
+  - name: archivo
+    label: Archivo de salida
+    type: string
+    required: true
+    default: politica-waf.json
+    placeholder: politica-waf.json
+---
+
+La profundidad es lo único que hay que tener claro aquí. `ConvertTo-Json` usa 2 por defecto, y a ese nivel las exclusiones, los overrides de reglas y las condiciones de las reglas personalizadas salen como `System.Collections.Generic.List...` en lugar de su contenido. Con 20 cabe todo de sobra.
+
+El JSON que produce es el objeto de PowerShell, no el del recurso de ARM: los nombres van en PascalCase (`ManagedRules`, `Exclusions`) y no coinciden con el `properties.managedRules.exclusions` que devuelve la CLI. Para comparar exportaciones de las dos herramientas, o para versionarlas, conviene elegir una sola y no mezclarlas.
+
+Si lo que quieres es una plantilla desplegable en otro ambiente, en lugar de esto usa `Export-AzResourceGroup -ResourceGroupName <rg> -Resource <idPolitica>`.

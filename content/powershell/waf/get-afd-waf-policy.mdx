@@ -1,0 +1,30 @@
+---
+title: Ver política WAF completa (Front Door)
+description: "Obtiene el objeto completo de una política WAF de Front Door: ajustes, reglas personalizadas, conjuntos gestionados y excepciones."
+shell: powershell
+category: WAF
+tags: [waf, front-door, afd, politica, auditoria, consulta]
+template: "Get-AzFrontDoorWafPolicy -Name <policyName> -ResourceGroupName <resourceGroup>"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-frontdoor
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Aquí hay una trampa que cuesta tiempo: `Az.FrontDoor` cambió el modelo del objeto y los nombres de las propiedades no son los que uno espera por analogía con Application Gateway ni los del JSON de la CLI. En el módulo actual son **singulares y aplanados**:
+
+- `PolicySetting` (no *PolicySettings*), con `Mode` y `EnabledState`.
+- `Customrule` (no *CustomRules*), y ya es la lista de reglas: la capa `.Rules` del JSON no está.
+- `ManagedRuleSet` (no *ManagedRules.ManagedRuleSets*), con `Type` y `Version` en lugar de *RuleSetType* y *RuleSetVersion*.
+- `ExceptionListException` para las excepciones.
+
+Si una propiedad devuelve vacío, lo primero es comprobar el nombre con `Get-AzFrontDoorWafPolicy -Name <politica> -ResourceGroupName <rg> | Get-Member`, porque en versiones anteriores del módulo se llamaban de otra forma.
+
+Para el objeto entero, `| ConvertTo-Json -Depth 20`.

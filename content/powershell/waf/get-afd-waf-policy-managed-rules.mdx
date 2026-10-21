@@ -1,0 +1,27 @@
+---
+title: Listar reglas gestionadas de una política WAF de Front Door
+description: Muestra los conjuntos de reglas gestionadas (DRS, Bot Manager) aplicados en una política WAF de Front Door.
+shell: powershell
+category: WAF
+tags: [waf, front-door, afd, reglas-gestionadas, drs, bot-manager, consulta]
+template: "(Get-AzFrontDoorWafPolicy -Name <policyName> -ResourceGroupName <resourceGroup>).ManagedRuleSet | Select-Object Type, Version, RuleSetAction"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-frontdoor
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Devuelve los conjuntos aplicados, normalmente `Microsoft_DefaultRuleSet` y `Microsoft_BotManagerRuleSet`.
+
+Las propiedades son `Type` y `Version`, no *RuleSetType* ni *RuleSetVersion* como en Application Gateway. `RuleSetAction` es la acción del conjunto completo, que en Front Door puede fijarse a nivel de conjunto y no sólo por regla.
+
+De cada conjunto cuelgan a su vez `RuleGroupOverride` (las reglas modificadas) y `Exclusion` (las exclusiones del conjunto), cada una con su comando en esta misma sección.
+
+El catálogo de reglas disponibles con su descripción es `Get-AzFrontDoorWafManagedRuleSetDefinition`.

@@ -1,0 +1,31 @@
+---
+title: Listar reglas personalizadas de una política WAF
+description: Muestra las reglas personalizadas (custom rules) de una política WAF de Application Gateway con su prioridad, condiciones y acción.
+shell: azurecli
+category: WAF
+tags: [waf, application-gateway, appgw, reglas, custom-rule, listar, consulta]
+template: "az network application-gateway waf-policy custom-rule list --resource-group <resourceGroup> --policy-name <policyName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Las reglas personalizadas son las que escribió el equipo, no las del catálogo OWASP: bloqueos por IP, por país, por cabecera o límites de tasa. Se evalúan antes que las gestionadas y por orden de `priority` (número más bajo primero); la primera que coincide decide.
+
+Para ver una sola regla con todas sus condiciones: `az network application-gateway waf-policy custom-rule show --resource-group <rg> --policy-name <politica> --name <regla>`.
+
+Con `--output table` ves nombre, prioridad y acción de un vistazo, pero las condiciones de coincidencia solo salen en JSON.

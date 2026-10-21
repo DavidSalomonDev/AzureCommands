@@ -1,0 +1,25 @@
+---
+title: Listar excepciones de una política WAF de Front Door
+description: Muestra las excepciones que permiten a una petición saltarse las reglas gestionadas de una política WAF de Front Door.
+shell: powershell
+category: WAF
+tags: [waf, front-door, afd, excepciones, bypass, auditoria, consulta]
+template: "(Get-AzFrontDoorWafPolicy -Name <policyName> -ResourceGroupName <resourceGroup>).ExceptionListException | Select-Object MatchVariable, ValueMatchOperator, MatchValue, Selector, Scope"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-frontdoor
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+La propiedad se llama `ExceptionListException`, que es poco intuitivo pero es el nombre real en el módulo actual.
+
+Una excepción deja pasar la petición completa sin evaluar las reglas gestionadas cuando se cumple la condición, mientras que una exclusión sólo saca de la inspección un trozo de la petición. Por eso son lo primero que hay que revisar en una auditoría.
+
+Los valores concretos están en `MatchValue`, y `Scope` indica a qué alcance se aplica la excepción.

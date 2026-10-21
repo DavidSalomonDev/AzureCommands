@@ -1,0 +1,27 @@
+---
+title: Listar reglas personalizadas de una política WAF
+description: Muestra las reglas personalizadas de una política WAF de Application Gateway con su prioridad, tipo y acción.
+shell: powershell
+category: WAF
+tags: [waf, application-gateway, appgw, reglas, custom-rules, consulta]
+template: "(Get-AzApplicationGatewayFirewallPolicy -Name <policyName> -ResourceGroupName <resourceGroup>).CustomRules | Select-Object Name, Priority, RuleType, Action, State"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Las reglas que escribió el equipo, no las del catálogo OWASP: bloqueos por IP, por país, por cabecera o límites de tasa. Se evalúan antes que las gestionadas, por orden de `Priority` (número más bajo primero), y la primera que coincide decide.
+
+Las condiciones no caben en la tabla. Para verlas, cada regla trae `MatchConditions` y, ya formateado para leer, `MatchConditionsText`:
+
+`(Get-AzApplicationGatewayFirewallPolicy -Name <politica> -ResourceGroupName <rg>).CustomRules | Select-Object Name, MatchConditionsText`
+
+En las reglas de tipo `RateLimitRule` interesan además `RateLimitThreshold`, `RateLimitDuration` y `GroupByUserSession`.

@@ -1,0 +1,27 @@
+---
+title: Listar conjuntos de reglas gestionadas de una política WAF
+description: Muestra los conjuntos CRS/DRS aplicados en una política WAF de Application Gateway.
+shell: powershell
+category: WAF
+tags: [waf, application-gateway, appgw, owasp, crs, reglas-gestionadas, consulta]
+template: "(Get-AzApplicationGatewayFirewallPolicy -Name <policyName> -ResourceGroupName <resourceGroup>).ManagedRules.ManagedRuleSets | Select-Object RuleSetType, RuleSetVersion, RuleGroupOverrides"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Devuelve el tipo y la versión de cada conjunto aplicado (por ejemplo OWASP 3.2 o Microsoft_DefaultRuleSet 2.1).
+
+`RuleGroupOverrides` sale como colección y en pantalla no se lee; para verlo plano usa *Listar reglas gestionadas modificadas de una política WAF*.
+
+Ojo con lo que esta salida no dice: los overrides son sólo las reglas que alguien tocó. Las que siguen con su comportamiento por defecto están activas y no aparecen en ningún sitio de la política, así que un `RuleGroupOverrides` vacío significa "ninguna regla modificada", no "ninguna regla activa". El catálogo con el que cruzarlo es `Get-AzApplicationGatewayAvailableWafRuleSets`.
+
+Cada conjunto trae también `ComputedDisabledRules`, una lista de grupos de reglas: cuando el servicio la devuelve con contenido es el atajo para ver qué queda efectivamente deshabilitado sin reconstruirlo a mano.

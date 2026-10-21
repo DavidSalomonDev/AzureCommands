@@ -1,0 +1,31 @@
+---
+title: Ver configuración WAF integrada en el Application Gateway
+description: Muestra la configuración WAF que vive dentro del propio Application Gateway, sin política asociada (modelo antiguo).
+shell: azurecli
+category: WAF
+tags: [waf, application-gateway, appgw, legacy, waf-config, consulta]
+template: "az network application-gateway waf-config show --resource-group <resourceGroup> --gateway-name <gatewayName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: gatewayName
+    label: Nombre del Application Gateway
+    type: string
+    required: true
+    placeholder: mi-appgw
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Antes de las políticas WAF como recurso aparte, la configuración vivía dentro del Application Gateway. Muchos gateways en producción siguen así, y en ese caso los comandos `waf-policy` no devuelven nada aunque el WAF esté funcionando.
+
+Aquí las exclusiones están en `exclusions` y las reglas apagadas en `disabledRuleGroups`, con la misma idea pero otra forma. Solo funciona en gateways con SKU WAF o WAF_v2.
+
+Para saber en qué modelo estás: `az network application-gateway show --resource-group <rg> --name <appgw> --query "firewallPolicy.id"`. Si devuelve un ID, la configuración manda desde la política y este comando queda obsoleto para ese gateway; si devuelve vacío, la configuración es la de aquí.

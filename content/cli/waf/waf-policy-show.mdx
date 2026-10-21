@@ -1,0 +1,37 @@
+---
+title: Ver política WAF completa (Application Gateway)
+description: "Devuelve en un solo JSON la configuración íntegra de una política WAF: modo, reglas personalizadas, conjuntos gestionados, exclusiones y excepciones."
+shell: azurecli
+category: WAF
+tags: [waf, application-gateway, appgw, politica, exportar, json, auditoria]
+template: "az network application-gateway waf-policy show --resource-group <resourceGroup> --name <policyName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, yaml, table, tsv]
+---
+
+Este es el comando que conviene usar para auditar o respaldar: trae todo junto en una sola llamada.
+
+- `policySettings`: modo (*Prevention* / *Detection*), estado y límites de cuerpo de petición.
+- `customRules`: reglas personalizadas con prioridad, condiciones y acción.
+- `managedRules.managedRuleSets`: conjuntos CRS/DRS activos y sus `ruleGroupOverrides` (reglas deshabilitadas o con acción cambiada).
+- `managedRules.exclusions`: exclusiones, incluidas las acotadas a un conjunto concreto en `exclusionManagedRuleSets`.
+- `managedRules.exceptions`: excepciones que permiten saltarse las reglas gestionadas cuando se cumple una condición.
+
+Para guardarlo en archivo añade `> politica-waf.json` al final. Y para sacar solo una parte en tabla, por ejemplo las exclusiones, usa `--query "managedRules.exclusions[].{Variable:matchVariable, Operador:selectorMatchOperator, Selector:selector}" --output table`.
+
+Importante: el `--output table` aplana la salida y pierde las exclusiones anidadas por conjunto de reglas. Para auditorías, siempre JSON.

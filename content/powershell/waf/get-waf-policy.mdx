@@ -1,0 +1,30 @@
+---
+title: Ver política WAF completa (Application Gateway)
+description: "Obtiene el objeto completo de una política WAF: ajustes, reglas personalizadas, conjuntos gestionados, exclusiones y excepciones."
+shell: powershell
+category: WAF
+tags: [waf, application-gateway, appgw, politica, auditoria, consulta]
+template: "Get-AzApplicationGatewayFirewallPolicy -Name <policyName> -ResourceGroupName <resourceGroup>"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+El punto de partida de cualquier auditoría: una sola llamada devuelve el objeto entero y todo lo demás son propiedades suyas.
+
+- `PolicySettings`: modo (*Prevention* / *Detection*), estado y límites de cuerpo y de subida.
+- `CustomRules`: reglas propias con prioridad, condiciones y acción.
+- `ManagedRules.ManagedRuleSets`: conjuntos CRS/DRS con sus `RuleGroupOverrides`.
+- `ManagedRules.Exclusions` y `ManagedRules.Exceptions`.
+
+La consola aplana la salida y no muestra lo anidado. Para verlo todo de verdad hay que serializarlo: `Get-AzApplicationGatewayFirewallPolicy -Name <politica> -ResourceGroupName <rg> | ConvertTo-Json -Depth 20`. Con la profundidad por defecto (2) se pierden justo las exclusiones y los overrides, que es lo que importa.
+
+Varias propiedades tienen un gemelo con sufijo `Text` (`TagsTable`, y en otros objetos `RuleGroupsText`, `ExclusionsText`): son la versión ya formateada para leer en pantalla, útil cuando no quieres serializar.

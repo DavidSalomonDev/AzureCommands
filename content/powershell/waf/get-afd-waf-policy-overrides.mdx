@@ -1,0 +1,25 @@
+---
+title: Listar reglas modificadas de una política WAF de Front Door
+description: Muestra las reglas gestionadas deshabilitadas o con la acción cambiada en una política WAF de Front Door, con su grupo.
+shell: powershell
+category: WAF
+tags: [waf, front-door, afd, override, deshabilitadas, auditoria, consulta]
+template: "(Get-AzFrontDoorWafPolicy -Name <policyName> -ResourceGroupName <resourceGroup>).ManagedRuleSet.RuleGroupOverride | Select-Object RuleGroupName -ExpandProperty ManagedRuleOverride"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-frontdoor
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+El equivalente en Front Door de los `RuleGroupOverrides` de Application Gateway. Devuelve `RuleId`, `EnabledState`, `Action` y `Sensitivity` de cada regla tocada, más el nombre de su grupo.
+
+Vale la misma advertencia que en Application Gateway: **sólo salen las reglas que alguien modificó**. Las que siguen con su comportamiento por defecto están activas y no aparecen, así que una salida vacía no significa que no haya protección. El catálogo completo con el que cruzarlo es `Get-AzFrontDoorWafManagedRuleSetDefinition`.
+
+Aquí el estado está en `EnabledState`, no en *State*. Y cada override puede llevar sus propias `Exclusion`, que es el tercer nivel de exclusiones de Front Door.

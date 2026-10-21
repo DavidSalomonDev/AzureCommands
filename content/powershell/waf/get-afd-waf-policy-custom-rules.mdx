@@ -1,0 +1,25 @@
+---
+title: Listar reglas personalizadas de una política WAF de Front Door
+description: Muestra las reglas personalizadas de una política WAF de Front Door, incluidas las de límite de tasa.
+shell: powershell
+category: WAF
+tags: [waf, front-door, afd, reglas, custom-rules, rate-limit, consulta]
+template: "(Get-AzFrontDoorWafPolicy -Name <policyName> -ResourceGroupName <resourceGroup>).Customrule | Select-Object Name, Priority, RuleType, Action, EnabledState, RateLimitThreshold"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-frontdoor
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+La propiedad se llama `Customrule`, en singular y con la r minúscula, y contiene directamente las reglas. En el JSON de la CLI el mismo contenido está un nivel más abajo, en `customRules.rules`.
+
+Dos diferencias más respecto a Application Gateway, que importan al comparar: el estado de la regla está en `EnabledState` (no en *State*), y la duración del límite de tasa en `RateLimitDurationInMinutes`.
+
+Las condiciones de coincidencia están en `MatchCondition`; para leerlas, `(Get-AzFrontDoorWafPolicy -Name <politica> -ResourceGroupName <rg>).Customrule | Select-Object Name -ExpandProperty MatchCondition`.

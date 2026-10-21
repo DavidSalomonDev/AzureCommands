@@ -1,0 +1,27 @@
+---
+title: Ver configuración WAF integrada en el Application Gateway
+description: Muestra la configuración WAF que vive dentro del propio Application Gateway, sin política asociada (modelo antiguo).
+shell: powershell
+category: WAF
+tags: [waf, application-gateway, appgw, legacy, waf-config, consulta]
+template: "Get-AzApplicationGateway -Name <gatewayName> -ResourceGroupName <resourceGroup> | Get-AzApplicationGatewayWebApplicationFirewallConfiguration"
+parameters:
+  - name: gatewayName
+    label: Nombre del Application Gateway
+    type: string
+    required: true
+    placeholder: mi-appgw
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Antes de que las políticas WAF fueran un recurso aparte, la configuración vivía dentro del gateway, y muchos entornos en producción siguen así. En ese caso `Get-AzApplicationGatewayFirewallPolicy` no devuelve nada aunque el WAF esté funcionando.
+
+El cmdlet pide el objeto del gateway, no su nombre, así que hay que encadenarlo con `Get-AzApplicationGateway` como en la plantilla.
+
+Aquí los nombres cambian respecto al modelo con política: el modo está en `FirewallMode`, el estado en `Enabled`, las reglas apagadas en `DisabledRuleGroups` y las exclusiones en `Exclusions`. No hay excepciones en este modelo. Para leer las dos colecciones sin serializar están `DisabledRuleGroupsText` y `ExclusionsText`.
+
+Para saber en qué modelo estás: `(Get-AzApplicationGateway -Name <appgw> -ResourceGroupName <rg>).FirewallPolicy`. Si devuelve un id, manda la política y esta configuración queda obsoleta para ese gateway; si viene vacío, manda la de aquí.

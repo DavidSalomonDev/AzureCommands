@@ -1,0 +1,31 @@
+---
+title: Listar excepciones de una política WAF de Front Door
+description: Muestra las excepciones que permiten a una petición saltarse las reglas gestionadas de una política WAF de Front Door.
+shell: azurecli
+category: WAF
+tags: [waf, front-door, afd, excepciones, exception, bypass, consulta]
+template: "az network front-door waf-policy managed-rules exception list --resource-group <resourceGroup> --policy-name <policyName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-frontdoor
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Las excepciones dejan pasar la petición completa sin evaluar las reglas gestionadas cuando se cumple la condición, mientras que una exclusión solo saca de la inspección un trozo de la petición.
+
+Este comando, a diferencia del de exclusiones, no pide `--type`: devuelve las excepciones de la política entera.
+
+Requiere la extensión de Front Door (`az extension add --name front-door`).

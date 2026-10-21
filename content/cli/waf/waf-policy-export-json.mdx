@@ -1,0 +1,29 @@
+---
+title: Exportar una política WAF a archivo JSON
+description: Guarda en un archivo la configuración completa de cualquier política WAF, de Application Gateway o de Front Door, a partir de su ID de recurso.
+shell: azurecli
+category: WAF
+tags: [waf, exportar, json, respaldo, auditoria, application-gateway, front-door]
+template: "az resource show --ids <resourceId> --output json > <archivo>"
+parameters:
+  - name: resourceId
+    label: ID del recurso
+    description: ID completo de la política WAF.
+    type: string
+    required: true
+    placeholder: /subscriptions/0000/resourceGroups/mi-rg/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/mi-waf
+  - name: archivo
+    label: Archivo de salida
+    type: string
+    required: true
+    default: politica-waf.json
+    placeholder: politica-waf.json
+---
+
+La vía genérica, y la más práctica cuando hay que exportar varias: funciona igual para políticas de Application Gateway y de Front Door, y no depende de ninguna extensión de la CLI.
+
+Todo queda bajo `properties`: `policySettings`, `customRules` y `managedRules` con sus `managedRuleSets`, `exclusions` y `exceptions`. Es el mismo contenido que devuelve `waf-policy show`, con una capa más de anidamiento.
+
+Si falla pidiendo versión de API, añade `--api-version 2024-05-01` (o la que corresponda al proveedor en ese tenant).
+
+Para versionar la política o replicarla en otro ambiente conviene la plantilla ARM en lugar del JSON del recurso: `az group export --resource-group <rg> --resource-ids <id-politica>`.

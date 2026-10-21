@@ -1,0 +1,24 @@
+---
+title: Listar políticas WAF de Application Gateway
+description: Muestra las políticas de WAF (reglas, exclusiones y excepciones) asociadas a Application Gateway en un grupo de recursos.
+shell: azurecli
+category: WAF
+tags: [waf, application-gateway, appgw, politica, listar, consulta]
+template: "az network application-gateway waf-policy list --resource-group <resourceGroup> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Lista las políticas del tipo `Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies`. Si omites el grupo de recursos (borrando el flag al pegar el comando) devuelve las de toda la suscripción.
+
+Una política listada aquí no implica que esté aplicada: hay que mirar el `firewallPolicy` del Application Gateway o de su listener. Para las políticas de Front Door el comando es distinto, ver *Listar políticas WAF de Front Door*.

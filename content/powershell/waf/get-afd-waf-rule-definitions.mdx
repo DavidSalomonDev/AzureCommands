@@ -1,0 +1,18 @@
+---
+title: Listar catálogo de reglas gestionadas de Front Door
+description: Muestra los conjuntos de reglas gestionadas que Front Door ofrece, con sus versiones.
+shell: powershell
+category: WAF
+tags: [waf, front-door, afd, catalogo, drs, bot-manager, consulta]
+template: "Get-AzFrontDoorWafManagedRuleSetDefinition | Select-Object RuleSetType, RuleSetVersion, ProvisioningState"
+---
+
+El catálogo de Azure, no tu configuración: qué conjuntos y versiones puedes aplicar en Front Door. El cmdlet no acepta parámetros de filtrado.
+
+Es la referencia con la que cruzar las reglas modificadas de una política para saber el estado real de cada regla, igual que `Get-AzApplicationGatewayAvailableWafRuleSets` en Application Gateway.
+
+Para bajar a los grupos y a las reglas de un conjunto, cada definición trae `RuleGroup`:
+
+`Get-AzFrontDoorWafManagedRuleSetDefinition | Where-Object RuleSetType -eq 'Microsoft_DefaultRuleSet' | Select-Object -ExpandProperty RuleGroup`
+
+Fíjate en que aquí sí se llaman `RuleSetType` y `RuleSetVersion`, mientras que en el objeto de la política son `Type` y `Version`: son dos modelos distintos del mismo módulo.

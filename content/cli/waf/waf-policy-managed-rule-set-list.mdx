@@ -1,0 +1,31 @@
+---
+title: Listar conjuntos de reglas gestionadas de una política WAF
+description: Muestra los conjuntos CRS/DRS activos en una política WAF y las reglas que fueron deshabilitadas o modificadas.
+shell: azurecli
+category: WAF
+tags: [waf, application-gateway, appgw, owasp, crs, reglas-gestionadas, override, consulta]
+template: "az network application-gateway waf-policy managed-rule rule-set list --resource-group <resourceGroup> --policy-name <policyName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Devuelve el tipo y la versión de cada conjunto gestionado (por ejemplo OWASP 3.2 o Microsoft_DefaultRuleSet 2.1) junto con sus `ruleGroupOverrides`.
+
+Cuidado con esto, que es la confusión más común al auditar: **los overrides son solo las reglas que alguien tocó**, deshabilitadas o con la acción cambiada. Las reglas que siguen con su comportamiento por defecto no aparecen en esta salida, aunque estén activas. Para saber qué reglas existen en total hay que cruzarlo con el catálogo del conjunto, ver *Listar catálogo de reglas WAF disponibles*.
+
+Es decir: un `ruleGroupOverrides` vacío significa "ninguna regla modificada", no "ninguna regla activa".

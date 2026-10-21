@@ -1,0 +1,27 @@
+---
+title: Listar reglas gestionadas modificadas de una política WAF
+description: Muestra planas las reglas gestionadas que fueron deshabilitadas o a las que se cambió la acción, con su grupo.
+shell: powershell
+category: WAF
+tags: [waf, application-gateway, appgw, override, deshabilitadas, auditoria, consulta]
+template: "(Get-AzApplicationGatewayFirewallPolicy -Name <policyName> -ResourceGroupName <resourceGroup>).ManagedRules.ManagedRuleSets.RuleGroupOverrides | Select-Object RuleGroupName -ExpandProperty Rules"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Saca en una tabla el `RuleId`, el `State`, la `Action` y la `Sensitivity` de cada regla modificada, junto al grupo al que pertenece.
+
+El truco está en `Select-Object RuleGroupName -ExpandProperty Rules`: expande las reglas y, a la vez, les añade el nombre del grupo que de otro modo se perdería al aplanar.
+
+Las reglas con `State` en *Disabled* son las que ya no se evalúan. Las que tienen `State` *Enabled* con una `Action` distinta de la de su conjunto (por ejemplo *Log* en lugar de *Block*) siguen evaluándose pero ya no bloquean, que a efectos prácticos es casi lo mismo y es más fácil que pase desapercibido.
+
+Recuerda que sólo lista lo modificado: si no devuelve nada es que nadie tocó ninguna regla.

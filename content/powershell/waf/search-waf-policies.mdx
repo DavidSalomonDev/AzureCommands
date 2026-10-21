@@ -1,0 +1,23 @@
+---
+title: Buscar todas las políticas WAF del tenant
+description: Localiza con Resource Graph las políticas WAF de Application Gateway y de Front Door en todas las suscripciones accesibles.
+shell: powershell
+category: WAF
+tags: [waf, resource-graph, inventario, buscar, application-gateway, front-door, consulta]
+template: "Search-AzGraph -Query \"resources | where type =~ 'microsoft.network/applicationgatewaywebapplicationfirewallpolicies' or type =~ 'microsoft.network/frontdoorwebapplicationfirewallpolicies' | project name, type, resourceGroup, subscriptionId, id\" -First <first>"
+parameters:
+  - name: first
+    label: Máximo de resultados
+    type: number
+    required: true
+    default: "1000"
+    placeholder: "1000"
+---
+
+El punto de partida en un entorno que no conoces: cruza todas las suscripciones visibles de una vez, sin ir grupo por grupo.
+
+Necesita el módulo `Az.ResourceGraph`, que no viene con `Az`: `Install-Module Az.ResourceGraph`.
+
+Para ver el modo y el estado de cada política sin bajar el objeto completo, cambia el `project` por `project name, resourceGroup, modo = properties.policySettings.mode, estado = properties.policySettings.state`. Ten en cuenta que en Front Door el estado está en `properties.policySettings.enabledState`, así que para un inventario mixto conviene proyectar los dos campos.
+
+Por defecto consulta las suscripciones del contexto actual. `-UseTenantScope` amplía la búsqueda a todo el tenant y `-Subscription` la limita a las que indiques.

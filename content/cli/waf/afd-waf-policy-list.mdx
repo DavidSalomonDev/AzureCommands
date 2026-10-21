@@ -1,0 +1,24 @@
+---
+title: Listar políticas WAF de Front Door
+description: Muestra las políticas WAF de Azure Front Door de un grupo de recursos.
+shell: azurecli
+category: WAF
+tags: [waf, front-door, afd, politica, listar, consulta]
+template: "az network front-door waf-policy list --resource-group <resourceGroup> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Requiere la extensión de Front Door: `az extension add --name front-door`. Es la misma extensión para Front Door clásico y para Standard/Premium, porque la política WAF es el mismo tipo de recurso (`Microsoft.Network/FrontDoorWebApplicationFirewallPolicies`) en los dos.
+
+Si no quieres instalar nada, las políticas también salen con `az resource list --resource-type "Microsoft.Network/FrontDoorWebApplicationFirewallPolicies" --output table`.

@@ -1,0 +1,18 @@
+---
+title: Listar políticas WAF de Application Gateway
+description: Muestra las políticas WAF asociadas a Application Gateway de un grupo de recursos.
+shell: powershell
+category: WAF
+tags: [waf, application-gateway, appgw, politica, listar, consulta]
+template: "Get-AzApplicationGatewayFirewallPolicy -ResourceGroupName <resourceGroup> | Select-Object Name, Location, ResourceGroupName"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Tanto `-Name` como `-ResourceGroupName` son opcionales en este cmdlet, así que quitando el filtro del grupo lista las políticas de toda la suscripción.
+
+Una política listada no implica que esté aplicada. Para saber qué gateways la usan, mira la propiedad `ApplicationGateways` del objeto que devuelve, que trae las referencias de los que apuntan a ella.

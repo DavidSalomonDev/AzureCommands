@@ -1,0 +1,30 @@
+---
+title: Buscar todas las políticas WAF del tenant
+description: Localiza con Resource Graph todas las políticas WAF de Application Gateway y de Front Door, en todas las suscripciones a las que tengas acceso.
+shell: azurecli
+category: WAF
+tags: [waf, resource-graph, inventario, buscar, application-gateway, front-door, consulta]
+operation: read
+template: "az graph query -q \"resources | where type =~ 'microsoft.network/applicationgatewaywebapplicationfirewallpolicies' or type =~ 'microsoft.network/frontdoorwebapplicationfirewallpolicies' | project name, type, resourceGroup, subscriptionId, id\" --first <first> --output <output>"
+parameters:
+  - name: first
+    label: Máximo de resultados
+    type: number
+    required: true
+    default: "1000"
+    placeholder: "1000"
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+El punto de partida cuando llegas a un entorno que no conoces: cruza todas las suscripciones visibles de una sola vez, sin ir grupo por grupo.
+
+Requiere la extensión de Resource Graph, que se instala con `az extension add --name resource-graph`. En Cloud Shell suele venir ya instalada.
+
+Los IDs que devuelve se pueden pasar directamente a `az resource show --ids` para exportar la configuración completa de cada política.
+
+Para limitarlo a una suscripción añade `--subscriptions <id-suscripcion>`. Y si quieres ver también el modo de cada política sin bajar el JSON completo, cambia el `project` por `project name, resourceGroup, modo = properties.policySettings.mode, estado = properties.policySettings.state`.

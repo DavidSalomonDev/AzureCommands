@@ -1,0 +1,36 @@
+---
+title: Listar exclusiones de una política WAF
+description: Muestra las exclusiones OWASP/CRS configuradas en una política WAF de Application Gateway.
+shell: azurecli
+category: WAF
+tags: [waf, application-gateway, appgw, exclusiones, exclusion, falsos-positivos, consulta]
+template: "az network application-gateway waf-policy managed-rule exclusion list --resource-group <resourceGroup> --policy-name <policyName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Las exclusiones le dicen al WAF que ignore parte de la petición al evaluar las reglas gestionadas: una cabecera, una cookie o un parámetro que dispara falsos positivos. Cada una tiene variable (`RequestHeaderNames`, `RequestCookieNames`, `RequestArgValues`…), operador y selector.
+
+Dos niveles que conviene distinguir:
+
+- **Globales**: aplican a todas las reglas gestionadas de la política.
+- **Acotadas**: limitadas a un conjunto, grupo o regla concreta. Viven en `exclusionManagedRuleSets` dentro de cada exclusión.
+
+Usa `--output json`: el formato tabla aplana la salida y las exclusiones acotadas se pierden, con lo que una exclusión que solo afecta a una regla parece global.
+
+Las exclusiones son el primer sitio donde mirar cuando el cliente dice que el WAF "ya no bloquea nada": una exclusión global sobre `RequestArgValues` con operador `EqualsAny` desactiva en la práctica la inspección de todos los parámetros.

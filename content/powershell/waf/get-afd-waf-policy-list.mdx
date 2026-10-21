@@ -1,0 +1,20 @@
+---
+title: Listar políticas WAF de Front Door
+description: Muestra las políticas WAF de Azure Front Door de un grupo de recursos.
+shell: powershell
+category: WAF
+tags: [waf, front-door, afd, politica, listar, consulta]
+template: "Get-AzFrontDoorWafPolicy -ResourceGroupName <resourceGroup> | Select-Object Name, SkuName, ProvisioningState"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Necesita el módulo `Az.FrontDoor`, que no forma parte del módulo `Az` que se instala por defecto: `Install-Module Az.FrontDoor`.
+
+Sin `-ResourceGroupName` lista las políticas de toda la suscripción, que es la forma rápida de inventariar.
+
+`SkuName` dice si la política es de Front Door clásico o de Standard/Premium, y eso condiciona qué conjuntos de reglas gestionadas admite.

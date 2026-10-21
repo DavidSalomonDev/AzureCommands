@@ -1,0 +1,34 @@
+---
+title: Listar excepciones de una política WAF
+description: Muestra las excepciones que permiten a una petición saltarse las reglas gestionadas de una política WAF de Application Gateway.
+shell: azurecli
+category: WAF
+tags: [waf, application-gateway, appgw, excepciones, exception, bypass, consulta]
+template: "az network application-gateway waf-policy managed-rule exception list --resource-group <resourceGroup> --policy-name <policyName> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+Las excepciones no son lo mismo que las exclusiones, aunque se confundan:
+
+- Una **exclusión** quita un trozo de la petición de la inspección (esta cabecera no se mira).
+- Una **excepción** deja pasar la petición completa sin evaluar las reglas gestionadas cuando se cumple una condición (esta IP de origen o esta URI se salta el WAF).
+
+Cada excepción trae `matchVariable` (`RemoteAddr`, `RequestHeader` o `RequestURI`), `valueMatchOperator`, los `values` y, opcionalmente, los conjuntos de reglas a los que se limita.
+
+Por eso son lo más sensible de auditar: una excepción con `RemoteAddr` e `IPMatch` sobre un rango amplio deja ese tráfico sin inspección ninguna. Revísalas junto con las exclusiones antes de concluir que una política está protegiendo.

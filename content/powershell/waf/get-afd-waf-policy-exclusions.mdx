@@ -1,0 +1,27 @@
+---
+title: Listar exclusiones de una política WAF de Front Door
+description: Reúne en una sola tabla las exclusiones de una política WAF de Front Door, recorriendo los tres niveles donde pueden estar.
+shell: powershell
+category: WAF
+tags: [waf, front-door, afd, exclusiones, falsos-positivos, auditoria, consulta]
+template: "$pol = Get-AzFrontDoorWafPolicy -Name <policyName> -ResourceGroupName <resourceGroup>; @($pol.ManagedRuleSet.Exclusion) + @($pol.ManagedRuleSet.RuleGroupOverride.Exclusion) + @($pol.ManagedRuleSet.RuleGroupOverride.ManagedRuleOverride.Exclusion) | Where-Object { $_ } | Select-Object Variable, Operator, Selector"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-frontdoor
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+En Front Door las exclusiones viven en tres niveles —conjunto, grupo de reglas y regla— y mirar uno no muestra los otros. Es la razón habitual por la que una exclusión "no aparece" aunque exista, así que la plantilla recorre los tres y los junta.
+
+Las propiedades también cambian de nombre respecto a Application Gateway: aquí son `Variable`, `Operator` y `Selector`, no *MatchVariable*, *SelectorMatchOperator* y *Selector*.
+
+El `Where-Object { $_ }` no es adorno: cuando un nivel no tiene exclusiones, envolverlo en `@()` produciría una entrada vacía y saldrían filas en blanco.
+
+Para saber de qué nivel viene cada una hay que preguntarlas por separado, empezando por `$pol.ManagedRuleSet.Exclusion` y bajando. Una exclusión a nivel de conjunto afecta a todas sus reglas, así que es la que más conviene revisar.

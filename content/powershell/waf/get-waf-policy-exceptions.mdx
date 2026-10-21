@@ -1,0 +1,28 @@
+---
+title: Listar excepciones de una política WAF
+description: Muestra las excepciones que permiten a una petición saltarse las reglas gestionadas de una política WAF de Application Gateway.
+shell: powershell
+category: WAF
+tags: [waf, application-gateway, appgw, excepciones, bypass, auditoria, consulta]
+template: "(Get-AzApplicationGatewayFirewallPolicy -Name <policyName> -ResourceGroupName <resourceGroup>).ManagedRules.Exceptions | Select-Object MatchVariable, ValueMatchOperator, Values, Selector, SelectorMatchOperator"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Excepción y exclusión no son lo mismo, aunque se confundan todo el tiempo:
+
+- Una **exclusión** saca un trozo de la petición de la inspección: esta cabecera no se mira.
+- Una **excepción** deja pasar la petición completa sin evaluar las reglas gestionadas cuando se cumple la condición: esta IP de origen o esta URI se salta el WAF.
+
+De ahí que sean lo más sensible que puedes encontrar en una auditoría. `MatchVariable` sólo admite `RemoteAddr`, `RequestHeader` o `RequestURI`, y los valores concretos están en `Values`. Una excepción con `RemoteAddr` e `IPMatch` sobre un rango amplio deja todo ese tráfico sin inspección ninguna.
+
+Si está acotada a conjuntos concretos, los trae en `ExceptionManagedRuleSets`.

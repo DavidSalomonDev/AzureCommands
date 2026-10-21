@@ -1,0 +1,25 @@
+---
+title: Ver modo y ajustes de una política WAF
+description: Muestra el modo, el estado y los límites de inspección de una política WAF de Application Gateway.
+shell: powershell
+category: WAF
+tags: [waf, application-gateway, appgw, modo, prevention, detection, consulta]
+template: "(Get-AzApplicationGatewayFirewallPolicy -Name <policyName> -ResourceGroupName <resourceGroup>).PolicySettings"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+La primera pregunta de cualquier revisión: `Mode` en *Detection* significa que el WAF registra pero no bloquea nada, y `State` en *Disabled* que no hace ni eso.
+
+Además salen los límites que deciden qué se inspecciona de verdad: `RequestBodyCheck`, `MaxRequestBodySizeInKb` y `FileUploadLimitInMb`. Un cuerpo mayor que el límite no se inspecciona, así que un límite bajo es una vía de escape silenciosa.
+
+También trae `LogScrubbing` (campos que se ocultan en los registros) y `JSChallengeCookieExpirationInMins`.

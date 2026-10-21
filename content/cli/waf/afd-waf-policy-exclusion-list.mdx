@@ -1,0 +1,40 @@
+---
+title: Listar exclusiones de una política WAF de Front Door
+description: Muestra las exclusiones aplicadas sobre un conjunto de reglas gestionadas de una política WAF de Front Door.
+shell: azurecli
+category: WAF
+tags: [waf, front-door, afd, exclusiones, exclusion, falsos-positivos, consulta]
+template: "az network front-door waf-policy managed-rules exclusion list --resource-group <resourceGroup> --policy-name <policyName> --type <ruleSetType> --output <output>"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-frontdoor
+  - name: ruleSetType
+    label: Conjunto de reglas
+    description: Tipo del conjunto gestionado, tal como lo devuelve managed-rules list.
+    type: enum
+    required: true
+    default: Microsoft_DefaultRuleSet
+    options: [Microsoft_DefaultRuleSet, DefaultRuleSet, Microsoft_BotManagerRuleSet]
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: json
+    options: [json, jsonc, table, tsv, yaml]
+---
+
+A diferencia de Application Gateway, aquí el conjunto de reglas es obligatorio: las exclusiones se consultan por conjunto, no de golpe. Ejecuta antes `managed-rules list` para saber qué tipos tiene la política.
+
+Por defecto devuelve las exclusiones del conjunto completo. Para bajar un nivel añade `--rule-group-id <grupo>`, y para una regla concreta `--rule-group-id <grupo> --rule-id <id>`. Son tres ámbitos distintos y una exclusión puesta en uno no aparece al consultar otro, que es la razón habitual por la que "no se ve" una exclusión que sí existe.
+
+Si quieres las de todos los ámbitos en una sola salida, usa el JSON completo de la política con `waf-policy show` y mira `managedRules.managedRuleSets[].exclusions` junto con las de cada `ruleGroupOverrides` y `rules`.
+
+Requiere la extensión de Front Door (`az extension add --name front-door`).

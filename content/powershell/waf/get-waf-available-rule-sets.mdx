@@ -1,0 +1,25 @@
+---
+title: Listar catálogo de reglas WAF disponibles
+description: Muestra los grupos de reglas que ofrece un conjunto gestionado de Azure, con su descripción.
+shell: powershell
+category: WAF
+tags: [waf, owasp, crs, catalogo, reglas, application-gateway, consulta]
+template: "(Get-AzApplicationGatewayAvailableWafRuleSets).Value | Where-Object RuleSetType -eq '<ruleSetType>' | Select-Object -ExpandProperty RuleGroups | Select-Object RuleGroupName, Description"
+parameters:
+  - name: ruleSetType
+    label: Tipo de conjunto
+    type: enum
+    required: true
+    default: OWASP
+    options: [OWASP, Microsoft_DefaultRuleSet, Microsoft_BotManagerRuleSet]
+---
+
+Este es el catálogo de Azure, no tu configuración: devuelve qué reglas existen, al margen de lo que tengas aplicado. El cmdlet no acepta parámetros, de ahí el filtro con `Where-Object`.
+
+Es la pieza que completa la auditoría. Como la política sólo guarda las reglas modificadas, el estado real de cada regla sale de cruzar las dos salidas: lo que no aparece como override está activo con su acción por defecto.
+
+Para bajar a las reglas de un grupo concreto, con su descripción y su acción:
+
+`((Get-AzApplicationGatewayAvailableWafRuleSets).Value | Where-Object RuleSetType -eq 'OWASP').RuleGroups | Where-Object RuleGroupName -eq 'REQUEST-942-APPLICATION-ATTACK-SQLI' | Select-Object -ExpandProperty Rules`
+
+Si hay varias versiones del mismo conjunto, el filtro por tipo devuelve los grupos de todas juntas; añade `-and $_.RuleSetVersion -eq '3.2'` con la sintaxis de bloque de `Where-Object` para quedarte con una.

@@ -1,0 +1,27 @@
+---
+title: Listar exclusiones de una política WAF
+description: Muestra las exclusiones OWASP/CRS de una política WAF de Application Gateway y a qué conjuntos se acotan.
+shell: powershell
+category: WAF
+tags: [waf, application-gateway, appgw, exclusiones, falsos-positivos, consulta]
+template: "(Get-AzApplicationGatewayFirewallPolicy -Name <policyName> -ResourceGroupName <resourceGroup>).ManagedRules.Exclusions | Select-Object MatchVariable, SelectorMatchOperator, Selector, ExclusionManagedRuleSets"
+parameters:
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    placeholder: mi-waf-policy
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+---
+
+Una exclusión le dice al WAF que ignore parte de la petición al evaluar las reglas gestionadas: una cabecera, una cookie o un parámetro que genera falsos positivos.
+
+`ExclusionManagedRuleSets` es la columna que decide la lectura. Vacía, la exclusión es **global** y afecta a todas las reglas gestionadas de la política. Con contenido, está **acotada** a un conjunto, grupo o regla concretos. En pantalla sale como colección, así que para verlo:
+
+`(Get-AzApplicationGatewayFirewallPolicy -Name <politica> -ResourceGroupName <rg>).ManagedRules.Exclusions | ConvertTo-Json -Depth 10`
+
+Es el primer sitio donde mirar cuando el cliente dice que el WAF "ya no bloquea nada": una exclusión global sobre `RequestArgValues` con operador `EqualsAny` deja fuera de la inspección todos los parámetros de todas las peticiones.
