@@ -53,16 +53,25 @@ y, si lo pides, cinco CSV separados por punto y coma:
 - `politicas.csv`: una fila por política con plataforma, modo (*Prevention* / *Detection*),
   estado y el conteo de reglas, exclusiones y excepciones. Es la hoja para la foto general.
 - `reglas-personalizadas.csv`: reglas propias con prioridad, tipo, acción y estado.
-- `exclusiones.csv`: variable, operador, selector y **ámbito** de cada exclusión.
+- `exclusiones.csv`: variable, operador, selector, **ámbito** y **contexto** de cada exclusión.
 - `excepciones.csv`: variable, operador y los valores concretos (rangos de IP, URIs).
 - `reglas-modificadas.csv`: reglas gestionadas deshabilitadas o con la acción cambiada.
 
-La columna `Ambito` de las exclusiones es la que suele decidir una auditoría. En
-Application Gateway distingue entre `global` (afecta a todas las reglas gestionadas) y
-`acotada` a un conjunto concreto. En Front Door las exclusiones viven en tres niveles
-—conjunto, grupo y regla— y el script recorre los tres, porque consultando un nivel no se
-ven las de los otros: es la razón habitual por la que una exclusión "no aparece" aunque
-exista.
+Las columnas `Ambito` y `Contexto` de las exclusiones son las que suelen decidir una
+auditoría. En Application Gateway el ámbito es `politica` y el contexto distingue entre
+`global` (afecta a todas las reglas gestionadas) y acotada a un conjunto concreto. En
+Front Door las exclusiones viven en tres niveles —conjunto, grupo y regla— y el script
+recorre los tres, porque consultando un nivel no se ven las de los otros: es la razón
+habitual por la que una exclusión "no aparece" aunque exista. Ahí el contexto dice de qué
+conjunto, de qué grupo de reglas o de qué `ruleId` sale cada una.
+
+Recuperar ese contexto tiene truco. Una proyección aplanada como
+`managedRuleSets[].ruleGroupOverrides[].exclusions[]` devuelve las exclusiones sin decir
+de qué grupo venía cada una, y en una política con decenas de exclusiones de ámbito grupo
+eso es justo lo que hace falta. El script pide aparte cada contenedor con el número de
+exclusiones que declara y repite su nombre esas veces: las dos consultas recorren el
+documento en el mismo orden, así que las secuencias se emparejan fila a fila. Los
+contenedores sin exclusiones declaran cero y no desplazan el emparejamiento.
 
 Dos diferencias de esquema entre plataformas que el script resuelve solo: en Application
 Gateway `customRules` es un arreglo y el estado de la política está en `state`, mientras

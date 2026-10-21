@@ -1,10 +1,10 @@
 ---
-title: Listar exclusiones de una política WAF de Front Door
-description: Reúne en una sola tabla las exclusiones de una política WAF de Front Door, recorriendo los tres niveles donde pueden estar.
+title: Listar todas las exclusiones de una política WAF de Front Door
+description: Reúne en una tabla las exclusiones de los tres niveles de una política WAF de Front Door, indicando de qué conjunto, grupo o regla sale cada una.
 shell: powershell
 category: WAF
 tags: [waf, front-door, afd, exclusiones, falsos-positivos, auditoria, consulta]
-template: "$pol = Get-AzFrontDoorWafPolicy -Name <policyName> -ResourceGroupName <resourceGroup>; @($pol.ManagedRuleSet.Exclusion) + @($pol.ManagedRuleSet.RuleGroupOverride.Exclusion) + @($pol.ManagedRuleSet.RuleGroupOverride.ManagedRuleOverride.Exclusion) | Where-Object { $_ } | Select-Object Variable, Operator, Selector"
+template: "$pol = Get-AzFrontDoorWafPolicy -Name <policyName> -ResourceGroupName <resourceGroup>; $pol.ManagedRuleSet | ForEach-Object { $rs = $_; $rs.Exclusion | Where-Object { $_ } | ForEach-Object { [pscustomobject]@{ Ambito='Conjunto'; Contexto=$rs.Type; Variable=$_.Variable; Operador=$_.Operator; Selector=$_.Selector } }; $rs.RuleGroupOverride | Where-Object { $_ } | ForEach-Object { $g = $_; $g.Exclusion | Where-Object { $_ } | ForEach-Object { [pscustomobject]@{ Ambito='Grupo'; Contexto=$g.RuleGroupName; Variable=$_.Variable; Operador=$_.Operator; Selector=$_.Selector } }; $g.ManagedRuleOverride | Where-Object { $_ } | ForEach-Object { $o = $_; $o.Exclusion | Where-Object { $_ } | ForEach-Object { [pscustomobject]@{ Ambito='Regla'; Contexto=$o.RuleId; Variable=$_.Variable; Operador=$_.Operator; Selector=$_.Selector } } } } }"
 parameters:
   - name: policyName
     label: Nombre de la política
@@ -18,10 +18,14 @@ parameters:
     placeholder: mi-grupo-recursos
 ---
 
-En Front Door las exclusiones viven en tres niveles —conjunto, grupo de reglas y regla— y mirar uno no muestra los otros. Es la razón habitual por la que una exclusión "no aparece" aunque exista, así que la plantilla recorre los tres y los junta.
+En Front Door las exclusiones viven en tres niveles —conjunto, grupo de reglas y regla— y consultar uno no muestra los otros. El portal hace lo mismo: las lista por ámbito, de ahí la impresión de que hay que sacarlas una por una. No hace falta: la API devuelve la política entera en una sola llamada y lo único que hay que hacer es recorrer los tres niveles, que es lo que hace esta plantilla.
 
-Las propiedades también cambian de nombre respecto a Application Gateway: aquí son `Variable`, `Operator` y `Selector`, no *MatchVariable*, *SelectorMatchOperator* y *Selector*.
+La columna `Contexto` es la razón de ser del recorrido manual en lugar de un simple `.ManagedRuleSet.RuleGroupOverride.Exclusion`: al aplanar se pierde de qué grupo o de qué regla venía cada exclusión, y en una política con decenas de exclusiones de ámbito grupo ese es justo el dato que hace falta.
 
-El `Where-Object { $_ }` no es adorno: cuando un nivel no tiene exclusiones, envolverlo en `@()` produciría una entrada vacía y saldrían filas en blanco.
+El `Where-Object { $_ }` de cada nivel tampoco es adorno. Canalizar `$null` hacia `ForEach-Object` ejecuta el bloque una vez igualmente, así que sin ese filtro cada conjunto, grupo o regla sin exclusiones mete una fila en blanco en la tabla.
 
-Para saber de qué nivel viene cada una hay que preguntarlas por separado, empezando por `$pol.ManagedRuleSet.Exclusion` y bajando. Una exclusión a nivel de conjunto afecta a todas sus reglas, así que es la que más conviene revisar.
+Para llevártelo a Excel, añade al final:
+
+`| Export-Csv exclusiones.csv -NoTypeInformation -Encoding UTF8`
+
+Las excepciones no salen aquí porque no cuelgan de los conjuntos sino de la política; están en *Listar excepciones de una política WAF de Front Door*.

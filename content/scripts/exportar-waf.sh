@@ -61,7 +61,7 @@ OVER_CSV="$OUT_DIR/reglas-modificadas.csv"
 if [ "$CSV_RESUMEN" = "true" ]; then
   echo "Politica;Plataforma;GrupoRecursos;Modo;Estado;ReglasCustom;Exclusiones;Excepciones;ReglasModificadas" > "$POLITICAS_CSV"
   echo "Politica;Regla;Prioridad;Tipo;Accion;Estado" > "$CUSTOM_CSV"
-  echo "Politica;Ambito;Variable;Operador;Selector" > "$EXCL_CSV"
+  echo "Politica;Ambito;Contexto;Variable;Operador;Selector" > "$EXCL_CSV"
   echo "Politica;Variable;Operador;Selector;Valores" > "$EXCEP_CSV"
   echo "Politica;ReglaId;Estado;Accion" > "$OVER_CSV"
 fi
@@ -80,6 +80,27 @@ agregar() {
 
 contar() {
   printf '%s' "$1" | grep -c . || true
+}
+
+# Exclusiones de un nivel anidado, recuperando el contexto que el aplanado pierde.
+#
+# Una proyección como managedRuleSets[].ruleGroupOverrides[].exclusions[] devuelve
+# las exclusiones sin decir de qué grupo salió cada una, y en una política con
+# decenas de exclusiones de ámbito grupo eso es justo el dato que hace falta. La
+# solución: pedir aparte cada contenedor con el número de exclusiones que declara
+# y repetir su nombre esas veces. Las dos consultas recorren el documento en el
+# mismo orden, así que las secuencias se emparejan fila a fila.
+#
+#   $1 = etiqueta del ámbito   $2 = consulta de contenedores   $3 = consulta de filas
+exclusiones_anidadas() {
+  local contenedores filas
+  contenedores=$(consultar "$2")
+  filas=$(consultar "$3")
+  [ -z "$filas" ] && return 0
+  awk -F'\t' -v p="$NAME" -v a="$1" 'BEGIN{OFS=";"}
+    NR==FNR { n=$NF+0; for (i=0;i<n;i++) ctx[++c]=$1; next }
+    { print p,a,ctx[FNR],$1,$2,$3 }' \
+    <(printf '%s\n' "$contenedores") <(printf '%s\n' "$filas")
 }
 
 # ---------------------------------------------------------------------------
@@ -125,22 +146,29 @@ while read -r ID; do
   # (conjunto, grupo y regla) y una no se ve consultando el ámbito de otra.
   ROWS_EXCL=$(consultar "properties.managedRules.exclusions[].[matchVariable, selectorMatchOperator, selector, to_string(exclusionManagedRuleSets[].ruleSetType)]" \
     | awk -F'\t' -v p="$NAME" 'BEGIN{OFS=";"}
-        { ambito="global";
-          if ($4 != "" && $4 != "null") { gsub(/[]["]/, "", $4); ambito="acotada: " $4 }
-          print p,ambito,$1,$2,$3 }')
+        { ctx="global";
+          if ($4 != "" && $4 != "null") { gsub(/[]["]/, "", $4); ctx="acotada a " $4 }
+          print p,"politica",ctx,$1,$2,$3 }')
   agregar "$EXCL_CSV" "$ROWS_EXCL"
   N_EXCL=$(contar "$ROWS_EXCL")
 
-  for nivel in "managedRuleSets[]:conjunto" \
-               "managedRuleSets[].ruleGroupOverrides[]:grupo" \
-               "managedRuleSets[].ruleGroupOverrides[].rules[]:regla"; do
-    RUTA="${nivel%%:*}"
-    AMBITO="${nivel##*:}"
-    ROWS_NIVEL=$(consultar "properties.managedRules.${RUTA}.exclusions[].[matchVariable, selectorMatchOperator, selector]" \
-      | awk -F'\t' -v p="$NAME" -v a="$AMBITO" 'BEGIN{OFS=";"} {print p,a,$1,$2,$3}')
-    agregar "$EXCL_CSV" "$ROWS_NIVEL"
-    N_EXCL=$((N_EXCL + $(contar "$ROWS_NIVEL")))
-  done
+  ROWS_NIVEL=$(exclusiones_anidadas "conjunto" \
+    'properties.managedRules.managedRuleSets[].[ruleSetType, length(not_null(exclusions, `[]`))]' \
+    'properties.managedRules.managedRuleSets[].exclusions[].[matchVariable, selectorMatchOperator, selector]')
+  agregar "$EXCL_CSV" "$ROWS_NIVEL"
+  N_EXCL=$((N_EXCL + $(contar "$ROWS_NIVEL")))
+
+  ROWS_NIVEL=$(exclusiones_anidadas "grupo" \
+    'properties.managedRules.managedRuleSets[].ruleGroupOverrides[].[ruleGroupName, length(not_null(exclusions, `[]`))]' \
+    'properties.managedRules.managedRuleSets[].ruleGroupOverrides[].exclusions[].[matchVariable, selectorMatchOperator, selector]')
+  agregar "$EXCL_CSV" "$ROWS_NIVEL"
+  N_EXCL=$((N_EXCL + $(contar "$ROWS_NIVEL")))
+
+  ROWS_NIVEL=$(exclusiones_anidadas "regla" \
+    'properties.managedRules.managedRuleSets[].ruleGroupOverrides[].rules[].[ruleId, length(not_null(exclusions, `[]`))]' \
+    'properties.managedRules.managedRuleSets[].ruleGroupOverrides[].rules[].exclusions[].[matchVariable, selectorMatchOperator, selector]')
+  agregar "$EXCL_CSV" "$ROWS_NIVEL"
+  N_EXCL=$((N_EXCL + $(contar "$ROWS_NIVEL")))
 
   # 3.4 Excepciones: dejan pasar la petición completa sin evaluar las reglas
   # gestionadas, así que los valores importan tanto como la variable.
