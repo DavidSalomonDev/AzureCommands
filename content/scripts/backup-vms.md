@@ -54,8 +54,18 @@ completo (`IaasVMContainer;iaasvmcontainerv2;<rg>;<vm>`). El campo
 
 Después consulta el job con `az backup job show` y revisa la subtarea **Take Snapshot**:
 en cuanto termina, la VM se marca como liberada y puedes continuar con el mantenimiento
-sin esperar a que suba todo el respaldo. Si el job no reporta esa subtarea, se asume
-completada tras 12 minutos.
+sin esperar a que suba todo el respaldo (la subtarea *Transfer data to vault* sigue
+corriendo por su cuenta). Si Azure todavía no reporta esa subtarea, se asume completada
+tras 12 minutos.
+
+La subtarea se lee en `properties.extendedInfo.tasksList` y se identifica por su
+`taskId` (`Take Snapshot`). La API no expone ningún `subTasks` ni ningún `taskName`:
+un `--query` hacia esos nombres devuelve `null` sin error y la fase nunca se detecta.
+
+La proyección del `--query` es una lista, no un diccionario. Con `-o tsv`, Azure CLI
+imprime las claves de un diccionario **ordenadas alfabéticamente**, así que
+`{status:…,snapshot:…}` sale con los valores intercambiados. Una lista respeta el orden
+escrito, un valor por línea, y los nulos salen como el literal `None`.
 
 Ejecuta el script con `bash backup-vms.sh` (en Windows, desde WSL, Git Bash o Cloud
 Shell).

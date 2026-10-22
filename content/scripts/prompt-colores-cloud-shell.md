@@ -1,8 +1,8 @@
 ---
 title: Prompt con colores y autocompletado en Cloud Shell
-description: Personaliza la Bash de Azure Cloud Shell con un prompt de colores, alias de listado e instalación de ble.sh para autocompletado y resaltado mientras escribes.
+description: Personaliza la Bash de Azure Cloud Shell con un prompt de colores, salidas coloreadas (Azure CLI, listados, manuales) y ble.sh para autocompletado y resaltado mientras escribes.
 category: Entorno y shell
-tags: [cloud-shell, bash, prompt, ble-sh, alias, productividad]
+tags: [cloud-shell, bash, prompt, ble-sh, alias, colores, productividad]
 operation: other
 language: bash
 usage: "source prompt-colores-cloud-shell.sh"
@@ -17,6 +17,13 @@ parameters:
     type: string
     required: true
     default: AZURE
+  - name: colorSalida
+    label: Color en las salidas
+    description: Añade color a ls, diff, ip, manuales y a las respuestas de Azure CLI.
+    type: enum
+    required: true
+    default: "true"
+    options: ["true", "false"]
   - name: instalarBle
     label: Instalar ble.sh
     description: Descarga y compila ble.sh la primera vez; después sólo lo carga.
@@ -43,6 +50,26 @@ Qué deja activo:
 - [ble.sh](https://github.com/akinomyoga/ble.sh): resaltado de sintaxis, sugerencias
   del historial y autocompletado mientras escribes. `Enter` se reasigna a
   `accept-line` para que ejecute la línea tal cual y no acepte antes la sugerencia.
+
+## Color en las salidas
+
+ble.sh sólo colorea **lo que escribes**; la salida la colorea cada herramienta, así
+que esa parte va por separado y se activa con *Color en las salidas*:
+
+| Qué | Cómo |
+| --- | --- |
+| Azure CLI | `azc` y `azy` ejecutan `az` con `--output jsonc` / `--output yamlc` |
+| Listados | `LS_COLORS` desde `dircolors` |
+| Comparaciones y red | `diff --color=auto`, `ip -color=auto`, `tree -C` |
+| Manuales y paginado | `LESS=-R` y `LESS_TERMCAP_*` |
+
+`azc` y `azy` son funciones, no alias de `az`: el formato por defecto sigue siendo
+el que esperan tus scripts, y el color se pide sólo cuando lo quieres ver
+(`azc vm list -g mi-grupo`). Todo usa `auto`, así que al redirigir a un archivo o a
+otro comando la salida vuelve a ser texto limpio y sigue siendo parseable.
+
+Si una herramienta no trae color propio, pásala por `jq -C` (JSON) o instala
+`grc`/`bat` en tu `$HOME`; Cloud Shell no los trae de fábrica.
 
 La descarga y compilación de ble.sh ocurren **una sola vez**: como `$HOME` persiste
 entre sesiones de Cloud Shell, las siguientes cargas son inmediatas. Si falla, la

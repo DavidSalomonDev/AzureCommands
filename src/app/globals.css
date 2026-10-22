@@ -209,6 +209,29 @@
     background-color: transparent;
     padding: 0;
   }
+  .command-notes h2,
+  .command-notes h3,
+  .command-notes h4 {
+    margin-top: 0.75rem;
+    font-weight: 600;
+    color: var(--foreground);
+  }
+  .command-notes table {
+    width: 100%;
+    margin: 0.5rem 0;
+    border-collapse: collapse;
+  }
+  .command-notes th,
+  .command-notes td {
+    border-bottom: 1px solid var(--border);
+    padding: 0.25rem 0.5rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  .command-notes th {
+    font-weight: 600;
+    color: var(--foreground);
+  }
 
   .code-hl .tok-comment {
     color: var(--syntax-comment);

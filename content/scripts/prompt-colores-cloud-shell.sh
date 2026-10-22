@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Prompt con colores, alias de listado y autocompletado (ble.sh) para la Bash
-# de Azure Cloud Shell. Es efímero: se aplica a la sesión actual.
+# Prompt con colores, color en las salidas y autocompletado (ble.sh) para la
+# Bash de Azure Cloud Shell. Es efímero: se aplica a la sesión actual.
 #
 # Cárgalo con `source` (o pega el contenido en la shell). No usa `exit` ni
 # `set -e` a propósito: un fallo aquí no debe cerrar tu sesión.
@@ -9,6 +9,7 @@
 # PARÁMETROS
 # ---------------------------------------------------------------------------
 ETIQUETA="<etiqueta>"         # Texto del distintivo del prompt
+COLOR_SALIDA="<colorSalida>"  # true = colorea también la salida de los comandos
 INSTALAR_BLE="<instalarBle>"  # true = instala ble.sh la primera vez
 BLE_HOME="<bleHome>"          # Carpeta donde vive ble.sh
 
@@ -37,6 +38,37 @@ restaurar-prompt() { PS1="$ORIGINAL_PS1"; }
 alias ls='ls --color=auto'
 alias ll='ls -lah --color=auto'
 alias grep='grep --color=auto'
+
+# ---------------------------------------------------------------------------
+# COLOR EN LAS SALIDAS
+# ---------------------------------------------------------------------------
+# ble.sh sólo colorea lo que escribes; la salida la colorea cada herramienta.
+# Todo lo de aquí usa "auto": si rediriges a un archivo o a otro comando, la
+# salida sigue siendo texto limpio.
+if [[ "$COLOR_SALIDA" == "true" ]]; then
+  # Paleta de LS_COLORS acorde a la terminal.
+  command -v dircolors >/dev/null && eval "$(dircolors -b)"
+
+  alias diff='diff --color=auto'
+  alias ip='ip -color=auto'
+  alias tree='tree -C'
+
+  # Azure CLI: jsonc y yamlc colorean la respuesta. Van como funciones para no
+  # cambiar el formato por defecto que esperan tus scripts: `azc vm list`.
+  azc() { az "$@" --output jsonc; }
+  azy() { az "$@" --output yamlc; }
+
+  # Conserva los colores al paginar: `azc vm list | less`, `jq -C . | less`.
+  export LESS='-R'
+
+  # Páginas de manual con color.
+  export LESS_TERMCAP_md=$'\e[1;36m'   # negritas: títulos
+  export LESS_TERMCAP_us=$'\e[1;32m'   # subrayado: opciones
+  export LESS_TERMCAP_so=$'\e[30;43m'  # barra de estado
+  export LESS_TERMCAP_me=$'\e[0m'
+  export LESS_TERMCAP_ue=$'\e[0m'
+  export LESS_TERMCAP_se=$'\e[0m'
+fi
 
 # ---------------------------------------------------------------------------
 # ble.sh: resaltado y autocompletado mientras escribes
