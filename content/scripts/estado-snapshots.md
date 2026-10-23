@@ -22,8 +22,8 @@ parameters:
     type: string
     required: false
     placeholder: vm-app01,vm-sql01
-  - name: sinceDays
-    label: Días hacia atrás
+  - name: sinceHours
+    label: Horas hacia atrás
     description: Antigüedad máxima de los trabajos que se revisan.
     type: number
     required: true
@@ -55,8 +55,11 @@ imprime las claves de un diccionario **ordenadas alfabéticamente**, así que
 `{status:…,snapshot:…}` sale con los valores intercambiados. Una lista respeta el
 orden escrito, un valor por línea, y los nulos salen como el literal `None`.
 
-`--start-date` exige el formato `dd-MM-yyyy` (o `dd-MM-yyyy-HH:mm:ss`); un ISO 8601
-se rechaza con `Input is not valid`.
+`--start-date` exige el formato `dd-MM-yyyy-HH:mm:ss` (o `dd-MM-yyyy` suelto); un
+ISO 8601 se rechaza con `Input is not valid`. Azure CLI lo parsea como fecha *naive*
+y lo envía sin convertir, así que el servicio lo interpreta en **UTC**: el corte se
+calcula con `date -u` y la columna de inicio se muestra también en UTC, no en la hora
+local de la terminal.
 
 La duración llega en dos formas según la versión de Azure CLI: ISO 8601
 (`PT7M36.5940899S`, en Cloud Shell) o `timedelta` (`0:07:37.825563`, en Windows). El

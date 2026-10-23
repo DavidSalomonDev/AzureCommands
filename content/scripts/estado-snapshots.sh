@@ -8,7 +8,7 @@ set -uo pipefail
 # ---------------------------------------------------------------------------
 SUBSCRIPTION_ID="<subscriptionId>"   # Vacío = usa la suscripción activa
 VM_NAMES="<vmNames>"                 # Vacío = todas las VMs
-SINCE_DAYS="<sinceDays>"             # Días hacia atrás que se revisan
+SINCE_HOURS="<sinceHours>"           # Horas hacia atrás que se revisan
 
 # ---------------------------------------------------------------------------
 # FORMATO DE DURACIÓN -> HH:MM:SS
@@ -54,9 +54,11 @@ if [ -n "$SUBSCRIPTION_ID" ]; then
   }
 fi
 
-# --start-date exige dd-MM-yyyy (o dd-MM-yyyy-HH:mm:ss). Un ISO 8601 se rechaza.
-START_DATE=$(date -u -d "-${SINCE_DAYS} days" '+%d-%m-%Y' 2>/dev/null \
-  || date -u -v-"${SINCE_DAYS}"d '+%d-%m-%Y')
+# --start-date exige dd-MM-yyyy-HH:mm:ss (o dd-MM-yyyy suelto); un ISO 8601 se
+# rechaza. Azure CLI lo parsea como fecha naive y lo manda sin convertir, así
+# que el servicio lo lee en UTC: por eso el corte se calcula con date -u.
+START_UTC=$(date -u -d "-${SINCE_HOURS} hours" '+%d-%m-%Y-%H:%M:%S' 2>/dev/null \
+  || date -u -v-"${SINCE_HOURS}"H '+%d-%m-%Y-%H:%M:%S')
 
 # Azure CLI en Windows emite CRLF; el \r ensucia cualquier comparación
 SUB_NAME=$(az account show --query name -o tsv </dev/null | tr -d '\r')
@@ -64,7 +66,7 @@ SUB_NAME=$(az account show --query name -o tsv </dev/null | tr -d '\r')
 echo "=========================================================="
 echo " ESTADO DE SNAPSHOTS DE RESPALDO"
 echo " Suscripción: ${SUB_NAME}"
-echo " Jobs de VM desde: ${START_DATE}"
+echo " Jobs de VM desde: ${START_UTC} UTC (${SINCE_HOURS} h atrás)"
 [ -n "$VM_NAMES" ] && echo " Filtro de VMs: ${VM_NAMES}"
 echo "=========================================================="
 
@@ -78,8 +80,8 @@ if [ -z "$VAULTS" ]; then
 fi
 
 printf '%-16s %-16s %-12s %-10s %-14s %s\n' \
-  VM VAULT SNAPSHOT DURACION TRANSFERENCIA INICIO
-printf '%s\n' "--------------------------------------------------------------------------------"
+  VM VAULT SNAPSHOT DURACION TRANSFERENCIA "INICIO (UTC)"
+printf '%s\n' "-----------------------------------------------------------------------------------------"
 
 # Las filas se acumulan con la fecha de inicio cruda por delante para ordenarlas
 # al final: los vaults y sus jobs no llegan en orden cronologico.
@@ -96,7 +98,7 @@ while IFS=$'\t' read -r VAULT RG; do
   JOBS=$(az backup job list \
     --vault-name "$VAULT" \
     --resource-group "$RG" \
-    --start-date "$START_DATE" \
+    --start-date "$START_UTC" \
     --query "[?properties.operation=='Backup'].[name, properties.entityFriendlyName, properties.startTime]" \
     -o tsv </dev/null | tr -d '\r')
 
@@ -144,7 +146,7 @@ if [ -s "$ROWS" ]; then
   # coincide con el cronologico.
   sort -t$'\t' -k1,1 "$ROWS" | cut -f2-
 else
-  echo "(sin jobs de respaldo de VM en el rango; sube SINCE_DAYS o revisa la suscripción)"
+  echo "(sin jobs de respaldo de VM en el rango; sube SINCE_HOURS o revisa la suscripción)"
 fi
 
 echo "=========================================================="
