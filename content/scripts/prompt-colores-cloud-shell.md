@@ -16,7 +16,7 @@ parameters:
     description: Texto del distintivo de color al inicio de la línea.
     type: string
     required: true
-    default: AZURE
+    default: GBM
   - name: colorSalida
     label: Color en las salidas
     description: Añade color a ls, diff, ip, manuales y a las respuestas de Azure CLI.

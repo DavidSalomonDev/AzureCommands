@@ -35,7 +35,7 @@ echo "=========================================================="
 echo " RESPALDO MASIVO Y MONITOREO DE SNAPSHOTS"
 echo " Retención: ${RETENTION_DAYS} días | Expira: ${EXPIRY_DATE} | VMs: ${#VMS[@]}"
 if [ "$WAIT_FOR_SNAPSHOT" = "true" ]; then
-  echo " Modo: libera cada VM al completarse su snapshot (no espera la transferencia)."
+  echo " Modo: libera cada VM al completarse su snapshot."
 else
   echo " Modo: espera el respaldo completo (snapshot + transferencia al vault)."
 fi
