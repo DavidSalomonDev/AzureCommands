@@ -42,9 +42,30 @@ parameters:
     default: "60"
 ---
 
-Recorre todos los Recovery Services Vault de la suscripción activa, localiza el elemento
-protegido de cada VM y dispara `az backup protection backup-now` con la fecha de
-expiración calculada a partir de los días de retención.
+Recorre todos los Recovery Services Vault de la suscripción activa, arma un inventario
+de las VMs protegidas, localiza el elemento protegido de cada VM solicitada y dispara
+`az backup protection backup-now` con la fecha de expiración calculada a partir de los
+días de retención.
+
+**Los nombres no distinguen mayúsculas de minúsculas.** El inventario se busca en bash y
+no con un `[?properties.friendlyName=='<vm>']`: ese filtro de JMESPath compara letra por
+letra, así que pedir `B1client02` no encontraba a la VM registrada en el vault como
+`b1client02` y el script la reportaba como no protegida. Azure no admite dos recursos
+cuyo nombre difiera solo en el caso, de modo que comparar en minúsculas no vuelve
+ambigua la búsqueda. Cuando el nombre que escribiste no coincide con el registrado, el
+script lo avisa (`En el vault está registrada como '…'`) y usa el del vault.
+
+Si una VM no aparece, el mensaje dice qué pasó realmente en lugar de culpar a la
+protección: que la VM existe en la suscripción pero nadie la respalda (con su nombre y
+grupo de recursos reales), que no existe ninguna VM con ese nombre, o bien lista las VMs
+protegidas con un nombre parecido. Ese dato sale de `az vm list`, que solo se consulta
+cuando alguna VM falla; si no tienes permiso de lectura sobre las VMs, esa parte se
+omite y el resto sigue funcionando.
+
+El inventario no cuesta tiempo extra: `--query` de Azure CLI filtra **en el cliente**,
+así que el `az backup item list` por VM de la versión anterior se traía la lista completa
+del vault en cada iteración. Ahora se trae una sola vez por vault y la búsqueda es local,
+de modo que con varias VMs hay menos llamadas y menos datos que antes.
 
 El nombre del contenedor se toma de `az backup container list`, que lo devuelve
 completo (`IaasVMContainer;iaasvmcontainerv2;<rg>;<vm>`). El campo
