@@ -42,3 +42,15 @@ LUN (`<VM>-DataDisk-<lun>_<identificador>-<yyyyMMdd>`).
 
 Úsalo antes de mantenimientos en servidores con datos en discos adicionales; para VMs que
 solo tienen disco de SO basta con la versión reducida.
+
+El nombre de la VM no distingue mayúsculas de minúsculas: puedes escribir `srvsap` aunque
+en Azure esté como `SRVSAP`. JMESPath sí las distingue y no trae una función para
+normalizarlas, así que la coincidencia se resuelve en bash sobre la lista completa, lo que
+no cuesta una llamada extra porque `--query` se aplica del lado del cliente. Los snapshots
+se nombran con la forma que tiene la VM en Azure, no con la que se escribió al invocar.
+
+Las proyecciones del `--query` son listas, no diccionarios. Con `-o tsv`, Azure CLI imprime
+las claves de un diccionario **ordenadas alfabéticamente**, así que un
+`{rg:…,location:…,osDiskId:…}` sale con los valores intercambiados; una lista respeta el
+orden escrito. Los nulos salen como el literal `None`, que es lo que se comprueba antes de
+dar por buena la ruta del disco de SO.

@@ -43,29 +43,49 @@ for VM in "${VMS[@]}"; do
   echo "=================================================="
   echo "Procesando VM: $VM"
 
+  # JMESPath distingue mayúsculas de minúsculas y no tiene función para
+  # normalizarlas, así que la coincidencia se resuelve en bash sobre la lista
+  # completa. No cuesta una llamada extra: --query se aplica del lado del
+  # cliente, sobre la misma respuesta.
+  #
+  # La proyección es una LISTA, no un diccionario: con -o tsv, Azure CLI ordena
+  # las claves de un diccionario alfabéticamente y los valores salen
+  # intercambiados.
+  VM_BUSCADA=$(printf '%s' "$VM" | tr '[:upper:]' '[:lower:]')
   VM_INFO=$(az vm list \
-    --query "[?name=='${VM}'].{rg:resourceGroup,location:location,osDiskId:storageProfile.osDisk.managedDisk.id}" \
-    -o tsv | head -n1)
+    --query "[].[name, resourceGroup, location, storageProfile.osDisk.managedDisk.id]" \
+    -o tsv | tr -d '\r' \
+    | awk -F'\t' -v buscada="$VM_BUSCADA" 'tolower($1) == buscada { print; exit }')
 
   if [ -z "$VM_INFO" ]; then
     echo "  [!] No se encontró la VM '$VM' en la suscripción activa."
     continue
   fi
 
-  RG=$(echo "$VM_INFO" | cut -f1)
-  LOCATION=$(echo "$VM_INFO" | cut -f2)
-  OS_DISK_ID=$(echo "$VM_INFO" | cut -f3)
+  # Se usa el nombre tal como lo tiene Azure para que el snapshot no herede la
+  # forma en que se escribió la VM al llamar al script.
+  VM_REAL=$(echo "$VM_INFO" | cut -f1)
+  RG=$(echo "$VM_INFO" | cut -f2)
+  LOCATION=$(echo "$VM_INFO" | cut -f3)
+  OS_DISK_ID=$(echo "$VM_INFO" | cut -f4)
+
+  # El TSV de Azure CLI imprime los nulos como el literal "None"
+  [ "$OS_DISK_ID" = "None" ] && OS_DISK_ID=""
+
+  if [ "$VM_REAL" != "$VM" ]; then
+    echo "  En Azure se llama '${VM_REAL}'; se usa esa forma."
+  fi
 
   # A. Disco de sistema operativo
   if [ -n "$OS_DISK_ID" ]; then
-    crear_snapshot "$RG" "${VM}-OsDisk_${IDENTIFICADOR}-${FECHA}" "$LOCATION" "$OS_DISK_ID"
+    crear_snapshot "$RG" "${VM_REAL}-OsDisk_${IDENTIFICADOR}-${FECHA}" "$LOCATION" "$OS_DISK_ID"
   else
     echo "  [!] La VM no usa Managed Disks para el disco de SO."
   fi
 
   # B. Discos de datos, uno por LUN
-  DATA_DISKS=$(az vm show --name "$VM" --resource-group "$RG" \
-    --query "storageProfile.dataDisks[].{lun:lun,id:managedDisk.id}" -o tsv)
+  DATA_DISKS=$(az vm show --name "$VM_REAL" --resource-group "$RG" \
+    --query "storageProfile.dataDisks[].[lun, managedDisk.id]" -o tsv | tr -d '\r')
 
   if [ -z "$DATA_DISKS" ]; then
     echo "  La VM no tiene discos de datos."
@@ -74,7 +94,7 @@ for VM in "${VMS[@]}"; do
 
   while IFS=$'\t' read -r LUN DISK_ID; do
     [ -z "$DISK_ID" ] && continue
-    crear_snapshot "$RG" "${VM}-DataDisk-${LUN}_${IDENTIFICADOR}-${FECHA}" "$LOCATION" "$DISK_ID"
+    crear_snapshot "$RG" "${VM_REAL}-DataDisk-${LUN}_${IDENTIFICADOR}-${FECHA}" "$LOCATION" "$DISK_ID"
   done <<< "$DATA_DISKS"
 done
 
