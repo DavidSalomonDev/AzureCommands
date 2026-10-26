@@ -11,7 +11,7 @@ líneas en **Mis comandos**, con exportación e importación para llevártelas e
 ## Características
 
 - **Catálogo curado** de comandos de Azure CLI (`az`) y PowerShell (módulo `Az`),
-  organizados por producto de Azure (VMs, Redes, Almacenamiento, AKS, Key Vault,
+  organizados por producto de Azure (VMs, Discos, Redes, Almacenamiento, AKS, Key Vault,
   Application Gateway, Load Balancer, Front Door, Recovery Services Vault,
   Virtual Network Gateway, etc.).
 - **Parámetros dinámicos:** cada comando expone inputs por cada `<token>` de su plantilla;

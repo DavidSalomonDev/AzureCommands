@@ -1,0 +1,35 @@
+---
+title: Listar todos los discos del tenant
+description: Inventario con Resource Graph de los discos administrados de todas las suscripciones accesibles, con tipo, tamaño, estado y VM asociada.
+shell: azurecli
+category: Discos
+tags: [disco, disk, listar, inventario, tenant, resource-graph, consulta]
+operation: read
+template: "az graph query -q \"resources | where type =~ 'microsoft.compute/disks' | extend tipo = tostring(sku.name), tamanoGB = toint(properties.diskSizeGB), estado = tostring(properties.diskState), vm = tostring(split(tostring(managedBy), '/')[8]) | project name, tipo, tamanoGB, estado, vm, resourceGroup, location, subscriptionId | order by tamanoGB desc\" --first <first> --output <output>"
+parameters:
+  - name: first
+    label: Máximo de resultados
+    type: number
+    required: true
+    default: "1000"
+    placeholder: "1000"
+  - name: output
+    label: Formato de salida
+    type: enum
+    required: false
+    default: table
+    options: [table, json, jsonc, tsv, yaml]
+---
+
+Cruza de una sola vez todas las suscripciones visibles, sin ir grupo por grupo. Requiere la extensión de Resource Graph (`az extension add --name resource-graph`), que en Cloud Shell suele venir ya instalada.
+
+La columna `tipo` es el SKU del disco, que es lo que determina el rendimiento y el precio:
+
+- `Standard_LRS` → **HDD estándar**
+- `StandardSSD_LRS` y `StandardSSD_ZRS` → **SSD estándar**
+- `Premium_LRS`, `Premium_ZRS` y `PremiumV2_LRS` → **SSD premium**
+- `UltraSSD_LRS` → **Ultra Disk**
+
+En `estado` verás `Attached` cuando el disco está conectado a una VM y `Unattached` cuando no: esos discos sueltos se siguen pagando y son el primer sitio donde buscar ahorro. La columna `vm` sale de `managedBy`, así que queda vacía justo en esos casos.
+
+El máximo por página es 1000 resultados; para tenants grandes pagina con `--skip 1000`. Para limitarlo a una suscripción añade `--subscriptions <id-suscripcion>`.

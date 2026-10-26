@@ -1,0 +1,28 @@
+---
+title: Listar todos los discos del tenant
+description: Inventario con Resource Graph de los discos administrados de todo el tenant, con tipo, tamaño, estado y VM asociada.
+shell: powershell
+category: Discos
+tags: [disco, disk, listar, inventario, tenant, resource-graph, consulta]
+template: "Search-AzGraph -UseTenantScope -First <first> -Query \"resources | where type =~ 'microsoft.compute/disks' | extend tipo = tostring(sku.name), tamanoGB = toint(properties.diskSizeGB), estado = tostring(properties.diskState), vm = tostring(split(tostring(managedBy), '/')[8]) | project name, tipo, tamanoGB, estado, vm, resourceGroup, location, subscriptionId | order by tamanoGB desc\""
+parameters:
+  - name: first
+    label: Máximo de resultados
+    type: number
+    required: true
+    default: "1000"
+    placeholder: "1000"
+---
+
+Cruza de una sola vez todas las suscripciones del tenant, sin ir grupo por grupo. Necesita el módulo `Az.ResourceGraph`, que no viene con `Az`: `Install-Module Az.ResourceGraph`.
+
+La columna `tipo` es el SKU del disco, que es lo que determina el rendimiento y el precio:
+
+- `Standard_LRS` → **HDD estándar**
+- `StandardSSD_LRS` y `StandardSSD_ZRS` → **SSD estándar**
+- `Premium_LRS`, `Premium_ZRS` y `PremiumV2_LRS` → **SSD premium**
+- `UltraSSD_LRS` → **Ultra Disk**
+
+En `estado` verás `Attached` cuando el disco está conectado a una VM y `Unattached` cuando no: esos discos sueltos se siguen pagando y son el primer sitio donde buscar ahorro. La columna `vm` sale de `managedBy`, así que queda vacía justo en esos casos.
+
+`-UseTenantScope` es lo que amplía la búsqueda a todo el tenant; sin él se queda en las suscripciones del contexto actual, y `-Subscription` la limita a las que indiques. El máximo por página es 1000 resultados: para tenants grandes pagina con `-Skip 1000`.

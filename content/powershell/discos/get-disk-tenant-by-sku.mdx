@@ -1,0 +1,35 @@
+---
+title: Listar discos del tenant por tipo
+description: Filtra el inventario de discos de todo el tenant por tipo de disco (HDD, SSD estándar, SSD premium o Ultra).
+shell: powershell
+category: Discos
+tags: [disco, disk, listar, filtrar, tipo, sku, hdd, ssd, premium, tenant, resource-graph, consulta]
+template: "Search-AzGraph -UseTenantScope -First <first> -Query \"resources | where type =~ 'microsoft.compute/disks' | where tostring(sku.name) startswith '<tipoDisco>' | extend tipo = tostring(sku.name), tamanoGB = toint(properties.diskSizeGB), estado = tostring(properties.diskState), vm = tostring(split(tostring(managedBy), '/')[8]) | project name, tipo, tamanoGB, estado, vm, resourceGroup, location, subscriptionId | order by tamanoGB desc\""
+parameters:
+  - name: tipoDisco
+    label: Tipo de disco
+    description: Prefijo del SKU; Standard_LRS es HDD, StandardSSD es SSD estándar, Premium incluye Premium_LRS, Premium_ZRS y PremiumV2_LRS.
+    type: enum
+    required: true
+    default: Standard_LRS
+    options: [Standard_LRS, StandardSSD, Premium, UltraSSD]
+  - name: first
+    label: Máximo de resultados
+    type: number
+    required: true
+    default: "1000"
+    placeholder: "1000"
+---
+
+El mismo inventario que [Listar todos los discos del tenant](/powershell?cat=Discos), pero quedándose solo con una familia de discos. El filtro compara por prefijo del SKU, de modo que cada opción agrupa sus variantes LRS y ZRS:
+
+| Opción            | Qué devuelve                                              |
+| ----------------- | --------------------------------------------------------- |
+| `Standard_LRS`    | HDD estándar                                              |
+| `StandardSSD`     | SSD estándar (`StandardSSD_LRS`, `StandardSSD_ZRS`)       |
+| `Premium`         | SSD premium (`Premium_LRS`, `Premium_ZRS`, `PremiumV2_LRS`) |
+| `UltraSSD`        | Ultra Disk (`UltraSSD_LRS`)                               |
+
+`Standard_LRS` va como valor por defecto porque es la búsqueda más habitual: localizar los discos que siguen en HDD para evaluar el paso a SSD. Ojo con el guion bajo, que es justo lo que evita que `Standard_LRS` arrastre también a los `StandardSSD_*`.
+
+Para apuntar a un SKU exacto en lugar de a la familia, cambia `startswith` por `=~`. Necesita el módulo `Az.ResourceGraph` (`Install-Module Az.ResourceGraph`).

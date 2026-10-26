@@ -1,0 +1,27 @@
+---
+title: Listar discos de un grupo de recursos
+description: Discos administrados de un grupo, filtrados por tipo de disco, sin necesidad de Resource Graph.
+shell: powershell
+category: Discos
+tags: [disco, disk, listar, filtrar, tipo, sku, hdd, ssd, premium, get, consulta]
+template: "Get-AzDisk -ResourceGroupName <resourceGroup> | Where-Object { $_.Sku.Name -like '<tipoDisco>*' } | Format-Table Name, @{n='Tipo';e={$_.Sku.Name}}, DiskSizeGB, DiskState, Location, ResourceGroupName"
+parameters:
+  - name: resourceGroup
+    label: Grupo de recursos
+    type: string
+    required: true
+    placeholder: mi-grupo-recursos
+  - name: tipoDisco
+    label: Tipo de disco
+    description: Prefijo del SKU; Standard_LRS es HDD, StandardSSD es SSD estándar, Premium incluye Premium_LRS, Premium_ZRS y PremiumV2_LRS.
+    type: enum
+    required: true
+    default: Standard_LRS
+    options: [Standard_LRS, StandardSSD, Premium, UltraSSD]
+---
+
+La alternativa cuando no tienes `Az.ResourceGraph` o solo te interesa un grupo. Trabaja sobre la suscripción del contexto actual: omite `-ResourceGroupName` para recorrer la suscripción completa.
+
+El comodín del `-like` hace que cada opción agrupe sus variantes: `Standard_LRS` son HDD, `StandardSSD` los SSD estándar, `Premium` cubre `Premium_LRS`, `Premium_ZRS` y `PremiumV2_LRS`, y `UltraSSD` los Ultra Disk. Para ver todos los discos sin filtrar, quita el `Where-Object`.
+
+`DiskState` vale `Unattached` en los discos que no están conectados a ninguna VM, que se siguen pagando igual: cambia el filtro por `Where-Object { $_.DiskState -eq 'Unattached' }` para sacar solo esos.
