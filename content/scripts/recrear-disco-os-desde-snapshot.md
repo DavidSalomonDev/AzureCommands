@@ -99,6 +99,10 @@ El snapshot y la VM original no se tocan: lo único que se crea es el disco nuev
 - **Los datos del snapshot se leen línea por línea, no con `cut`.** Una consulta JMESPath de
   lista evita que el TSV reordene las claves alfabéticamente, pero la CLI la imprime como una
   línea por elemento: leerla con `cut -f1` devuelve el bloque entero y revienta la aritmética.
+- **El SAS se pide como `accessSAS || accessSas`.** La propiedad de la API es `accessSAS`, y
+  desde que `grant-access` pasó al generador nuevo la CLI devuelve ese nombre tal cual; las
+  versiones viejas exponían `accessSas`. Pedir sólo una de las dos devuelve vacío y `azcopy`
+  falla con *"a valid source-destination combination could not automatically be found"*.
 - **Los SAS no se imprimen**: son credenciales. Si el script muere a medias, un `trap` revoca
   los accesos igual. Si falla `azcopy`, el disco queda a medias y hay que borrarlo antes de
   reintentar; el mensaje de error trae el comando.

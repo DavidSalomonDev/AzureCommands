@@ -87,11 +87,21 @@ recrear_disco_os() {
   # 5. SAS temporales --------------------------------------------------------
   # --access-level Read sobre el snapshot devuelve sólo el VHD; el VM guest state
   # viaja en otro SAS, y es justo lo que no se quiere copiar.
+  # La propiedad de la API es `accessSAS`; las versiones viejas de la CLI la
+  # exponían como `accessSas`. Se piden las dos, si no el SAS llega vacío.
   echo "Generando SAS (${SAS_DURATION}s)..."
   SNAP_SAS=$(az snapshot grant-access -g "$SNAPSHOT_RG" -n "$SNAPSHOT_NAME" \
-    --duration-in-seconds "$SAS_DURATION" --access-level Read --query accessSas -o tsv) || return 1
+    --duration-in-seconds "$SAS_DURATION" --access-level Read \
+    --query "accessSAS || accessSas" -o tsv) || return 1
   DISK_SAS=$(az disk grant-access -g "$TARGET_RG" -n "$NEW_DISK_NAME" \
-    --duration-in-seconds "$SAS_DURATION" --access-level Write --query accessSas -o tsv) || return 1
+    --duration-in-seconds "$SAS_DURATION" --access-level Write \
+    --query "accessSAS || accessSas" -o tsv) || return 1
+
+  if [ -z "$SNAP_SAS" ] || [ -z "$DISK_SAS" ]; then
+    echo "[ERROR] La CLI no devolvió el SAS. Mira cómo se llama la propiedad con:"
+    echo "        az disk grant-access -g ${TARGET_RG} -n ${NEW_DISK_NAME} --duration-in-seconds 60 --access-level Write"
+    return 1
+  fi
 
   # 6. Copia del VHD, servidor a servidor ------------------------------------
   azcopy copy "$SNAP_SAS" "$DISK_SAS" --blob-type PageBlob || {
