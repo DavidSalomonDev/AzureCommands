@@ -38,10 +38,10 @@ parameters:
     placeholder: ms-eastus-spoke-prod-vms-rg
   - name: newDiskName
     label: Disco nuevo
-    description: Nombre del disco a crear. Si ya existe uno con ese nombre, el script se detiene.
+    description: Nombre libre, distinto al del disco vivo de la VM. Si ya existe uno así, el script se detiene.
     type: string
     required: true
-    placeholder: hl7fhir-osdisk-std
+    placeholder: hl7fhir-osdisk-tl
   - name: sku
     label: Tipo de almacenamiento
     description: Usa el mismo SKU del disco original para no cambiar el rendimiento de la VM.
@@ -90,15 +90,22 @@ El snapshot y la VM original no se tocan: lo único que se crea es el disco nuev
 
 ## Detalles que importan
 
-- **Se detiene si el disco destino ya existe.** Nunca sobrescribe.
+- **El nombre del disco nuevo tiene que estar libre.** Los discos administrados no se pueden
+  renombrar, así que no puede llamarse igual que el disco que la VM está usando ahora; un
+  sufijo tipo `-tl` resuelve. El script se detiene si el nombre ya existe y nunca sobrescribe.
+- **Se puede pegar tal cual en Cloud Shell.** El cuerpo corre dentro de un subshell
+  (`( set -uo pipefail; recrear_disco_os )`), así que un error termina el script pero no cierra
+  la sesión, y ni `set -u` ni las variables internas quedan en tu shell.
+- **Los datos del snapshot se leen línea por línea, no con `cut`.** Una consulta JMESPath de
+  lista evita que el TSV reordene las claves alfabéticamente, pero la CLI la imprime como una
+  línea por elemento: leerla con `cut -f1` devuelve el bloque entero y revienta la aritmética.
 - **Los SAS no se imprimen**: son credenciales. Si el script muere a medias, un `trap` revoca
-  los accesos de todas formas.
-- Si `azcopy` falla, el disco queda a medias y hay que borrarlo antes de reintentar; el propio
-  mensaje de error trae el comando.
+  los accesos igual. Si falla `azcopy`, el disco queda a medias y hay que borrarlo antes de
+  reintentar; el mensaje de error trae el comando.
 - La zona y el SKU tienen que coincidir con lo que va a usar la VM nueva: un disco zonal no se
   adjunta a una VM en otra zona.
-- Al terminar, `securityProfile.securityType` debe salir vacío o `None`. Si sale
-  `TrustedLaunch`, el disco heredó el perfil y no sirve para este caso.
+- Al terminar, `securityProfile.securityType` debe salir `None`. Si sale `TrustedLaunch`, el
+  disco heredó el perfil y no sirve para este caso.
 
 ## Después de ejecutarlo
 
