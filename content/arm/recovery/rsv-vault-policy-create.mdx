@@ -1,0 +1,157 @@
+---
+title: Crear un Recovery Services Vault con política de backup (plantilla ARM)
+description: Plantilla ARM que crea el almacén de Recovery Services y una política de respaldo diario para VMs de Azure.
+shell: arm
+category: Recovery Services Vault
+tags: [backup, respaldo, vault, politica, arm, plantilla, crear]
+operation: create
+template: |
+  {
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vaultName": {
+        "type": "string",
+        "defaultValue": "<vaultName>"
+      },
+      "policyName": {
+        "type": "string",
+        "defaultValue": "<policyName>"
+      },
+      "backupTime": {
+        "type": "string",
+        "defaultValue": "<backupTime>",
+        "metadata": { "description": "Hora del respaldo en formato ISO 8601. Sólo se usa la hora; la fecha se ignora." }
+      },
+      "timeZone": {
+        "type": "string",
+        "defaultValue": "<timeZone>",
+        "metadata": { "description": "Zona horaria de Windows, p. ej. Central Standard Time (Mexico) o UTC." }
+      },
+      "instantRestoreDays": {
+        "type": "int",
+        "defaultValue": <instantRestoreDays>,
+        "minValue": 1,
+        "maxValue": 5
+      },
+      "dailyRetentionDays": {
+        "type": "int",
+        "defaultValue": <dailyRetentionDays>
+      },
+      "weeklyRetentionWeeks": {
+        "type": "int",
+        "defaultValue": <weeklyRetentionWeeks>
+      }
+    },
+    "resources": [
+      {
+        "type": "Microsoft.RecoveryServices/vaults",
+        "apiVersion": "2024-04-01",
+        "name": "[parameters('vaultName')]",
+        "location": "[resourceGroup().location]",
+        "sku": { "name": "RS0", "tier": "Standard" },
+        "identity": { "type": "SystemAssigned" },
+        "properties": {
+          "publicNetworkAccess": "Enabled"
+        }
+      },
+      {
+        "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+        "apiVersion": "2024-04-01",
+        "name": "[format('{0}/{1}', parameters('vaultName'), parameters('policyName'))]",
+        "dependsOn": [
+          "[resourceId('Microsoft.RecoveryServices/vaults', parameters('vaultName'))]"
+        ],
+        "properties": {
+          "backupManagementType": "AzureIaasVM",
+          "policyType": "V1",
+          "instantRpRetentionRangeInDays": "[parameters('instantRestoreDays')]",
+          "timeZone": "[parameters('timeZone')]",
+          "schedulePolicy": {
+            "schedulePolicyType": "SimpleSchedulePolicy",
+            "scheduleRunFrequency": "Daily",
+            "scheduleRunTimes": ["[parameters('backupTime')]"]
+          },
+          "retentionPolicy": {
+            "retentionPolicyType": "LongTermRetentionPolicy",
+            "dailySchedule": {
+              "retentionTimes": ["[parameters('backupTime')]"],
+              "retentionDuration": {
+                "count": "[parameters('dailyRetentionDays')]",
+                "durationType": "Days"
+              }
+            },
+            "weeklySchedule": {
+              "daysOfTheWeek": ["Sunday"],
+              "retentionTimes": ["[parameters('backupTime')]"],
+              "retentionDuration": {
+                "count": "[parameters('weeklyRetentionWeeks')]",
+                "durationType": "Weeks"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outputs": {
+      "policyId": {
+        "type": "string",
+        "value": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('vaultName'), parameters('policyName'))]"
+      }
+    }
+  }
+parameters:
+  - name: vaultName
+    label: Nombre del almacén
+    type: string
+    required: true
+    placeholder: rsv-prod-centralus
+  - name: policyName
+    label: Nombre de la política
+    type: string
+    required: true
+    default: PoliticaDiaria
+  - name: backupTime
+    label: Hora del respaldo (UTC o zona indicada)
+    type: string
+    required: true
+    default: "2026-01-01T06:00:00Z"
+  - name: timeZone
+    label: Zona horaria
+    type: enum
+    required: true
+    default: Central Standard Time (Mexico)
+    options: [Central Standard Time (Mexico), UTC, Central Standard Time, Pacific Standard Time, SA Pacific Standard Time]
+  - name: instantRestoreDays
+    label: Días de instantáneas (instant restore)
+    type: number
+    required: true
+    default: "2"
+  - name: dailyRetentionDays
+    label: Retención diaria (días)
+    type: number
+    required: true
+    default: "30"
+  - name: weeklyRetentionWeeks
+    label: Retención semanal (semanas)
+    type: number
+    required: true
+    default: "12"
+---
+
+```bash
+az deployment group create --resource-group rg-backup-prod --template-file rsv-vault-policy.json
+```
+
+El almacén y la política se crean juntos; después se protegen las VMs con la plantilla
+*Proteger una VM con Azure Backup*, que apunta a este `vaultName` y `policyName`.
+
+De `backupTime` sólo cuenta la hora (`06:00:00`): la fecha es relleno que exige el formato. La
+política guarda un respaldo diario y, además, el del domingo durante las semanas indicadas.
+
+Lo que esta plantilla deja fuera a propósito:
+
+- **La redundancia del almacenamiento** (LRS/GRS/ZRS) se define antes del primer respaldo, con
+  `az backup vault backup-properties set --backup-storage-redundancy GeoRedundant`. Por defecto queda en GRS.
+- **El almacén no se puede eliminar** mientras tenga elementos protegidos, y el borrado temporal
+  (soft delete) retiene los puntos 14 días.

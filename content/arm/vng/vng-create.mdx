@@ -1,0 +1,160 @@
+---
+title: Crear un Virtual Network Gateway VPN (plantilla ARM)
+description: Plantilla ARM que crea la GatewaySubnet, la IP pública y la puerta de enlace VPN de una VNet existente.
+shell: arm
+category: Virtual Network Gateway
+tags: [vng, vpn, gateway, red, arm, plantilla, crear]
+operation: create
+template: |
+  {
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "gatewayName": {
+        "type": "string",
+        "defaultValue": "<gatewayName>"
+      },
+      "vnetName": {
+        "type": "string",
+        "defaultValue": "<vnetName>",
+        "metadata": { "description": "VNet existente, en el mismo grupo de recursos del despliegue." }
+      },
+      "gatewaySubnetPrefix": {
+        "type": "string",
+        "defaultValue": "<gatewaySubnetPrefix>",
+        "metadata": { "description": "Rango libre dentro de la VNet para la GatewaySubnet, /27 o mayor." }
+      },
+      "gatewaySku": {
+        "type": "string",
+        "defaultValue": "<gatewaySku>",
+        "allowedValues": ["Basic", "VpnGw1", "VpnGw2", "VpnGw3", "VpnGw1AZ", "VpnGw2AZ", "VpnGw3AZ"]
+      },
+      "enableBgp": {
+        "type": "bool",
+        "defaultValue": <enableBgp>
+      },
+      "asn": {
+        "type": "int",
+        "defaultValue": <asn>,
+        "metadata": { "description": "ASN de Azure para BGP. Se ignora si enableBgp es false." }
+      }
+    },
+    "variables": {
+      "publicIpName": "[format('{0}-pip', parameters('gatewayName'))]",
+      "gatewaySubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'GatewaySubnet')]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Network/virtualNetworks/subnets",
+        "apiVersion": "2024-05-01",
+        "name": "[format('{0}/GatewaySubnet', parameters('vnetName'))]",
+        "properties": {
+          "addressPrefix": "[parameters('gatewaySubnetPrefix')]"
+        }
+      },
+      {
+        "type": "Microsoft.Network/publicIPAddresses",
+        "apiVersion": "2024-05-01",
+        "name": "[variables('publicIpName')]",
+        "location": "[resourceGroup().location]",
+        "sku": { "name": "Standard", "tier": "Regional" },
+        "properties": {
+          "publicIPAllocationMethod": "Static",
+          "publicIPAddressVersion": "IPv4"
+        }
+      },
+      {
+        "type": "Microsoft.Network/virtualNetworkGateways",
+        "apiVersion": "2024-05-01",
+        "name": "[parameters('gatewayName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'GatewaySubnet')]",
+          "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
+        ],
+        "properties": {
+          "gatewayType": "Vpn",
+          "vpnType": "RouteBased",
+          "vpnGatewayGeneration": "Generation2",
+          "sku": {
+            "name": "[parameters('gatewaySku')]",
+            "tier": "[parameters('gatewaySku')]"
+          },
+          "activeActive": false,
+          "enableBgp": "[parameters('enableBgp')]",
+          "bgpSettings": {
+            "asn": "[parameters('asn')]"
+          },
+          "ipConfigurations": [
+            {
+              "name": "default",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "subnet": { "id": "[variables('gatewaySubnetId')]" },
+                "publicIPAddress": {
+                  "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "outputs": {
+      "gatewayPublicIp": {
+        "type": "string",
+        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))).ipAddress]"
+      }
+    }
+  }
+parameters:
+  - name: gatewayName
+    label: Nombre de la puerta de enlace
+    type: string
+    required: true
+    placeholder: vng-prod
+  - name: vnetName
+    label: Red virtual
+    type: string
+    required: true
+    placeholder: vnet-prod
+  - name: gatewaySubnetPrefix
+    label: Rango de la GatewaySubnet
+    type: string
+    required: true
+    placeholder: 10.10.255.0/27
+  - name: gatewaySku
+    label: SKU
+    type: enum
+    required: true
+    default: VpnGw1AZ
+    options: [VpnGw1AZ, VpnGw2AZ, VpnGw3AZ, VpnGw1, VpnGw2, VpnGw3, Basic]
+  - name: enableBgp
+    label: BGP
+    type: boolean
+    required: true
+    default: "false"
+  - name: asn
+    label: ASN de Azure (BGP)
+    type: number
+    required: true
+    default: "65515"
+---
+
+```bash
+az deployment group create --resource-group rg-red-prod --template-file vng.json
+```
+
+El aprovisionamiento tarda **20-45 minutos**. La subred tiene que llamarse exactamente
+`GatewaySubnet`; la plantilla la crea dentro de la VNet existente sin tocar las demás subredes, y
+si ya existe sólo comprueba su rango. Reserva al menos un `/27` para poder añadir después
+coexistencia ExpressRoute o active-active.
+
+Las SKU `…AZ` reparten la puerta de enlace entre zonas de disponibilidad y son las recomendadas
+donde la región las ofrece; `Basic` no admite BGP, IKEv2 ni coexistencia, no se puede cambiar a
+otra SKU sin recrear la puerta de enlace y exige quitar `vpnGatewayGeneration` de la plantilla,
+porque sólo existe en Generation1.
+
+`asn` sólo se usa cuando `enableBgp` está en `true`; 65515 es el valor que Azure asigna por
+defecto. Con la puerta de enlace lista, crea el extremo local y el túnel con la plantilla
+*Crear un Local Network Gateway y la conexión site-to-site*.

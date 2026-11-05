@@ -1,0 +1,88 @@
+---
+title: Proteger una VM con Azure Backup (plantilla ARM)
+description: Plantilla ARM que habilita el respaldo de una máquina virtual existente en un almacén y una política ya creados.
+shell: arm
+category: Recovery Services Vault
+tags: [backup, respaldo, vm, proteger, arm, plantilla]
+operation: create
+template: |
+  {
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vaultName": {
+        "type": "string",
+        "defaultValue": "<vaultName>",
+        "metadata": { "description": "Almacén existente, en el mismo grupo de recursos del despliegue." }
+      },
+      "policyName": {
+        "type": "string",
+        "defaultValue": "<policyName>"
+      },
+      "vmName": {
+        "type": "string",
+        "defaultValue": "<vmName>"
+      },
+      "vmResourceGroup": {
+        "type": "string",
+        "defaultValue": "<vmResourceGroup>",
+        "metadata": { "description": "Grupo de recursos de la VM, que puede ser distinto al del almacén." }
+      }
+    },
+    "variables": {
+      "containerName": "[format('iaasvmcontainer;iaasvmcontainerv2;{0};{1}', parameters('vmResourceGroup'), parameters('vmName'))]",
+      "protectedItemName": "[format('vm;iaasvmcontainerv2;{0};{1}', parameters('vmResourceGroup'), parameters('vmName'))]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
+        "apiVersion": "2024-04-01",
+        "name": "[format('{0}/Azure/{1}/{2}', parameters('vaultName'), variables('containerName'), variables('protectedItemName'))]",
+        "properties": {
+          "protectedItemType": "Microsoft.Compute/virtualMachines",
+          "policyId": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('vaultName'), parameters('policyName'))]",
+          "sourceResourceId": "[resourceId(parameters('vmResourceGroup'), 'Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+        }
+      }
+    ]
+  }
+parameters:
+  - name: vaultName
+    label: Almacén (Recovery Services Vault)
+    type: string
+    required: true
+    placeholder: rsv-prod-centralus
+  - name: policyName
+    label: Política de respaldo
+    type: string
+    required: true
+    default: PoliticaDiaria
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: vm-app-prod-01
+  - name: vmResourceGroup
+    label: Grupo de recursos de la VM
+    type: string
+    required: true
+    placeholder: rg-app-prod
+---
+
+```bash
+az deployment group create --resource-group rg-backup-prod --template-file rsv-protect-vm.json
+```
+
+El despliegue va sobre el grupo de recursos **del almacén**, no el de la VM: el elemento protegido
+es un recurso hijo del almacén. La VM sí puede estar en otro grupo —se indica en
+`vmResourceGroup`—, pero tiene que estar en la misma región que el almacén.
+
+El nombre largo del recurso es el identificador que Azure Backup espera y se arma solo a partir de
+los parámetros: `iaasvmcontainer;iaasvmcontainerv2;<grupo>;<vm>`. No hace falta tocarlo.
+
+Volver a desplegar la plantilla sobre una VM ya protegida sólo cambia su política, así que sirve
+también para moverla de política. Para respaldar varias VMs, repite el recurso con `copy`:
+
+```json
+"copy": { "name": "vms", "count": "[length(parameters('vmNames'))]" }
+```

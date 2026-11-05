@@ -23,7 +23,7 @@ export interface NavItem {
 /**
  * Order matters: it drives the sidebar, the home grid and the docs. Azure CLI
  * goes first — it is the shell we recommend by default (multiplataforma, misma
- * sintaxis en Cloud Shell, Bash y Windows). The three Azure sections come first,
+ * sintaxis en Cloud Shell, Bash y Windows). The Azure-side sections come first,
  * then the two that run inside the VM itself, then the personal ones.
  */
 export const NAV_ITEMS: NavItem[] = [
@@ -49,6 +49,14 @@ export const NAV_ITEMS: NavItem[] = [
     status: "available",
     icon: "powershell",
     shell: "powershell",
+  },
+  {
+    href: "/arm",
+    label: "ARM",
+    description: "Plantillas ARM (JSON)",
+    status: "available",
+    icon: "template",
+    shell: "arm",
   },
   {
     href: "/linux",
@@ -79,13 +87,6 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Tu biblioteca personal",
     status: "available",
     icon: "bookmark",
-  },
-  {
-    href: "/arm",
-    label: "ARM",
-    description: "Plantillas ARM (JSON)",
-    status: "soon",
-    icon: "template",
   },
   {
     href: "/bicep",

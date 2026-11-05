@@ -55,11 +55,11 @@ dentro de la propia VM (Linux, Windows).
 | Azure CLI        | Disponible    | Comandos `az` (opción recomendada)                    |
 | Scripts          | Disponible    | Scripts completos en Azure CLI (Bash)                 |
 | PowerShell       | Disponible    | Comandos del módulo `Az`                              |
+| ARM              | Disponible    | Plantillas ARM (JSON) de VM, backup y VPN             |
 | Linux en la VM   | Disponible    | Diagnóstico dentro de una VM Linux (Bash)             |
 | Windows en la VM | Disponible    | Diagnóstico dentro de una VM Windows (PowerShell/cmd) |
 | Favoritos        | Disponible    | Lo que marcaste con la estrella (localStorage)        |
 | Mis comandos     | Disponible    | Comandos propios del usuario (localStorage)           |
-| ARM              | Próximamente  | Plantillas ARM                                        |
 | Bicep            | Próximamente  | Plantillas Bicep                                      |
 | Terraform        | Próximamente  | Configuraciones Terraform                             |
 
@@ -93,12 +93,13 @@ Abre [http://localhost:3000](http://localhost:3000).
 ## Cómo añadir un comando a la biblioteca
 
 Los comandos de la biblioteca son archivos **MDX** dentro de `content/`, organizados por
-shell y producto: `content/<cli|powershell|linux|windows>/<servicio>/<nombre>.mdx`. No
+shell y producto: `content/<cli|powershell|arm|linux|windows>/<servicio>/<nombre>.mdx`. No
 hace falta tocar código: crea un `.mdx` con frontmatter y el catálogo lo recoge en el
 siguiente build.
 
 El campo `shell` es lo que decide en qué sección aparece el comando: `azurecli` → Azure
-CLI, `powershell` → PowerShell, `bash` → Linux en la VM, `cmd` → Windows en la VM. La
+CLI, `powershell` → PowerShell, `arm` → ARM, `bash` → Linux en la VM, `cmd` → Windows en
+la VM. La
 carpeta solo sirve para tenerlo ordenado en el repo; la agrupación del menú sale de
 `category`.
 
@@ -140,7 +141,7 @@ Reglas (todas se comprueban al cargar el catálogo, así que un error hace falla
   uno o fija un `slug` distinto en su frontmatter.
 - `operation` tiene que poder resolverse. Sólo se deduce de comandos `az …` y de
   cmdlets `Verbo-Az…`, así que:
-  - En **Linux en la VM** y **Windows en la VM** hay que declararla **siempre**: ahí la
+  - En **ARM**, **Linux en la VM** y **Windows en la VM** hay que declararla **siempre**: ahí la
     deducción nunca acierta y, sin declararla, el comando caería en silencio en "Otras
     acciones".
   - En Azure CLI y PowerShell puedes omitirla y dejar que se deduzca. Declárala cuando
@@ -229,12 +230,13 @@ que lo contiene como categoría (`content/scripts/<categoría>/<script>.ps1`).
 ```
 content/
   cli/  powershell/          # Catálogo MDX por servicio de Azure
+  arm/                       # Plantillas ARM (JSON) como MDX: vm/, recovery/, vng/
   linux/  windows/           # Catálogo MDX de diagnóstico dentro de la VM
   scripts/                   # Scripts .sh + sidecar .md con sus metadatos
   _powershell-originales/    # Versiones PowerShell previas, fuera del catálogo
 src/
-  app/                       # Rutas: /, /cli, /scripts, /powershell, /linux, /windows,
-                             #         /favoritos, /mis-comandos, (arm|bicep|terraform)
+  app/                       # Rutas: /, /cli, /scripts, /powershell, /arm, /linux,
+                             #         /windows, /favoritos, /mis-comandos, (bicep|terraform)
     catalog/[section]/       # JSON estático del catálogo, para la página de favoritos
   components/
     app-shell.tsx            # Cabecera + menú lateral colapsable (estado del sidebar)

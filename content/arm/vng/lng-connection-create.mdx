@@ -1,0 +1,156 @@
+---
+title: Crear un Local Network Gateway y la conexión site-to-site (plantilla ARM)
+description: Plantilla ARM que define el extremo local (LNG) con sus rangos on-premises y el túnel IPsec contra una puerta de enlace VPN existente.
+shell: arm
+category: Virtual Network Gateway
+tags: [lng, vpn, site-to-site, conexion, ipsec, arm, plantilla, crear]
+operation: create
+template: |
+  {
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "localGatewayName": {
+        "type": "string",
+        "defaultValue": "<localGatewayName>"
+      },
+      "localGatewayIp": {
+        "type": "string",
+        "defaultValue": "<localGatewayIp>",
+        "metadata": { "description": "IP pública del dispositivo VPN en el sitio local." }
+      },
+      "localAddressPrefixes": {
+        "type": "array",
+        "defaultValue": ["<localAddressPrefix>"],
+        "metadata": { "description": "Rangos de la red local. Añade más entradas al arreglo si hay varios." }
+      },
+      "gatewayName": {
+        "type": "string",
+        "defaultValue": "<gatewayName>",
+        "metadata": { "description": "Virtual Network Gateway existente, en el mismo grupo de recursos del despliegue." }
+      },
+      "connectionName": {
+        "type": "string",
+        "defaultValue": "<connectionName>"
+      },
+      "sharedKey": {
+        "type": "securestring",
+        "metadata": { "description": "Clave compartida (PSK), la misma que el dispositivo local. Se pide al desplegar." }
+      },
+      "connectionProtocol": {
+        "type": "string",
+        "defaultValue": "<connectionProtocol>",
+        "allowedValues": ["IKEv2", "IKEv1"]
+      },
+      "enableBgp": {
+        "type": "bool",
+        "defaultValue": <enableBgp>
+      }
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Network/localNetworkGateways",
+        "apiVersion": "2024-05-01",
+        "name": "[parameters('localGatewayName')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "gatewayIpAddress": "[parameters('localGatewayIp')]",
+          "localNetworkAddressSpace": {
+            "addressPrefixes": "[parameters('localAddressPrefixes')]"
+          }
+        }
+      },
+      {
+        "type": "Microsoft.Network/connections",
+        "apiVersion": "2024-05-01",
+        "name": "[parameters('connectionName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localGatewayName'))]"
+        ],
+        "properties": {
+          "connectionType": "IPsec",
+          "connectionProtocol": "[parameters('connectionProtocol')]",
+          "virtualNetworkGateway1": {
+            "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('gatewayName'))]",
+            "properties": {}
+          },
+          "localNetworkGateway2": {
+            "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localGatewayName'))]",
+            "properties": {}
+          },
+          "sharedKey": "[parameters('sharedKey')]",
+          "enableBgp": "[parameters('enableBgp')]",
+          "usePolicyBasedTrafficSelectors": false,
+          "routingWeight": 0,
+          "dpdTimeoutSeconds": 45
+        }
+      }
+    ],
+    "outputs": {
+      "connectionId": {
+        "type": "string",
+        "value": "[resourceId('Microsoft.Network/connections', parameters('connectionName'))]"
+      }
+    }
+  }
+parameters:
+  - name: localGatewayName
+    label: Nombre del Local Network Gateway
+    type: string
+    required: true
+    placeholder: lng-sitio-monterrey
+  - name: localGatewayIp
+    label: IP pública del dispositivo local
+    type: string
+    required: true
+    placeholder: 201.134.10.25
+  - name: localAddressPrefix
+    label: Rango de la red local
+    type: string
+    required: true
+    placeholder: 192.168.0.0/16
+  - name: gatewayName
+    label: Puerta de enlace VPN de Azure
+    type: string
+    required: true
+    placeholder: vng-prod
+  - name: connectionName
+    label: Nombre de la conexión
+    type: string
+    required: true
+    placeholder: cnx-monterrey
+  - name: connectionProtocol
+    label: Protocolo IKE
+    type: enum
+    required: true
+    default: IKEv2
+    options: [IKEv2, IKEv1]
+  - name: enableBgp
+    label: BGP
+    type: boolean
+    required: true
+    default: "false"
+---
+
+```bash
+az deployment group create --resource-group rg-red-prod --template-file lng-connection.json
+```
+
+`sharedKey` no tiene valor por defecto: se pide al desplegar y no queda escrita en el archivo.
+Tiene que ser idéntica a la configurada en el dispositivo local, que ahí suele llamarse
+*pre-shared key*.
+
+Los rangos de `localAddressPrefixes` no pueden solaparse con el espacio de direcciones de la VNet.
+Para varios rangos, escribe el arreglo completo en un archivo de parámetros:
+
+```json
+"localAddressPrefixes": { "value": ["192.168.0.0/16", "172.16.0.0/12"] }
+```
+
+Con BGP activado hay que añadir `bgpSettings` al Local Network Gateway (ASN y dirección del peer) y
+la puerta de enlace de Azure también debe tenerlo habilitado; sin BGP, el enrutamiento sale de los
+rangos declarados aquí y actualizarlos es la vía normal para publicar una red nueva al sitio local.
+
+El túnel sólo se levanta cuando el dispositivo local tiene la configuración espejo. Revisa el
+estado con `az network vpn-connection show --name cnx-monterrey --resource-group rg-red-prod --query connectionStatus`.

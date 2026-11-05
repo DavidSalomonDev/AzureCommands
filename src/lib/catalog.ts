@@ -12,6 +12,7 @@ export const CATALOG_SECTIONS = [
   "scripts",
   "linux",
   "windows",
+  "arm",
 ] as const;
 
 export type CatalogSection = (typeof CATALOG_SECTIONS)[number];
@@ -22,6 +23,7 @@ export const SHELL_BY_SECTION = {
   powershell: "powershell",
   linux: "bash",
   windows: "cmd",
+  arm: "arm",
 } as const satisfies Partial<Record<CatalogSection, Shell>>;
 
 export type CommandSection = keyof typeof SHELL_BY_SECTION;

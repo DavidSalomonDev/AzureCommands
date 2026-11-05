@@ -1,0 +1,196 @@
+---
+title: Crear una VM Windows (plantilla ARM)
+description: Plantilla ARM que crea una máquina virtual Windows con Trusted Launch, disco administrado y una NIC en una subred existente.
+shell: arm
+category: Máquinas virtuales
+tags: [vm, windows, arm, plantilla, crear]
+operation: create
+template: |
+  {
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vmName": {
+        "type": "string",
+        "defaultValue": "<vmName>",
+        "maxLength": 15,
+        "metadata": { "description": "Nombre de la VM y de su computerName (Windows: 15 caracteres como máximo)." }
+      },
+      "vmSize": {
+        "type": "string",
+        "defaultValue": "<vmSize>"
+      },
+      "imageSku": {
+        "type": "string",
+        "defaultValue": "<imageSku>",
+        "metadata": { "description": "SKU de la imagen de Windows Server. Debe ser Gen2 para Trusted Launch." }
+      },
+      "adminUsername": {
+        "type": "string",
+        "defaultValue": "<adminUsername>"
+      },
+      "adminPassword": {
+        "type": "securestring",
+        "minLength": 12,
+        "metadata": { "description": "No se guarda en la plantilla: se pide al desplegar." }
+      },
+      "osDiskType": {
+        "type": "string",
+        "defaultValue": "<osDiskType>",
+        "allowedValues": ["Premium_LRS", "PremiumV2_LRS", "StandardSSD_LRS", "Standard_LRS"]
+      },
+      "vnetResourceGroup": {
+        "type": "string",
+        "defaultValue": "<vnetResourceGroup>",
+        "metadata": { "description": "Grupo de recursos de la VNet, que puede ser distinto al de la VM." }
+      },
+      "vnetName": {
+        "type": "string",
+        "defaultValue": "<vnetName>"
+      },
+      "subnetName": {
+        "type": "string",
+        "defaultValue": "<subnetName>"
+      }
+    },
+    "variables": {
+      "nicName": "[format('{0}-nic', parameters('vmName'))]",
+      "subnetId": "[resourceId(parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Network/networkInterfaces",
+        "apiVersion": "2024-05-01",
+        "name": "[variables('nicName')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "subnet": { "id": "[variables('subnetId')]" }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "Microsoft.Compute/virtualMachines",
+        "apiVersion": "2024-07-01",
+        "name": "[parameters('vmName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+        ],
+        "properties": {
+          "hardwareProfile": { "vmSize": "[parameters('vmSize')]" },
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "MicrosoftWindowsServer",
+              "offer": "WindowsServer",
+              "sku": "[parameters('imageSku')]",
+              "version": "latest"
+            },
+            "osDisk": {
+              "name": "[format('{0}-osdisk', parameters('vmName'))]",
+              "createOption": "FromImage",
+              "caching": "ReadWrite",
+              "deleteOption": "Delete",
+              "managedDisk": { "storageAccountType": "[parameters('osDiskType')]" }
+            }
+          },
+          "osProfile": {
+            "computerName": "[parameters('vmName')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]",
+            "windowsConfiguration": {
+              "provisionVMAgent": true,
+              "enableAutomaticUpdates": true,
+              "patchSettings": { "patchMode": "AutomaticByOS" }
+            }
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+                "properties": { "deleteOption": "Delete" }
+              }
+            ]
+          },
+          "securityProfile": {
+            "securityType": "TrustedLaunch",
+            "uefiSettings": { "secureBootEnabled": true, "vTpmEnabled": true }
+          },
+          "diagnosticsProfile": { "bootDiagnostics": { "enabled": true } }
+        }
+      }
+    ],
+    "outputs": {
+      "privateIp": {
+        "type": "string",
+        "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
+      }
+    }
+  }
+parameters:
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: vm-app-prod-01
+  - name: vmSize
+    label: Tamaño
+    type: enum
+    required: true
+    default: Standard_D2s_v5
+    options: [Standard_B2ms, Standard_D2s_v5, Standard_D4s_v5, Standard_E2s_v5, Standard_E4s_v5]
+  - name: imageSku
+    label: Imagen (SKU de Windows Server)
+    type: enum
+    required: true
+    default: 2022-datacenter-azure-edition
+    options: [2022-datacenter-azure-edition, 2022-datacenter-g2, 2019-datacenter-gensecond, 2025-datacenter-azure-edition]
+  - name: adminUsername
+    label: Usuario administrador
+    type: string
+    required: true
+    placeholder: azureadmin
+  - name: osDiskType
+    label: Tipo de disco del SO
+    type: enum
+    required: true
+    default: Premium_LRS
+    options: [Premium_LRS, StandardSSD_LRS, Standard_LRS]
+  - name: vnetResourceGroup
+    label: Grupo de recursos de la VNet
+    type: string
+    required: true
+    placeholder: rg-red-prod
+  - name: vnetName
+    label: Red virtual
+    type: string
+    required: true
+    placeholder: vnet-prod
+  - name: subnetName
+    label: Subred
+    type: string
+    required: true
+    placeholder: snet-app
+---
+
+Guarda el JSON como `vm-windows.json` y despliégalo sobre un grupo de recursos ya creado:
+
+```bash
+az deployment group create --resource-group rg-app-prod --template-file vm-windows.json
+```
+
+`adminPassword` es el único parámetro sin valor por defecto: la CLI lo pide al desplegar, así
+la contraseña no queda escrita en el archivo. Para automatizarlo, pásala como
+`--parameters adminPassword=...` o, mejor, con `@Microsoft.KeyVault(...)` en un archivo de parámetros.
+
+La VM se conecta a una subred que ya existe y **no lleva IP pública**: entra por Bastion, VPN o
+ExpressRoute. Trusted Launch exige una imagen de generación 2 (las SKU `-azure-edition`, `-g2` y
+`-gensecond` lo son) y un tamaño compatible; si usas una imagen Gen1, quita el bloque
+`securityProfile`. Añade `"zones": ["1"]` al recurso de la VM para fijarla en una zona de
+disponibilidad.

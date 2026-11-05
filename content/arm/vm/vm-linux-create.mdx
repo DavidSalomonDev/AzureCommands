@@ -1,0 +1,224 @@
+---
+title: Crear una VM Linux (plantilla ARM)
+description: Plantilla ARM que crea una máquina virtual Linux con autenticación por clave SSH, Trusted Launch y una NIC en una subred existente.
+shell: arm
+category: Máquinas virtuales
+tags: [vm, linux, ubuntu, arm, plantilla, crear]
+operation: create
+template: |
+  {
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vmName": {
+        "type": "string",
+        "defaultValue": "<vmName>"
+      },
+      "vmSize": {
+        "type": "string",
+        "defaultValue": "<vmSize>"
+      },
+      "adminUsername": {
+        "type": "string",
+        "defaultValue": "<adminUsername>"
+      },
+      "sshPublicKey": {
+        "type": "string",
+        "defaultValue": "<sshPublicKey>",
+        "metadata": { "description": "Contenido de la clave pública, por ejemplo el de ~/.ssh/id_rsa.pub." }
+      },
+      "imagePublisher": {
+        "type": "string",
+        "defaultValue": "<imagePublisher>"
+      },
+      "imageOffer": {
+        "type": "string",
+        "defaultValue": "<imageOffer>"
+      },
+      "imageSku": {
+        "type": "string",
+        "defaultValue": "<imageSku>"
+      },
+      "osDiskType": {
+        "type": "string",
+        "defaultValue": "<osDiskType>",
+        "allowedValues": ["Premium_LRS", "PremiumV2_LRS", "StandardSSD_LRS", "Standard_LRS"]
+      },
+      "vnetResourceGroup": {
+        "type": "string",
+        "defaultValue": "<vnetResourceGroup>"
+      },
+      "vnetName": {
+        "type": "string",
+        "defaultValue": "<vnetName>"
+      },
+      "subnetName": {
+        "type": "string",
+        "defaultValue": "<subnetName>"
+      }
+    },
+    "variables": {
+      "nicName": "[format('{0}-nic', parameters('vmName'))]",
+      "subnetId": "[resourceId(parameters('vnetResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Network/networkInterfaces",
+        "apiVersion": "2024-05-01",
+        "name": "[variables('nicName')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "subnet": { "id": "[variables('subnetId')]" }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "Microsoft.Compute/virtualMachines",
+        "apiVersion": "2024-07-01",
+        "name": "[parameters('vmName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+        ],
+        "properties": {
+          "hardwareProfile": { "vmSize": "[parameters('vmSize')]" },
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "[parameters('imagePublisher')]",
+              "offer": "[parameters('imageOffer')]",
+              "sku": "[parameters('imageSku')]",
+              "version": "latest"
+            },
+            "osDisk": {
+              "name": "[format('{0}-osdisk', parameters('vmName'))]",
+              "createOption": "FromImage",
+              "caching": "ReadWrite",
+              "deleteOption": "Delete",
+              "managedDisk": { "storageAccountType": "[parameters('osDiskType')]" }
+            }
+          },
+          "osProfile": {
+            "computerName": "[parameters('vmName')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "linuxConfiguration": {
+              "disablePasswordAuthentication": true,
+              "provisionVMAgent": true,
+              "ssh": {
+                "publicKeys": [
+                  {
+                    "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
+                    "keyData": "[parameters('sshPublicKey')]"
+                  }
+                ]
+              },
+              "patchSettings": { "patchMode": "ImageDefault" }
+            }
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+                "properties": { "deleteOption": "Delete" }
+              }
+            ]
+          },
+          "securityProfile": {
+            "securityType": "TrustedLaunch",
+            "uefiSettings": { "secureBootEnabled": true, "vTpmEnabled": true }
+          },
+          "diagnosticsProfile": { "bootDiagnostics": { "enabled": true } }
+        }
+      }
+    ],
+    "outputs": {
+      "privateIp": {
+        "type": "string",
+        "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
+      }
+    }
+  }
+parameters:
+  - name: vmName
+    label: Nombre de la VM
+    type: string
+    required: true
+    placeholder: vm-web-prod-01
+  - name: vmSize
+    label: Tamaño
+    type: enum
+    required: true
+    default: Standard_D2s_v5
+    options: [Standard_B2ms, Standard_D2s_v5, Standard_D4s_v5, Standard_E2s_v5, Standard_E4s_v5]
+  - name: adminUsername
+    label: Usuario administrador
+    type: string
+    required: true
+    placeholder: azureuser
+  - name: sshPublicKey
+    label: Clave pública SSH
+    type: string
+    required: true
+    placeholder: ssh-rsa AAAAB3Nza... usuario@equipo
+  - name: imagePublisher
+    label: Publisher de la imagen
+    type: string
+    required: true
+    default: Canonical
+  - name: imageOffer
+    label: Offer de la imagen
+    type: string
+    required: true
+    default: ubuntu-24_04-lts
+  - name: imageSku
+    label: SKU de la imagen
+    type: string
+    required: true
+    default: server
+  - name: osDiskType
+    label: Tipo de disco del SO
+    type: enum
+    required: true
+    default: Premium_LRS
+    options: [Premium_LRS, StandardSSD_LRS, Standard_LRS]
+  - name: vnetResourceGroup
+    label: Grupo de recursos de la VNet
+    type: string
+    required: true
+    placeholder: rg-red-prod
+  - name: vnetName
+    label: Red virtual
+    type: string
+    required: true
+    placeholder: vnet-prod
+  - name: subnetName
+    label: Subred
+    type: string
+    required: true
+    placeholder: snet-app
+---
+
+```bash
+az deployment group create --resource-group rg-app-prod --template-file vm-linux.json
+```
+
+Sólo entra por clave SSH: `disablePasswordAuthentication` está en `true` y no hay parámetro de
+contraseña. Si no tienes clave, créala con `ssh-keygen -t ed25519` y pega el contenido de
+`~/.ssh/id_ed25519.pub`.
+
+Combinaciones de imagen más usadas (`publisher` / `offer` / `sku`), todas generación 2 y por tanto
+compatibles con Trusted Launch:
+
+- `Canonical` / `ubuntu-24_04-lts` / `server`
+- `Canonical` / `0001-com-ubuntu-server-jammy` / `22_04-lts-gen2`
+- `RedHat` / `RHEL` / `9-lvm-gen2`
+- `SUSE` / `sles-15-sp6` / `gen2`
+
+Consulta las vigentes con `az vm image list --publisher Canonical --all --output table`. La VM no
+lleva IP pública: se entra por Bastion, VPN o ExpressRoute.
